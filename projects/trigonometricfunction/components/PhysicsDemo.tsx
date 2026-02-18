@@ -95,6 +95,21 @@ const PhysicsDemo: React.FC<PhysicsDemoProps> = ({
     }
   };
 
+  const handleGraphTouchStart = (e: React.TouchEvent) => {
+    if (isPlaying) onTogglePlay();
+    isDraggingRef.current = true;
+    dragStartXRef.current = e.touches[0].clientX;
+    dragStartAngleRef.current = angle;
+  };
+  const handleGraphTouchMove = (e: React.TouchEvent) => {
+    if (!isDraggingRef.current || !e.touches.length) return;
+    const deltaX = e.touches[0].clientX - dragStartXRef.current;
+    onAngleChange(dragStartAngleRef.current + deltaX / pixelsPerRad);
+  };
+  const handleGraphTouchEnd = () => {
+    isDraggingRef.current = false;
+  };
+
   // ==========================================
   // 1. Spring Mass System (SHM)
   // ==========================================
@@ -169,36 +184,36 @@ const PhysicsDemo: React.FC<PhysicsDemoProps> = ({
 
 
   return (
-    <div className="w-full max-w-5xl mx-auto space-y-8 pb-12">
+    <div className="w-full max-w-5xl mx-auto space-y-4 sm:space-y-8 pb-8 sm:pb-12 px-0">
       
       {/* --- Main Controls Header --- */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm sticky top-20 z-20">
-         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div>
-              <h2 className="text-2xl font-bold text-slate-800">物理实验室</h2>
-              <p className="text-slate-500 text-sm mt-1">
+      <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 p-4 sm:p-6 shadow-sm sticky top-14 sm:top-20 z-20">
+         <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4">
+            <div className="min-w-0">
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-800">物理实验室</h2>
+              <p className="text-slate-500 text-xs sm:text-sm mt-1">
                 所有系统共享同一时间变量 <span className="font-mono bg-slate-100 px-1 rounded text-indigo-600">t (θ)</span>，拖拽任意图表即可调整时间。
               </p>
             </div>
             
-            <div className="flex items-center gap-3">
-               {/* Toggles */}
-               <div className="flex gap-2 mr-4 border-r border-slate-200 pr-4">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+               {/* Toggles - 移动端可换行 */}
+               <div className="flex flex-wrap gap-2 sm:mr-4 sm:border-r sm:border-slate-200 sm:pr-4">
                   <button 
                     onClick={() => setShowDisplacement(!showDisplacement)}
-                    className={`text-xs px-2 py-1 rounded border ${showDisplacement ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'border-transparent text-slate-400'}`}
+                    className={`text-xs px-3 py-2 sm:py-1 rounded border min-h-[40px] sm:min-h-0 ${showDisplacement ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'border-transparent text-slate-400'}`}
                   >
                     位移 x
                   </button>
                   <button 
                     onClick={() => setShowVelocity(!showVelocity)}
-                    className={`text-xs px-2 py-1 rounded border ${showVelocity ? 'bg-sky-50 border-sky-200 text-sky-700' : 'border-transparent text-slate-400'}`}
+                    className={`text-xs px-3 py-2 sm:py-1 rounded border min-h-[40px] sm:min-h-0 ${showVelocity ? 'bg-sky-50 border-sky-200 text-sky-700' : 'border-transparent text-slate-400'}`}
                   >
                     速度 v
                   </button>
                   <button 
                     onClick={() => setShowForce(!showForce)}
-                    className={`text-xs px-2 py-1 rounded border ${showForce ? 'bg-rose-50 border-rose-200 text-rose-700' : 'border-transparent text-slate-400'}`}
+                    className={`text-xs px-3 py-2 sm:py-1 rounded border min-h-[40px] sm:min-h-0 ${showForce ? 'bg-rose-50 border-rose-200 text-rose-700' : 'border-transparent text-slate-400'}`}
                   >
                     加速度 a
                   </button>
@@ -206,11 +221,11 @@ const PhysicsDemo: React.FC<PhysicsDemoProps> = ({
 
                 <button
                   onClick={onTogglePlay}
-                  className={`flex items-center gap-2 px-5 py-2 rounded-full text-sm font-bold transition-colors ${isPlaying ? 'bg-amber-100 text-amber-700' : 'bg-indigo-600 text-white shadow-md hover:bg-indigo-700'}`}
+                  className={`flex items-center justify-center gap-2 px-5 py-3 sm:py-2 rounded-full text-sm font-bold transition-colors min-h-[48px] sm:min-h-0 ${isPlaying ? 'bg-amber-100 text-amber-700' : 'bg-indigo-600 text-white shadow-md hover:bg-indigo-700'}`}
                 >
                   {isPlaying ? <><Pause size={16}/> 暂停</> : <><Play size={16}/> 开始演示</>}
                 </button>
-                <button onClick={onReset} className="p-2 text-slate-400 hover:bg-slate-100 rounded-full transition-colors">
+                <button onClick={onReset} className="p-3 sm:p-2 text-slate-400 hover:bg-slate-100 rounded-full transition-colors min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 flex items-center justify-center">
                    <RotateCcw size={18} />
                 </button>
             </div>
@@ -239,14 +254,19 @@ const PhysicsDemo: React.FC<PhysicsDemoProps> = ({
            <span className="text-xs text-slate-400 font-mono">y(t) = A sin(ωt)</span>
         </div>
         
-        <div className="relative flex justify-center overflow-hidden bg-slate-50/30">
+        <div className="relative flex justify-center overflow-x-auto overflow-y-hidden bg-slate-50/30 -mx-2 sm:mx-0">
           <svg 
             width="100%" height={demoHeight} viewBox={`0 0 ${demoWidth} ${demoHeight}`} 
-            className="max-w-[800px] select-none cursor-ew-resize"
+            className="min-w-[320px] max-w-[800px] w-full select-none cursor-ew-resize touch-pan-x"
+            style={{ minHeight: 240 }}
             onMouseMove={handleGraphMouseMove}
             onMouseDown={handleGraphMouseDown}
             onMouseUp={handleGraphMouseUp}
             onMouseLeave={handleMouseLeave}
+            onTouchStart={handleGraphTouchStart}
+            onTouchMove={handleGraphTouchMove}
+            onTouchEnd={handleGraphTouchEnd}
+            onTouchCancel={handleGraphTouchEnd}
           >
              <rect width="100%" height="100%" fill="transparent" /> {/* Hit area */}
 
@@ -282,22 +302,27 @@ const PhysicsDemo: React.FC<PhysicsDemoProps> = ({
       {/* ======================================================== */}
       {/* DEMO 2: UCM */}
       {/* ======================================================== */}
-      <section className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-        <div className="bg-slate-50 px-6 py-3 border-b border-slate-200 flex justify-between items-center">
+      <section className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+        <div className="bg-slate-50 px-4 sm:px-6 py-3 border-b border-slate-200 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
            <h3 className="font-bold text-slate-700 flex items-center gap-2">
              <span className="w-6 h-6 bg-cyan-100 text-cyan-600 rounded flex items-center justify-center text-xs">2</span>
              匀速圆周运动
            </h3>
            <span className="text-xs text-slate-400 font-mono">y投影 = R sin(θ)</span>
         </div>
-        <div className="relative flex justify-center overflow-hidden bg-slate-50/30">
+        <div className="relative flex justify-center overflow-x-auto overflow-y-hidden bg-slate-50/30 -mx-2 sm:mx-0">
             <svg 
               width="100%" height={demoHeight} viewBox={`0 0 ${demoWidth} ${demoHeight}`} 
-              className="max-w-[800px] select-none cursor-ew-resize"
+              className="min-w-[320px] max-w-[800px] w-full select-none cursor-ew-resize touch-pan-x"
+              style={{ minHeight: 240 }}
               onMouseMove={handleGraphMouseMove}
               onMouseDown={handleGraphMouseDown}
               onMouseUp={handleGraphMouseUp}
               onMouseLeave={handleMouseLeave}
+              onTouchStart={handleGraphTouchStart}
+              onTouchMove={handleGraphTouchMove}
+              onTouchEnd={handleGraphTouchEnd}
+              onTouchCancel={handleGraphTouchEnd}
             >
                 <rect width="100%" height="100%" fill="transparent" />
 
@@ -356,22 +381,27 @@ const PhysicsDemo: React.FC<PhysicsDemoProps> = ({
       {/* ======================================================== */}
       {/* DEMO 3: Pendulum */}
       {/* ======================================================== */}
-      <section className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-        <div className="bg-slate-50 px-6 py-3 border-b border-slate-200 flex justify-between items-center">
+      <section className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+        <div className="bg-slate-50 px-4 sm:px-6 py-3 border-b border-slate-200 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
              <h3 className="font-bold text-slate-700 flex items-center gap-2">
                <span className="w-6 h-6 bg-amber-100 text-amber-600 rounded flex items-center justify-center text-xs">3</span>
                单摆运动
              </h3>
              <span className="text-xs text-slate-400 font-mono">x(t) ≈ A sin(θ)</span>
         </div>
-        <div className="relative flex justify-center overflow-hidden bg-slate-50/30">
+        <div className="relative flex justify-center overflow-x-auto overflow-y-hidden bg-slate-50/30 -mx-2 sm:mx-0">
              <svg 
                width="100%" height={demoHeight} viewBox={`0 0 ${demoWidth} ${demoHeight}`} 
-               className="max-w-[800px] select-none cursor-ew-resize"
+               className="min-w-[320px] max-w-[800px] w-full select-none cursor-ew-resize touch-pan-x"
+               style={{ minHeight: 240 }}
                onMouseMove={handleGraphMouseMove}
                onMouseDown={handleGraphMouseDown}
                onMouseUp={handleGraphMouseUp}
                onMouseLeave={handleMouseLeave}
+               onTouchStart={handleGraphTouchStart}
+               onTouchMove={handleGraphTouchMove}
+               onTouchEnd={handleGraphTouchEnd}
+               onTouchCancel={handleGraphTouchEnd}
              >
                 <rect width="100%" height="100%" fill="transparent" />
 

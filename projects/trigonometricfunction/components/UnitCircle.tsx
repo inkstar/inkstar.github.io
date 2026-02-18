@@ -68,13 +68,13 @@ const UnitCircle: React.FC<UnitCircleProps> = ({ angle, selectedFunc }) => {
   const pLabelY = y * labelOffsetMultiplier;
 
   return (
-    <div className="relative flex flex-col items-center justify-center bg-white rounded-2xl shadow-lg border border-slate-200 p-4">
-      <h3 className="absolute top-4 left-4 text-slate-500 font-medium text-sm">单位圆定义</h3>
+    <div className="relative flex flex-col items-center justify-center bg-white rounded-xl sm:rounded-2xl shadow-lg border border-slate-200 p-3 sm:p-4">
+      <h3 className="absolute top-3 left-3 sm:top-4 sm:left-4 text-slate-500 font-medium text-xs sm:text-sm">单位圆定义</h3>
       <svg
         width="100%"
         height="100%"
         viewBox="-200 -200 400 400"
-        className="max-w-[350px] max-h-[350px] overflow-visible"
+        className="w-full max-w-[350px] max-h-[280px] sm:max-h-[350px] overflow-visible aspect-square"
       >
         <defs>
           <marker

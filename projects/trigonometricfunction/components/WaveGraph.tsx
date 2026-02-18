@@ -105,13 +105,13 @@ const WaveGraph: React.FC<WaveGraphProps> = ({ angle, selectedFunc }) => {
   };
 
   return (
-    <div className="relative flex flex-col items-center justify-center bg-white rounded-2xl shadow-lg border border-slate-200 p-4">
-      <h3 className="absolute top-4 left-4 text-slate-500 font-medium text-sm">函数图像生成 y = f(θ)</h3>
+    <div className="relative flex flex-col items-center justify-center bg-white rounded-xl sm:rounded-2xl shadow-lg border border-slate-200 p-3 sm:p-4 w-full">
+      <h3 className="absolute top-3 left-3 sm:top-4 sm:left-4 text-slate-500 font-medium text-xs sm:text-sm">函数图像生成 y = f(θ)</h3>
       <svg
         width="100%"
         height="100%"
         viewBox={`0 -200 ${width} 400`}
-        className="max-w-[500px] max-h-[350px] overflow-visible"
+        className="w-full max-w-[500px] min-h-[220px] sm:min-h-[280px] max-h-[350px] overflow-visible"
         style={{ borderLeft: '1px dashed #cbd5e1' }}
       >
         <defs>

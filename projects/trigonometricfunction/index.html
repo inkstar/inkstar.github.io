@@ -2,10 +2,16 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#f8fafc" />
     <title>三角函数可视化演示</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+      /* 移动端：减少点击高亮、改善触摸 */
+      html { -webkit-tap-highlight-color: transparent; }
+      @media (hover: none) {
+        button, a, [role="button"] { min-height: 44px; min-width: 44px; }
+      }
       /* Custom scrollbar for nicer look */
       ::-webkit-scrollbar {
         width: 8px;

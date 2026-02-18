@@ -78,56 +78,53 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-gray-50 text-slate-900 font-sans">
       
       {/* Header & Navigation */}
-      <header className="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-4 md:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center h-auto md:h-16 py-3 md:py-0 gap-4">
+      <header className="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-10 safe-area-inset-top">
+        <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-8">
+          <div className="flex flex-col md:flex-row justify-between items-center h-auto md:h-16 py-3 md:py-0 gap-3 sm:gap-4">
             
             {/* Logo / Title */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0">
               <div className="bg-indigo-600 text-white p-1.5 rounded-lg">
                 <Activity size={20} />
               </div>
-              <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-700 to-cyan-600">
+              <h1 className="text-lg sm:text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-700 to-cyan-600">
                 TrigMaster
               </h1>
             </div>
 
-            {/* Navigation Tabs */}
-            <nav className="flex bg-slate-100 p-1 rounded-lg">
+            {/* Navigation Tabs - 移动端缩短文案 */}
+            <nav className="flex bg-slate-100 p-1 rounded-lg w-full sm:w-auto justify-center">
               <button
                 onClick={() => setActiveTab('visualization')}
-                className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+                className={`flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-1.5 rounded-md text-sm font-medium transition-all flex-1 sm:flex-initial min-h-[44px] sm:min-h-0 ${
                   activeTab === 'visualization'
                     ? 'bg-white text-indigo-600 shadow-sm'
                     : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'
                 }`}
               >
-                <Calculator size={16} />
-                三角函数可视化
+                <Calculator size={16} className="shrink-0" />
+                <span className="sm:hidden">可视化</span><span className="hidden sm:inline">三角函数可视化</span>
               </button>
               <button
                 onClick={() => setActiveTab('physics')}
-                className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+                className={`flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-1.5 rounded-md text-sm font-medium transition-all flex-1 sm:flex-initial min-h-[44px] sm:min-h-0 ${
                   activeTab === 'physics'
                     ? 'bg-white text-indigo-600 shadow-sm'
                     : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'
                 }`}
               >
-                <Activity size={16} />
+                <Activity size={16} className="shrink-0" />
                 物理应用
               </button>
             </nav>
 
-            {/* Function Select (Only visible in Visualization tab, or global?) 
-                Let's keep it global or hidden depending on context. 
-                For simplicity, only show function selector in Math mode.
-            */}
-            <div className={`${activeTab === 'visualization' ? 'opacity-100' : 'opacity-0 pointer-events-none'} transition-opacity duration-200 flex gap-1`}>
+            {/* Function Select - 移动端可换行 */}
+            <div className={`${activeTab === 'visualization' ? 'opacity-100' : 'opacity-0 pointer-events-none'} transition-opacity duration-200 flex flex-wrap gap-1.5 justify-center w-full sm:w-auto`}>
                {(Object.keys(TRIG_CONFIGS) as TrigFunction[]).map((func) => (
                 <button
                   key={func}
                   onClick={() => setSelectedFunc(func)}
-                  className={`px-3 py-1 rounded text-xs font-bold transition-all duration-200 border ${
+                  className={`px-3 py-2 sm:py-1 rounded text-xs font-bold transition-all duration-200 border min-h-[40px] sm:min-h-0 ${
                     selectedFunc === func
                       ? 'bg-slate-50 text-slate-900 border-slate-200'
                       : 'text-slate-400 border-transparent hover:bg-slate-50'
@@ -147,16 +144,16 @@ const App: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-6xl mx-auto p-4 md:p-8">
+      <main className="max-w-6xl mx-auto p-3 sm:p-4 md:p-8 pb-8">
         
         {activeTab === 'visualization' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Left: Unit Circle */}
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3 sm:gap-4">
               <UnitCircle angle={angle} selectedFunc={selectedFunc} />
               
               {/* Explanation Card */}
-              <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+              <div className="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-sm">
                 <div className="flex items-start gap-3">
                   <Info className="w-5 h-5 text-indigo-500 mt-1 shrink-0" />
                   <div>
@@ -175,16 +172,16 @@ const App: React.FC = () => {
             </div>
 
             {/* Right: Wave Graph */}
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3 sm:gap-4">
               <WaveGraph angle={angle} selectedFunc={selectedFunc} />
               
-              {/* Controls */}
-              <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-lg">
-                <div className="flex flex-col gap-6">
+              {/* Controls - 移动端加大触控区域 */}
+              <div className="bg-white border border-slate-200 rounded-xl p-4 sm:p-6 shadow-lg">
+                <div className="flex flex-col gap-4 sm:gap-6">
                     
                     {/* Angle Inputs Group */}
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-end">
+                    <div className="space-y-3 sm:space-y-4">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-2">
                         <span className="text-xs uppercase tracking-wider text-slate-500 font-semibold">角度控制</span>
                         
                         {/* Degree Input Field */}
@@ -196,14 +193,14 @@ const App: React.FC = () => {
                               type="number" 
                               value={currentDegrees}
                               onChange={handleDegreeInput}
-                              className="w-20 px-2 py-1 text-right text-sm border border-slate-300 rounded focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                              className="w-20 px-2 py-2 sm:py-1 text-right text-sm border border-slate-300 rounded focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all min-h-[44px] sm:min-h-0"
                             />
                             <span className="absolute right-6 top-1 text-slate-400 pointer-events-none">°</span>
                           </div>
                         </div>
                       </div>
 
-                      {/* Slider */}
+                      {/* Slider - 移动端加高滑轨便于触摸 */}
                       <div className="relative pt-1">
                         <input
                           type="range"
@@ -212,7 +209,7 @@ const App: React.FC = () => {
                           step="0.01"
                           value={angle % (4 * Math.PI)} // Keep slider bound locally visual
                           onChange={handleSliderChange}
-                          className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-500 hover:accent-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                          className="w-full h-3 sm:h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-500 hover:accent-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
                         />
                         <div className="flex justify-between text-xs text-slate-400 mt-1 px-1">
                           <span>0°</span>
@@ -224,12 +221,12 @@ const App: React.FC = () => {
 
                     <hr className="border-slate-100" />
 
-                    {/* Playback Controls */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
+                    {/* Playback Controls - 小屏纵向排列、加大按钮 */}
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                      <div className="flex items-center gap-3 sm:gap-4">
                         <button
                           onClick={() => setIsPlaying(!isPlaying)}
-                          className={`flex items-center gap-2 px-6 py-2.5 rounded-lg font-medium transition-all ${
+                          className={`flex items-center justify-center gap-2 px-5 sm:px-6 py-3 sm:py-2.5 rounded-lg font-medium transition-all min-h-[48px] sm:min-h-0 ${
                             isPlaying 
                               ? 'bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-200'
                               : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-md shadow-indigo-200'
@@ -240,21 +237,21 @@ const App: React.FC = () => {
 
                         <button
                           onClick={handleReset}
-                          className="p-2.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+                          className="p-3 sm:p-2.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 flex items-center justify-center"
                           title="Reset Angle"
                         >
                           <RotateCcw size={18} />
                         </button>
                       </div>
 
-                      <div className="flex items-center gap-3">
-                        <span className="text-sm text-slate-500">速度</span>
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <span className="text-sm text-slate-500 w-full sm:w-auto">速度</span>
                         <div className="flex bg-slate-100 rounded-lg p-1">
                           {[0.5, 1, 2].map((s) => (
                             <button
                               key={s}
                               onClick={() => setSpeed(s)}
-                              className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
+                              className={`px-4 py-2 sm:px-3 sm:py-1 text-xs font-medium rounded-md transition-all min-h-[40px] sm:min-h-0 ${
                                 speed === s 
                                 ? 'bg-white text-indigo-600 shadow-sm' 
                                 : 'text-slate-500 hover:text-slate-800'
