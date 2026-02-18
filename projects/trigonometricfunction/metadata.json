@@ -1,0 +1,5 @@
+{
+  "name": "三角函数可视化最新版",
+  "description": "An interactive educational tool to visualize how sine, cosine, and tangent functions are generated from the unit circle.",
+  "requestFramePermissions": []
+}
