@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<!-- saved from url=(0132)blob:https://61p1gdjv0bo8mp2p20qvb7vbq3iisgkqsaiw4areo3dia2xybt-h833788197.scf.usercontent.goog/b3b7d240-baed-4766-bbe7-5c8ed6c8f037 -->
+<html lang="zh-CN"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<script class="injected-ffc2e83d85">
+(function(){'use strict';function q(b){var c=0;return function(){return c<b.length?{done:!1,value:b[c++]}:{done:!0}}}function t(b){var c=typeof Symbol!="undefined"&&Symbol.iterator&&b[Symbol.iterator];if(c)return c.call(b);if(typeof b.length=="number")return{next:q(b)};throw Error(String(b)+" is not an iterable or ArrayLike");}var u=typeof Object.defineProperties=="function"?Object.defineProperty:function(b,c,g){if(b==Array.prototype||b==Object.prototype)return b;b[c]=g.value;return b};
+function v(b){b=["object"==typeof globalThis&&globalThis,b,"object"==typeof window&&window,"object"==typeof self&&self,"object"==typeof global&&global];for(var c=0;c<b.length;++c){var g=b[c];if(g&&g.Math==Math)return g}throw Error("Cannot find global object");}var w=v(this);function x(b,c){if(c)a:{var g=w;b=b.split(".");for(var h=0;h<b.length-1;h++){var l=b[h];if(!(l in g))break a;g=g[l]}b=b[b.length-1];h=g[b];c=c(h);c!=h&&c!=null&&u(g,b,{configurable:!0,writable:!0,value:c})}}
+function y(){this.j=!1;this.g=null;this.u=void 0;this.h=1;this.v=this.l=0;this.i=null}function z(b){if(b.j)throw new TypeError("Generator is already running");b.j=!0}y.prototype.o=function(b){this.u=b};function A(b,c){b.i={I:c,J:!0};b.h=b.l||b.v}y.prototype.return=function(b){this.i={return:b};this.h=this.v};function B(b){this.g=new y;this.h=b}function E(b,c){z(b.g);var g=b.g.g;if(g)return F(b,"return"in g?g["return"]:function(h){return{value:h,done:!0}},c,b.g.return);b.g.return(c);return G(b)}
+function F(b,c,g,h){try{var l=c.call(b.g.g,g);if(!(l instanceof Object))throw new TypeError("Iterator result "+l+" is not an object");if(!l.done)return b.g.j=!1,l;var m=l.value}catch(f){return b.g.g=null,A(b.g,f),G(b)}b.g.g=null;h.call(b.g,m);return G(b)}function G(b){for(;b.g.h;)try{var c=b.h(b.g);if(c)return b.g.j=!1,{value:c.value,done:!1}}catch(g){b.g.u=void 0,A(b.g,g)}b.g.j=!1;if(b.g.i){c=b.g.i;b.g.i=null;if(c.J)throw c.I;return{value:c.return,done:!0}}return{value:void 0,done:!0}}
+function H(b){this.next=function(c){z(b.g);b.g.g?c=F(b,b.g.g.next,c,b.g.o):(b.g.o(c),c=G(b));return c};this.throw=function(c){z(b.g);b.g.g?c=F(b,b.g.g["throw"],c,b.g.o):(A(b.g,c),c=G(b));return c};this.return=function(c){return E(b,c)};this[Symbol.iterator]=function(){return this}}function I(b){function c(h){return b.next(h)}function g(h){return b.throw(h)}return new Promise(function(h,l){function m(f){f.done?h(f.value):Promise.resolve(f.value).then(c,g).then(m,l)}m(b.next())})}
+x("Symbol",function(b){function c(m){if(this instanceof c)throw new TypeError("Symbol is not a constructor");return new g(h+(m||"")+"_"+l++,m)}function g(m,f){this.g=m;u(this,"description",{configurable:!0,writable:!0,value:f})}if(b)return b;g.prototype.toString=function(){return this.g};var h="jscomp_symbol_"+(Math.random()*1E9>>>0)+"_",l=0;return c});
+x("Symbol.iterator",function(b){if(b)return b;b=Symbol("Symbol.iterator");u(Array.prototype,b,{configurable:!0,writable:!0,value:function(){return J(q(this))}});return b});function J(b){b={next:b};b[Symbol.iterator]=function(){return this};return b}
+x("Promise",function(b){function c(f){this.h=0;this.i=void 0;this.g=[];this.u=!1;var a=this.j();try{f(a.resolve,a.reject)}catch(d){a.reject(d)}}function g(){this.g=null}function h(f){return f instanceof c?f:new c(function(a){a(f)})}if(b)return b;g.prototype.h=function(f){if(this.g==null){this.g=[];var a=this;this.i(function(){a.l()})}this.g.push(f)};var l=w.setTimeout;g.prototype.i=function(f){l(f,0)};g.prototype.l=function(){for(;this.g&&this.g.length;){var f=this.g;this.g=[];for(var a=0;a<f.length;++a){var d=
+f[a];f[a]=null;try{d()}catch(e){this.j(e)}}}this.g=null};g.prototype.j=function(f){this.i(function(){throw f;})};c.prototype.j=function(){function f(e){return function(k){d||(d=!0,e.call(a,k))}}var a=this,d=!1;return{resolve:f(this.D),reject:f(this.l)}};c.prototype.D=function(f){if(f===this)this.l(new TypeError("A Promise cannot resolve to itself"));else if(f instanceof c)this.G(f);else{a:switch(typeof f){case "object":var a=f!=null;break a;case "function":a=!0;break a;default:a=!1}a?this.C(f):this.o(f)}};
+c.prototype.C=function(f){var a=void 0;try{a=f.then}catch(d){this.l(d);return}typeof a=="function"?this.H(a,f):this.o(f)};c.prototype.l=function(f){this.v(2,f)};c.prototype.o=function(f){this.v(1,f)};c.prototype.v=function(f,a){if(this.h!=0)throw Error("Cannot settle("+f+", "+a+"): Promise already settled in state"+this.h);this.h=f;this.i=a;this.h===2&&this.F();this.K()};c.prototype.F=function(){var f=this;l(function(){if(f.B()){var a=w.console;typeof a!=="undefined"&&a.error(f.i)}},1)};c.prototype.B=
+function(){if(this.u)return!1;var f=w.CustomEvent,a=w.Event,d=w.dispatchEvent;if(typeof d==="undefined")return!0;typeof f==="function"?f=new f("unhandledrejection",{cancelable:!0}):typeof a==="function"?f=new a("unhandledrejection",{cancelable:!0}):(f=w.document.createEvent("CustomEvent"),f.initCustomEvent("unhandledrejection",!1,!0,f));f.promise=this;f.reason=this.i;return d(f)};c.prototype.K=function(){if(this.g!=null){for(var f=0;f<this.g.length;++f)m.h(this.g[f]);this.g=null}};var m=new g;c.prototype.G=
+function(f){var a=this.j();f.A(a.resolve,a.reject)};c.prototype.H=function(f,a){var d=this.j();try{f.call(a,d.resolve,d.reject)}catch(e){d.reject(e)}};c.prototype.then=function(f,a){function d(n,r){return typeof n=="function"?function(C){try{e(n(C))}catch(D){k(D)}}:r}var e,k,p=new c(function(n,r){e=n;k=r});this.A(d(f,e),d(a,k));return p};c.prototype.catch=function(f){return this.then(void 0,f)};c.prototype.A=function(f,a){function d(){switch(e.h){case 1:f(e.i);break;case 2:a(e.i);break;default:throw Error("Unexpected state: "+
+e.h);}}var e=this;this.g==null?m.h(d):this.g.push(d);this.u=!0};c.resolve=h;c.reject=function(f){return new c(function(a,d){d(f)})};c.race=function(f){return new c(function(a,d){for(var e=t(f),k=e.next();!k.done;k=e.next())h(k.value).A(a,d)})};c.all=function(f){var a=t(f),d=a.next();return d.done?h([]):new c(function(e,k){function p(C){return function(D){n[C]=D;r--;r==0&&e(n)}}var n=[],r=0;do n.push(void 0),r++,h(d.value).A(p(n.length-1),k),d=a.next();while(!d.done)})};return c});
+function K(b,c){return Object.prototype.hasOwnProperty.call(b,c)}x("Object.is",function(b){return b?b:function(c,g){return c===g?c!==0||1/c===1/g:c!==c&&g!==g}});x("Array.prototype.includes",function(b){return b?b:function(c,g){var h=this;h instanceof String&&(h=String(h));var l=h.length;g=g||0;for(g<0&&(g=Math.max(g+l,0));g<l;g++){var m=h[g];if(m===c||Object.is(m,c))return!0}return!1}});
+x("String.prototype.includes",function(b){return b?b:function(c,g){if(this==null)throw new TypeError("The 'this' value for String.prototype.includes must not be null or undefined");if(c instanceof RegExp)throw new TypeError("First argument to String.prototype.includes must not be a regular expression");return this.indexOf(c,g||0)!==-1}});
+x("WeakMap",function(b){function c(d){this.g=(a+=Math.random()+1).toString();if(d){d=t(d);for(var e;!(e=d.next()).done;)e=e.value,this.set(e[0],e[1])}}function g(){}function h(d){var e=typeof d;return e==="object"&&d!==null||e==="function"}function l(d){if(!K(d,f)){var e=new g;u(d,f,{value:e})}}function m(d){var e=Object[d];e&&(Object[d]=function(k){if(k instanceof g)return k;Object.isExtensible(k)&&l(k);return e(k)})}if(function(){if(!b||!Object.seal)return!1;try{var d=Object.seal({}),e=Object.seal({}),
+k=new b([[d,2],[e,3]]);if(k.get(d)!=2||k.get(e)!=3)return!1;k.delete(d);k.set(e,4);return!k.has(d)&&k.get(e)==4}catch(p){return!1}}())return b;var f="$jscomp_hidden_"+Math.random();m("freeze");m("preventExtensions");m("seal");var a=0;c.prototype.set=function(d,e){if(!h(d))throw Error("Invalid WeakMap key");l(d);if(!K(d,f))throw Error("WeakMap key fail: "+d);d[f][this.g]=e;return this};c.prototype.get=function(d){return h(d)&&K(d,f)?d[f][this.g]:void 0};c.prototype.has=function(d){return h(d)&&K(d,
+f)&&K(d[f],this.g)};c.prototype.delete=function(d){return h(d)&&K(d,f)&&K(d[f],this.g)?delete d[f][this.g]:!1};return c});
+x("Map",function(b){function c(){var a={};return a.m=a.next=a.head=a}function g(a,d){var e=a[1];return J(function(){if(e){for(;e.head!=a[1];)e=e.m;for(;e.next!=e.head;)return e=e.next,{done:!1,value:d(e)};e=null}return{done:!0,value:void 0}})}function h(a,d){var e=d&&typeof d;e=="object"||e=="function"?m.has(d)?e=m.get(d):(e=""+ ++f,m.set(d,e)):e="p_"+d;var k=a[0][e];if(k&&K(a[0],e))for(a=0;a<k.length;a++){var p=k[a];if(d!==d&&p.key!==p.key||d===p.key)return{id:e,list:k,index:a,entry:p}}return{id:e,
+list:k,index:-1,entry:void 0}}function l(a){this[0]={};this[1]=c();this.size=0;if(a){a=t(a);for(var d;!(d=a.next()).done;)d=d.value,this.set(d[0],d[1])}}if(function(){if(!b||typeof b!="function"||!b.prototype.entries||typeof Object.seal!="function")return!1;try{var a=Object.seal({x:4}),d=new b(t([[a,"s"]]));if(d.get(a)!="s"||d.size!=1||d.get({x:4})||d.set({x:4},"t")!=d||d.size!=2)return!1;var e=d.entries(),k=e.next();if(k.done||k.value[0]!=a||k.value[1]!="s")return!1;k=e.next();return k.done||k.value[0].x!=
+4||k.value[1]!="t"||!e.next().done?!1:!0}catch(p){return!1}}())return b;var m=new WeakMap;l.prototype.set=function(a,d){a=a===0?0:a;var e=h(this,a);e.list||(e.list=this[0][e.id]=[]);e.entry?e.entry.value=d:(e.entry={next:this[1],m:this[1].m,head:this[1],key:a,value:d},e.list.push(e.entry),this[1].m.next=e.entry,this[1].m=e.entry,this.size++);return this};l.prototype.delete=function(a){a=h(this,a);return a.entry&&a.list?(a.list.splice(a.index,1),a.list.length||delete this[0][a.id],a.entry.m.next=a.entry.next,
+a.entry.next.m=a.entry.m,a.entry.head=null,this.size--,!0):!1};l.prototype.clear=function(){this[0]={};this[1]=this[1].m=c();this.size=0};l.prototype.has=function(a){return!!h(this,a).entry};l.prototype.get=function(a){return(a=h(this,a).entry)&&a.value};l.prototype.entries=function(){return g(this,function(a){return[a.key,a.value]})};l.prototype.keys=function(){return g(this,function(a){return a.key})};l.prototype.values=function(){return g(this,function(a){return a.value})};l.prototype.forEach=
+function(a,d){for(var e=this.entries(),k;!(k=e.next()).done;)k=k.value,a.call(d,k[1],k[0],this)};l.prototype[Symbol.iterator]=l.prototype.entries;var f=0;return l});
+x("Set",function(b){function c(g){this.g=new Map;if(g){g=t(g);for(var h;!(h=g.next()).done;)this.add(h.value)}this.size=this.g.size}if(function(){if(!b||typeof b!="function"||!b.prototype.entries||typeof Object.seal!="function")return!1;try{var g=Object.seal({x:4}),h=new b(t([g]));if(!h.has(g)||h.size!=1||h.add(g)!=h||h.size!=1||h.add({x:4})!=h||h.size!=2)return!1;var l=h.entries(),m=l.next();if(m.done||m.value[0]!=g||m.value[1]!=g)return!1;m=l.next();return m.done||m.value[0]==g||m.value[0].x!=4||
+m.value[1]!=m.value[0]?!1:l.next().done}catch(f){return!1}}())return b;c.prototype.add=function(g){g=g===0?0:g;this.g.set(g,g);this.size=this.g.size;return this};c.prototype.delete=function(g){g=this.g.delete(g);this.size=this.g.size;return g};c.prototype.clear=function(){this.g.clear();this.size=0};c.prototype.has=function(g){return this.g.has(g)};c.prototype.entries=function(){return this.g.entries()};c.prototype.values=function(){return this.g.values()};c.prototype.keys=c.prototype.values;c.prototype[Symbol.iterator]=
+c.prototype.values;c.prototype.forEach=function(g,h){var l=this;this.g.forEach(function(m){return g.call(h,m,m,l)})};return c});(function(){function b(){return m?Promise.resolve(m):f?f:f=fetch("https://www.gstatic.com/bard-maui/resources/material-design-icon-names.804824289.json").then(function(a){if(!a.ok)throw Error("HTTP error! status: "+a.status+" fetching https://www.gstatic.com/bard-maui/resources/material-design-icon-names.804824289.json");return a.json()}).then(function(a){if(!Array.isArray(a))throw new TypeError("Fetched icon names from https://www.gstatic.com/bard-maui/resources/material-design-icon-names.804824289.json is not an array.");
+return m=a}).catch(function(a){console.error("IconChecker: Failed to load valid icon names from https://www.gstatic.com/bard-maui/resources/material-design-icon-names.804824289.json.",a);f=null;throw a;})}function c(a){var d,e,k,p;return I(new H(new B(function(n){switch(n.h){case 1:d=(a.textContent||"").trim();if(!d||a.classList.contains("js-replaced-missing-icon")&&d==="radio_button_unchecked")return n.return();e=window.getComputedStyle(a);if(e.display==="none"||e.visibility==="hidden")return n.return();
+n.l=2;var r=b();n.h=4;return{value:r};case 4:k=n.u;n.h=3;n.l=0;break;case 2:return n.l=0,n.i=null,console.warn('IconChecker: Skipping check for icon "'+d+'" as valid names could not be loaded.'),n.return();case 3:(p=k.includes(d))?a.classList.contains("js-replaced-missing-icon")&&a.classList.remove("js-replaced-missing-icon"):d==="radio_button_unchecked"&&a.classList.contains("js-replaced-missing-icon")||(a.textContent="radio_button_unchecked",a.classList.add("js-replaced-missing-icon")),n.h=0}})))}
+function g(a){a=a===void 0?document.body:a;a.querySelectorAll(l).forEach(function(d){c(d)})}function h(){b().catch(function(){});document.fonts.ready.then(function(){requestAnimationFrame(function(){g(document.body);(new MutationObserver(function(a){var d=new Set;a=t(a);for(var e=a.next();!e.done;e=a.next())if(e=e.value,e.type==="childList")e.addedNodes.forEach(function(p){p.nodeType===Node.ELEMENT_NODE&&(p.matches(l)&&d.add(p),p.querySelectorAll(l).forEach(function(n){d.add(n)}))});else if(e.type===
+"attributes"&&e.attributeName==="class"){var k=e.target;e.target.nodeType===Node.ELEMENT_NODE&&k.matches(l)&&d.add(k)}else e.type==="characterData"&&e.target.parentNode&&(e=e.target.parentNode,e.nodeType===Node.ELEMENT_NODE&&e.matches(l)&&d.add(e));d.size>0&&setTimeout(function(){d.forEach(function(p){c(p)})},500)})).observe(document.body,{childList:!0,subtree:!0,attributes:!0,attributeFilter:["class"],characterData:!0})})}).catch(function(a){console.error("IconChecker: Font loading error. Scanning icons anyway.",
+a);requestAnimationFrame(function(){g(document.body)})})}var l=["material-icons","material-symbols-outlined","material-symbols-rounded","material-symbols-sharp"].map(function(a){return"."+a}).join(","),m=null,f=null;document.readyState==="loading"?document.addEventListener("DOMContentLoaded",function(){h()}):h()})();}).call(this);
+
+</script>
+
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>幂函数 x^(a/b) 交互式探索</title>
+    <script src="https://cdn.tailwindcss.com/"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0">
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+        /* Hide scrollbar for cleaner look in table */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.inset-0{inset:0px}.bottom-6{bottom:1.5rem}.right-6{right:1.5rem}.top-0{top:0px}.top-6{top:1.5rem}.z-50{z-index:50}.mx-auto{margin-left:auto;margin-right:auto}.mb-1{margin-bottom:0.25rem}.mb-2{margin-bottom:0.5rem}.mb-4{margin-bottom:1rem}.ml-auto{margin-left:auto}.mt-1{margin-top:0.25rem}.mt-2{margin-top:0.5rem}.mt-4{margin-top:1rem}.block{display:block}.flex{display:flex}.table{display:table}.grid{display:grid}.hidden{display:none}.h-16{height:4rem}.h-2{height:0.5rem}.h-3{height:0.75rem}.h-\[42px\]{height:42px}.h-\[500px\]{height:500px}.max-h-\[250px\]{max-height:250px}.min-h-screen{min-height:100vh}.w-1\/3{width:33.333333%}.w-10{width:2.5rem}.w-3{width:0.75rem}.w-full{width:100%}.max-w-7xl{max-width:80rem}.flex-grow{flex-grow:1}.table-fixed{table-layout:fixed}@keyframes spin{to{transform:rotate(360deg)}}.animate-spin{animation:spin 1s linear infinite}.animate-\[fadeIn_0\.3s_ease-out\]{animation:fadeIn 0.3s ease-out}.cursor-crosshair{cursor:crosshair}.cursor-pointer{cursor:pointer}.appearance-none{-webkit-appearance:none;appearance:none}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.flex-col{flex-direction:column}.items-end{align-items:flex-end}.items-center{align-items:center}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:0.25rem}.gap-2{gap:0.5rem}.gap-4{gap:1rem}.gap-6{gap:1.5rem}.gap-8{gap:2rem}.space-y-6 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.5rem * var(--tw-space-y-reverse))}.divide-y > :not([hidden]) ~ :not([hidden]){--tw-divide-y-reverse:0;border-top-width:calc(1px * calc(1 - var(--tw-divide-y-reverse)));border-bottom-width:calc(1px * var(--tw-divide-y-reverse))}.divide-slate-100 > :not([hidden]) ~ :not([hidden]){--tw-divide-opacity:1;border-color:rgb(241 245 249 / var(--tw-divide-opacity, 1))}.self-end{align-self:flex-end}.overflow-hidden{overflow:hidden}.overflow-y-auto{overflow-y:auto}.rounded-2xl{border-radius:1rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-md{border-radius:0.375rem}.rounded-xl{border-radius:0.75rem}.border{border-width:1px}.border-b{border-bottom-width:1px}.border-blue-100{--tw-border-opacity:1;border-color:rgb(219 234 254 / var(--tw-border-opacity, 1))}.border-slate-200{--tw-border-opacity:1;border-color:rgb(226 232 240 / var(--tw-border-opacity, 1))}.border-slate-300{--tw-border-opacity:1;border-color:rgb(203 213 225 / var(--tw-border-opacity, 1))}.border-slate-50{--tw-border-opacity:1;border-color:rgb(248 250 252 / var(--tw-border-opacity, 1))}.bg-blue-50{--tw-bg-opacity:1;background-color:rgb(239 246 255 / var(--tw-bg-opacity, 1))}.bg-blue-600{--tw-bg-opacity:1;background-color:rgb(37 99 235 / var(--tw-bg-opacity, 1))}.bg-red-500{--tw-bg-opacity:1;background-color:rgb(239 68 68 / var(--tw-bg-opacity, 1))}.bg-slate-200{--tw-bg-opacity:1;background-color:rgb(226 232 240 / var(--tw-bg-opacity, 1))}.bg-slate-300{--tw-bg-opacity:1;background-color:rgb(203 213 225 / var(--tw-bg-opacity, 1))}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-white\/50{background-color:rgb(255 255 255 / 0.5)}.bg-white\/90{background-color:rgb(255 255 255 / 0.9)}.p-2{padding:0.5rem}.p-4{padding:1rem}.p-6{padding:1.5rem}.p-1{padding:0.25rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-4{padding-left:1rem;padding-right:1rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.py-8{padding-top:2rem;padding-bottom:2rem}.text-left{text-align:left}.text-center{text-align:center}.text-right{text-align:right}.align-top{vertical-align:top}.align-bottom{vertical-align:bottom}.font-mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-4xl{font-size:2.25rem;line-height:2.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-bold{font-weight:700}.font-medium{font-weight:500}.italic{font-style:italic}.text-blue-600{--tw-text-opacity:1;color:rgb(37 99 235 / var(--tw-text-opacity, 1))}.text-blue-600\/80{color:rgb(37 99 235 / 0.8)}.text-blue-800{--tw-text-opacity:1;color:rgb(30 64 175 / var(--tw-text-opacity, 1))}.text-red-500{--tw-text-opacity:1;color:rgb(239 68 68 / var(--tw-text-opacity, 1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139 / var(--tw-text-opacity, 1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.text-slate-700{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.text-slate-800{--tw-text-opacity:1;color:rgb(30 41 59 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.accent-blue-600{accent-color:#2563eb}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.backdrop-blur-sm{--tw-backdrop-blur:blur(4px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition-colors{transition-property:color, background-color, border-color, fill, stroke, -webkit-text-decoration-color;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, -webkit-text-decoration-color;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-opacity{transition-property:opacity;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.duration-300{transition-duration:300ms}.hover\:bg-blue-700:hover{--tw-bg-opacity:1;background-color:rgb(29 78 216 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-100:hover{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.hover\:bg-red-50:hover{--tw-bg-opacity:1;background-color:rgb(254 242 242 / var(--tw-bg-opacity, 1))}.hover\:text-red-600:hover{--tw-text-opacity:1;color:rgb(220 38 38 / var(--tw-text-opacity, 1))}.hover\:text-red-500:hover{--tw-text-opacity:1;color:rgb(239 68 68 / var(--tw-text-opacity, 1))}.focus\:border-blue-500:focus{--tw-border-opacity:1;border-color:rgb(59 130 246 / var(--tw-border-opacity, 1))}.focus\:ring-2:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)}.focus\:ring-blue-500:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(59 130 246 / var(--tw-ring-opacity, 1))}@media (min-width: 640px){.sm\:flex-row{flex-direction:row}.sm\:px-6{padding-left:1.5rem;padding-right:1.5rem}}@media (min-width: 1024px){.lg\:col-span-4{grid-column:span 4 / span 4}.lg\:col-span-8{grid-column:span 8 / span 8}.lg\:grid-cols-12{grid-template-columns:repeat(12, minmax(0, 1fr))}.lg\:px-8{padding-left:2rem;padding-right:2rem}}</style></head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <nav class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-blue-600 text-3xl">function</span>
+                    <h1 class="text-xl font-bold text-slate-800">幂函数 <span class="text-blue-600 font-mono">y = x<sup>a/b</sup></span> 交互式探索</h1>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Left Column: Graph (8 cols) -->
+            <div class="lg:col-span-8 flex flex-col gap-4">
+                <!-- Canvas Container -->
+                <div class="relative bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden group">
+                    <canvas id="functionCanvas" class="w-full h-[500px] cursor-crosshair block bg-white" width="1573" height="1004"></canvas>
+                    
+                    <!-- Formula Overlay (Top Right) -->
+                    <div class="absolute top-6 right-6 bg-white/90 backdrop-blur-sm border border-slate-200 rounded-lg shadow-sm p-4 pointer-events-none transition-opacity duration-300">
+                        <div class="text-sm text-slate-500 mb-1">当前函数 (最简形式)</div>
+                        <div class="text-3xl font-bold text-slate-800 font-mono" id="formulaDisplay">y = x<sup><span class="text-sm align-top">-6</span>/<span class="text-sm align-bottom">5</span></sup></div>
+                    </div>
+
+                    <!-- Zoom Controls (Bottom Right) -->
+                    <div class="absolute bottom-6 right-6 flex flex-col gap-2 bg-white/90 backdrop-blur-sm rounded-lg shadow-sm border border-slate-200 p-2">
+                        <button onclick="adjustZoom(1.2)" class="p-2 hover:bg-slate-100 rounded-md text-slate-600 transition-colors" title="放大">
+                            <span class="material-symbols-outlined">add</span>
+                        </button>
+                        <button onclick="resetZoom()" class="p-2 hover:bg-slate-100 rounded-md text-slate-600 transition-colors" title="重置视图">
+                            <span class="material-symbols-outlined">center_focus_strong</span>
+                        </button>
+                        <button onclick="adjustZoom(0.8)" class="p-2 hover:bg-slate-100 rounded-md text-slate-600 transition-colors" title="缩小">
+                            <span class="material-symbols-outlined">remove</span>
+                        </button>
+                    </div>
+
+                    <!-- Loading/Status Overlay (Hidden by default) -->
+                    <div id="canvasOverlay" class="absolute inset-0 flex items-center justify-center bg-white/50 hidden">
+                        <span class="material-symbols-outlined animate-spin text-4xl text-blue-600">progress_activity</span>
+                    </div>
+                </div>
+
+                <!-- Explanation / Legend -->
+                <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 flex flex-col sm:flex-row gap-4 text-sm text-blue-800">
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-blue-600"></span>
+                        <span>函数曲线</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-red-500"></span>
+                        <span>当前计算点</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-slate-300"></span>
+                        <span>坐标轴</span>
+                    </div>
+                    <div class="ml-auto text-blue-600/80 italic">
+                        *注：对于分数指数，当分母为偶数时，定义域通常限制为 x ≥ 0 (实数范围)
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Controls & Data (4 cols) -->
+            <div class="lg:col-span-4 flex flex-col gap-6">
+                
+                <!-- Parameter Controls -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                    <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-slate-500">tune</span> 参数设置
+                    </h2>
+                    
+                    <div class="space-y-6">
+                        <!-- Parameter a -->
+                        <div>
+                            <div class="flex justify-between mb-2">
+                                <label for="inputA" class="font-medium text-slate-700">参数 a (分子)</label>
+                                <span class="font-mono text-blue-600 font-bold" id="valA">-6</span>
+                            </div>
+                            <input type="range" id="sliderA" min="-10" max="10" step="1" value="1" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                            <div class="mt-2 flex items-center gap-2">
+                                <input type="number" id="inputA" value="1" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-center font-mono" placeholder="输入整数">
+                            </div>
+                        </div>
+
+                        <!-- Parameter b -->
+                        <div>
+                            <div class="flex justify-between mb-2">
+                                <label for="inputB" class="font-medium text-slate-700">参数 b (分母)</label>
+                                <span class="font-mono text-blue-600 font-bold" id="valB">5</span>
+                            </div>
+                            <input type="range" id="sliderB" min="-10" max="10" step="1" value="1" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                            <div class="mt-2 flex items-center gap-2">
+                                <input type="number" id="inputB" value="1" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-center font-mono" placeholder="输入非零整数">
+                            </div>
+                            <p class="text-xs text-red-500 mt-1 hidden" id="errorB">分母不能为 0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Point Calculator -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex-grow flex flex-col">
+                    <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-slate-500">calculate</span> 点值计算
+                    </h2>
+
+                    <div class="flex gap-2 mb-4">
+                        <div class="flex-grow">
+                            <label class="block text-xs font-medium text-slate-500 mb-1">输入 x</label>
+                            <input type="number" id="inputX" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 font-mono" placeholder="例如: 4" step="0.1">
+                        </div>
+                        <div class="flex items-end">
+                            <button onclick="calculatePoint()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors flex items-center gap-1 shadow-sm h-[42px]">
+                                <span>计算</span>
+                                <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Result Table -->
+                    <div class="border rounded-lg overflow-hidden flex-grow flex flex-col">
+                        <table class="w-full text-sm text-left">
+                            <thead class="bg-slate-50 text-slate-500 font-medium border-b">
+                                <tr>
+                                    <th class="px-4 py-3 w-1/3">x</th>
+                                    <th class="px-4 py-3">f(x)</th>
+                                    <th class="px-2 py-3 w-10"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultTableBody" class="divide-y divide-slate-100 block max-h-[250px] overflow-y-auto no-scrollbar w-full"><tr class="table w-full table-fixed animate-[fadeIn_0.3s_ease-out]">
+                <td class="px-4 py-3 border-b border-slate-50 font-mono text-slate-700">-1</td>
+                <td class="px-4 py-3 border-b border-slate-50 font-mono font-bold text-blue-600">1</td>
+                <td class="px-2 py-3 border-b border-slate-50 text-right">
+                    <button onclick="removePoint(1764399843276)" class="text-slate-400 hover:text-red-500 transition-colors p-1 rounded-full hover:bg-red-50">
+                        <span class="material-symbols-outlined text-lg">close</span>
+                    </button>
+                </td>
+            </tr><tr class="table w-full table-fixed animate-[fadeIn_0.3s_ease-out]">
+                <td class="px-4 py-3 border-b border-slate-50 font-mono text-slate-700">3</td>
+                <td class="px-4 py-3 border-b border-slate-50 font-mono font-bold text-blue-600">0.2676</td>
+                <td class="px-2 py-3 border-b border-slate-50 text-right">
+                    <button onclick="removePoint(1764399834760)" class="text-slate-400 hover:text-red-500 transition-colors p-1 rounded-full hover:bg-red-50">
+                        <span class="material-symbols-outlined text-lg">close</span>
+                    </button>
+                </td>
+            </tr><tr class="table w-full table-fixed animate-[fadeIn_0.3s_ease-out]">
+                <td class="px-4 py-3 border-b border-slate-50 font-mono text-slate-700">5</td>
+                <td class="px-4 py-3 border-b border-slate-50 font-mono font-bold text-blue-600">0.145</td>
+                <td class="px-2 py-3 border-b border-slate-50 text-right">
+                    <button onclick="removePoint(1764399822210)" class="text-slate-400 hover:text-red-500 transition-colors p-1 rounded-full hover:bg-red-50">
+                        <span class="material-symbols-outlined text-lg">close</span>
+                    </button>
+                </td>
+            </tr><tr class="table w-full table-fixed animate-[fadeIn_0.3s_ease-out]">
+                <td class="px-4 py-3 border-b border-slate-50 font-mono text-slate-700">5</td>
+                <td class="px-4 py-3 border-b border-slate-50 font-mono font-bold text-blue-600">0.145</td>
+                <td class="px-2 py-3 border-b border-slate-50 text-right">
+                    <button onclick="removePoint(1764399817843)" class="text-slate-400 hover:text-red-500 transition-colors p-1 rounded-full hover:bg-red-50">
+                        <span class="material-symbols-outlined text-lg">close</span>
+                    </button>
+                </td>
+            </tr></tbody>
+                        </table>
+                    </div>
+                    
+                    <button onclick="clearTable()" class="mt-4 text-xs text-slate-500 hover:text-red-600 self-end flex items-center gap-1 transition-colors">
+                        <span class="material-symbols-outlined text-sm">delete</span> 清空表格
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- State Management ---
+        const state = {
+            a: 1,
+            b: 1,
+            scale: 40, // pixels per unit
+            offsetX: 0,
+            offsetY: 0,
+            points: [], // Array of {x, y, id}
+            canvas: null,
+            ctx: null,
+            width: 0,
+            height: 0
+        };
+
+        // --- Math Logic ---
+
+        /**
+         * Calculates Greatest Common Divisor
+         */
+        function gcd(a, b) {
+            return b === 0 ? a : gcd(b, a % b);
+        }
+
+        /**
+         * Simplifies fraction and handles negative signs
+         * Returns {n: numerator, d: denominator} in simplest form with positive denominator
+         */
+        function simplifyFraction(num, den) {
+            if (den === 0) return null; // Should be handled by UI validation
+            
+            // Handle signs
+            let sign = 1;
+            if (num < 0) { sign *= -1; num = -num; }
+            if (den < 0) { sign *= -1; den = -den; }
+            
+            const common = gcd(num, den);
+            return {
+                n: (num / common) * sign,
+                d: den / common
+            };
+        }
+
+        /**
+         * Calculates y = x^(n/d) robustly for real numbers
+         */
+        function calculateY(x, n, d) {
+            // Case 1: x = 0
+            if (Math.abs(x) < 1e-10) {
+                if (n === 0) return 1; // 0^0 is debatable, often 1 in computing limits
+                return (n > 0) ? 0 : Infinity; // 0^(positive) = 0, 0^(negative) = Inf
+            }
+
+            const exponent = n / d;
+
+            // Case 2: x > 0
+            if (x > 0) {
+                return Math.pow(x, exponent);
+            }
+
+            // Case 3: x < 0
+            // x^(n/d) = (root(x, d))^n
+            // Even denominator root of negative number is complex (NaN in Real plot)
+            if (Math.abs(d) % 2 === 0) {
+                return NaN;
+            }
+
+            // Odd denominator is fine. 
+            // Result sign depends on whether numerator is even or odd.
+            // (-x)^(n/d) -> sign determined by n
+            // e.g. (-8)^(2/3) -> (cube_root(-8))^2 -> (-2)^2 = 4 (positive)
+            // e.g. (-8)^(1/3) -> -2 (negative)
+            
+            let baseResult = Math.pow(Math.abs(x), exponent);
+            
+            // If numerator is odd, the negative sign is preserved
+            if (Math.abs(n) % 2 !== 0) {
+                return -baseResult;
+            } else {
+                return baseResult;
+            }
+        }
+
+        /**
+         * Generates the formula string for display
+         */
+        function getFormulaHTML(a, b) {
+            const simple = simplifyFraction(a, b);
+            if (!simple) return "undefined";
+            
+            const { n, d } = simple;
+
+            if (d === 1) {
+                return `y = x<sup>${n}</sup>`;
+            }
+            // Pretty format for negative exponents if desired, but x^(-2/3) is standard
+            return `y = x<sup><span class="text-sm align-top">${n}</span>/<span class="text-sm align-bottom">${d}</span></sup>`;
+        }
+
+        // --- Canvas Drawing ---
+
+        function initCanvas() {
+            state.canvas = document.getElementById('functionCanvas');
+            state.ctx = state.canvas.getContext('2d');
+            
+            // Handle resizing
+            const resizeObserver = new ResizeObserver(() => {
+                resizeCanvas();
+                draw();
+            });
+            resizeObserver.observe(state.canvas.parentElement);
+            resizeCanvas();
+        }
+
+        function resizeCanvas() {
+            const rect = state.canvas.parentElement.getBoundingClientRect();
+            state.width = rect.width;
+            state.height = rect.height;
+            
+            // High DPI support
+            const dpr = window.devicePixelRatio || 1;
+            state.canvas.width = state.width * dpr;
+            state.canvas.height = state.height * dpr;
+            state.ctx.scale(dpr, dpr);
+            
+            // Center origin by default if not panned (Simple version: always center)
+            state.offsetX = state.width / 2;
+            state.offsetY = state.height / 2;
+            
+            draw();
+        }
+
+        function toCanvasX(mathX) {
+            return state.offsetX + mathX * state.scale;
+        }
+
+        function toCanvasY(mathY) {
+            return state.offsetY - mathY * state.scale; // Y axis flipped
+        }
+
+        function toMathX(canvasX) {
+            return (canvasX - state.offsetX) / state.scale;
+        }
+
+        function drawGrid() {
+            const ctx = state.ctx;
+            const w = state.width;
+            const h = state.height;
+            
+            ctx.clearRect(0, 0, w, h);
+            
+            // Grid style
+            ctx.strokeStyle = '#e2e8f0'; // slate-200
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+
+            // Vertical lines
+            // Find first integer line on left
+            const startX = Math.floor(toMathX(0));
+            const endX = Math.ceil(toMathX(w));
+            
+            for(let i = startX; i <= endX; i++) {
+                const cx = toCanvasX(i);
+                ctx.moveTo(cx, 0);
+                ctx.lineTo(cx, h);
+            }
+
+            // Horizontal lines
+            const startY = Math.floor((state.offsetY - h) / state.scale); // Approximate
+            const endY = Math.ceil(state.offsetY / state.scale); 
+            
+            // Simple approach for Y range:
+            // MathY at top is (offsetY)/scale (actually positive)
+            // MathY at bottom is (offsetY - h)/scale (negative)
+            const mathYMax = state.offsetY / state.scale;
+            const mathYMin = (state.offsetY - h) / state.scale;
+
+            for(let i = Math.floor(mathYMin); i <= Math.ceil(mathYMax); i++) {
+                const cy = toCanvasY(i);
+                ctx.moveTo(0, cy);
+                ctx.lineTo(w, cy);
+            }
+            ctx.stroke();
+
+            // Axes
+            ctx.strokeStyle = '#64748b'; // slate-500
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            // X Axis
+            if (state.offsetY >= 0 && state.offsetY <= h) {
+                ctx.moveTo(0, state.offsetY);
+                ctx.lineTo(w, state.offsetY);
+            }
+            
+            // Y Axis
+            if (state.offsetX >= 0 && state.offsetX <= w) {
+                ctx.moveTo(state.offsetX, 0);
+                ctx.lineTo(state.offsetX, h);
+            }
+            ctx.stroke();
+
+            // Numbers
+            ctx.fillStyle = '#64748b';
+            ctx.font = '12px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            
+            // X labels
+            for(let i = startX; i <= endX; i++) {
+                if(i === 0) continue;
+                // Only draw if enough space
+                if (state.scale > 30 || i % 5 === 0) {
+                   ctx.fillText(i, toCanvasX(i), state.offsetY + 5);
+                }
+            }
+            
+            // Y labels
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            for(let i = Math.floor(mathYMin); i <= Math.ceil(mathYMax); i++) {
+                if(i === 0) continue;
+                if (state.scale > 30 || i % 5 === 0) {
+                    ctx.fillText(i, state.offsetX - 5, toCanvasY(i));
+                }
+            }
+            
+            // Origin
+            ctx.fillText("0", state.offsetX - 5, state.offsetY + 5);
+        }
+
+        function drawCurve() {
+            const ctx = state.ctx;
+            const w = state.width;
+            
+            const simple = simplifyFraction(state.a, state.b);
+            if (!simple) return; // Divide by zero case
+            
+            const { n, d } = simple;
+
+            ctx.strokeStyle = '#2563eb'; // blue-600
+            ctx.lineWidth = 3;
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+
+            let firstPoint = true;
+            
+            // Step size in pixels
+            const pixelStep = 2; 
+            
+            for (let px = 0; px <= w; px += pixelStep) {
+                const mathX = toMathX(px);
+                const mathY = calculateY(mathX, n, d);
+
+                // Handle undefined/infinity
+                if (isNaN(mathY) || !isFinite(mathY)) {
+                    firstPoint = true;
+                    continue;
+                }
+
+                const py = toCanvasY(mathY);
+                
+                // Avoid drawing lines across infinity/asymptotes 
+                // Simple heuristic: if jump is too big, break line
+                // However, vertical asymptotes near 0 need care.
+                
+                if (firstPoint) {
+                    ctx.moveTo(px, py);
+                    firstPoint = false;
+                } else {
+                    // Check for vertical discontinuity
+                    // Using current point (px, py) and previous would require storing prev
+                    // Let's just limit the drawing capability to canvas bounds roughly
+                    // If y is insanely large, don't draw line TO it if it crosses bounds excessively
+                    
+                    // Basic bounds check to prevent canvas rendering artifacts with huge coords
+                    const MAX_COORD = 10000; 
+                    if (py < -MAX_COORD || py > MAX_COORD) {
+                         ctx.moveTo(px, py); // Move instead of line to skip visualization of "infinity lines"
+                    } else {
+                        // Check slope to detect asymptotes
+                        // If we are connecting points that span the entire screen vertically in 1 step, probably an asymptote
+                        /* Complex to do perfectly, simple moveTo is usually enough for visualizer */
+                        
+                        // Just draw for now
+                        ctx.lineTo(px, py);
+                    }
+                }
+            }
+            ctx.stroke();
+        }
+
+        function drawUserPoints() {
+            const ctx = state.ctx;
+            
+            state.points.forEach(p => {
+                // Check if p.y is valid
+                if(isNaN(p.y) || !isFinite(p.y)) return;
+
+                const cx = toCanvasX(p.x);
+                const cy = toCanvasY(p.y);
+
+                // Check visibility
+                if (cx < -10 || cx > state.width + 10 || cy < -10 || cy > state.height + 10) return;
+
+                // Draw Point
+                ctx.beginPath();
+                ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+                ctx.fillStyle = '#ef4444'; // red-500
+                ctx.fill();
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Draw Label
+                ctx.fillStyle = '#1e293b'; // slate-800
+                ctx.font = 'bold 12px sans-serif';
+                ctx.textAlign = 'center';
+                // Adjust label position based on location
+                ctx.fillText(`(${p.x}, ${p.f_x_formatted})`, cx, cy - 10);
+            });
+        }
+
+        function draw() {
+            drawGrid();
+            drawCurve();
+            drawUserPoints();
+        }
+
+        // --- Interaction Logic ---
+
+        function updateParams() {
+            // Get values
+            let valA = parseInt(document.getElementById('inputA').value) || 0;
+            let valB = parseInt(document.getElementById('inputB').value);
+
+            // Validation
+            const errB = document.getElementById('errorB');
+            if (isNaN(valB) || valB === 0) {
+                errB.classList.remove('hidden');
+                return; // Stop update
+            } else {
+                errB.classList.add('hidden');
+            }
+
+            state.a = valA;
+            state.b = valB;
+
+            // Sync Sliders
+            document.getElementById('sliderA').value = valA;
+            document.getElementById('sliderB').value = valB;
+            
+            // Sync Display Text
+            document.getElementById('valA').innerText = valA;
+            document.getElementById('valB').innerText = valB;
+
+            // Update Formula
+            document.getElementById('formulaDisplay').innerHTML = getFormulaHTML(state.a, state.b);
+
+            // Re-calculate points in table because function changed
+            recalculateAllPoints();
+
+            draw();
+        }
+
+        function handleInput(type, source) {
+            const inputEl = document.getElementById(`input${type}`);
+            const sliderEl = document.getElementById(`slider${type}`);
+            
+            if (source === 'slider') {
+                inputEl.value = sliderEl.value;
+            } else {
+                // If typed, don't necessarily update slider immediately if out of range, 
+                // but we accept the value.
+                // Optionally clamp slider visual only
+                let val = parseInt(inputEl.value);
+                if (val >= -10 && val <= 10) sliderEl.value = val;
+            }
+            updateParams();
+        }
+
+        function adjustZoom(factor) {
+            state.scale *= factor;
+            // Clamp scale
+            if (state.scale < 5) state.scale = 5;
+            if (state.scale > 500) state.scale = 500;
+            draw();
+        }
+
+        function resetZoom() {
+            state.scale = 40;
+            draw();
+        }
+
+        // --- Table & Calculation Logic ---
+
+        function formatNumber(num) {
+            if (Number.isInteger(num)) return num.toString();
+            return num.toFixed(4).replace(/\.?0+$/, ''); // Max 4 decimals, trim zeros
+        }
+
+        function calculatePoint() {
+            const xInput = document.getElementById('inputX');
+            const xVal = parseFloat(xInput.value);
+            
+            if (isNaN(xVal)) return;
+
+            const simple = simplifyFraction(state.a, state.b);
+            if (!simple) return;
+
+            const yVal = calculateY(xVal, simple.n, simple.d);
+            
+            let displayY = "未定义";
+            let rawY = NaN;
+            
+            if (!isNaN(yVal) && isFinite(yVal)) {
+                displayY = formatNumber(yVal);
+                rawY = yVal;
+            } else if (!isFinite(yVal) && !isNaN(yVal)) {
+                 displayY = "∞";
+            }
+
+            // Add to state
+            const pointData = {
+                id: Date.now(),
+                x: xVal,
+                y: rawY,
+                f_x_formatted: displayY
+            };
+            
+            state.points.push(pointData);
+            
+            addTableRow(pointData);
+            draw();
+            
+            // Clear input for UX? No, keep it for modifications usually. 
+            // xInput.value = ''; 
+            xInput.focus();
+        }
+
+        function recalculateAllPoints() {
+            const simple = simplifyFraction(state.a, state.b);
+            if (!simple) return;
+
+            state.points = state.points.map(p => {
+                const yVal = calculateY(p.x, simple.n, simple.d);
+                let displayY = "未定义";
+                let rawY = NaN;
+                
+                if (!isNaN(yVal) && isFinite(yVal)) {
+                    displayY = formatNumber(yVal);
+                    rawY = yVal;
+                } else if (!isFinite(yVal) && !isNaN(yVal)) {
+                    displayY = "∞";
+                }
+                
+                return { ...p, y: rawY, f_x_formatted: displayY };
+            });
+
+            // Rebuild Table UI
+            const tbody = document.getElementById('resultTableBody');
+            tbody.innerHTML = '';
+            
+            if (state.points.length === 0) {
+                 const emptyRow = document.createElement('tr');
+                 emptyRow.id = "emptyRow";
+                 emptyRow.className = "table w-full table-fixed";
+                 emptyRow.innerHTML = `<td colspan="3" class="px-4 py-8 text-center text-slate-400 italic">输入 x 并点击计算以添加数据点</td>`;
+                 tbody.appendChild(emptyRow);
+            } else {
+                 state.points.forEach(p => addTableRow(p, false));
+            }
+        }
+
+        function addTableRow(point, append = true) {
+            const tbody = document.getElementById('resultTableBody');
+            
+            // Remove empty row text if exists
+            const emptyRow = document.getElementById('emptyRow');
+            if (emptyRow) emptyRow.remove();
+
+            const tr = document.createElement('tr');
+            tr.className = "table w-full table-fixed animate-[fadeIn_0.3s_ease-out]";
+            tr.innerHTML = `
+                <td class="px-4 py-3 border-b border-slate-50 font-mono text-slate-700">${point.x}</td>
+                <td class="px-4 py-3 border-b border-slate-50 font-mono font-bold text-blue-600">${point.f_x_formatted}</td>
+                <td class="px-2 py-3 border-b border-slate-50 text-right">
+                    <button onclick="removePoint(${point.id})" class="text-slate-400 hover:text-red-500 transition-colors p-1 rounded-full hover:bg-red-50">
+                        <span class="material-symbols-outlined text-lg">close</span>
+                    </button>
+                </td>
+            `;
+
+            if (append) {
+                tbody.insertBefore(tr, tbody.firstChild); // Prepend for latest on top
+            } else {
+                tbody.appendChild(tr);
+            }
+        }
+
+        function removePoint(id) {
+            state.points = state.points.filter(p => p.id !== id);
+            recalculateAllPoints(); // simplest way to refresh UI correctly
+            draw();
+        }
+
+        function clearTable() {
+            state.points = [];
+            recalculateAllPoints();
+            draw();
+        }
+
+        // --- Event Listeners ---
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            initCanvas();
+            updateParams(); // Initial draw
+
+            // Input A
+            document.getElementById('inputA').addEventListener('input', () => handleInput('A', 'input'));
+            document.getElementById('sliderA').addEventListener('input', () => handleInput('A', 'slider'));
+
+            // Input B
+            document.getElementById('inputB').addEventListener('input', () => handleInput('B', 'input'));
+            document.getElementById('sliderB').addEventListener('input', () => handleInput('B', 'slider'));
+
+            // Input X Enter Key
+            document.getElementById('inputX').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') calculatePoint();
+            });
+        });
+
+    </script>
+    
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+
+
+</body></html>

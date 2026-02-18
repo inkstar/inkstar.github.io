@@ -1,6 +1,7 @@
 * [🏠 主页](README.md)
 * **💻 我的项目**
 
+  * [Power Function 模型](projects/powerfunction/model.html)
   * [项目 A - 简短描述](projects/project-a.md)
   * [项目 B - 简短描述](projects/project-b.md)
 * **📝 技术博客**
