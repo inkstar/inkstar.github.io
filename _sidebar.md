@@ -7,3 +7,7 @@
 
   * [2026 搭建博客指南](blog/setup.md)
   * [关于我](about.md)
+  *
+* **📚 测试**
+  
+  * [测试](blog/blog01.md)
