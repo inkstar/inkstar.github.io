@@ -36,7 +36,7 @@
 
 * **GitHub**: [inkstar](https://github.com/inkstar)
 * **Email**: [1247207199@qq.com](mailto:1247207199@qq.com)
-* **Wechat**: [inkstar97](weixin://dl/add?username=inkstar97)（点击在微信内打开可加好友）
+* **Wechat**: [inkstar97](weixin://dl/add?username=inkstar97)（点击在微信内打开可加好友） / [扫码添加](/images/wechat.jpg)
 
 ---
 

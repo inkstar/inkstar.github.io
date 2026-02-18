@@ -2,6 +2,7 @@
 .DS_Store
 .AppleDouble
 .LSOverride
+00note.md
 */.DS_Store
 
 # 确保所有目录下的 .DS_Store 都不被提交
