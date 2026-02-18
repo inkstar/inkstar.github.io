@@ -35,8 +35,8 @@
 如果你对我的项目感兴趣，或者想一起交流技术，可以通过以下方式联系我：
 
 * **GitHub**: [inkstar](https://github.com/inkstar)
-* **Email**: [你的邮箱地址@example.com]
-* **知乎/博客园**: [你的昵称]
+* **Email**: [1247207199@qq.com](mailto:1247207199@qq.com)
+* **Wechat**: [inkstar97](weixin://dl/add?username=inkstar97)（点击在微信内打开可加好友）
 
 ---
 
