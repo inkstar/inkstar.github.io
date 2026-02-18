@@ -1,0 +1,8 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+*/.DS_Store
+
+# 确保所有目录下的 .DS_Store 都不被提交
+**/.DS_Store
