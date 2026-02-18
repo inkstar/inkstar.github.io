@@ -88,7 +88,7 @@ const App: React.FC = () => {
                 <Activity size={20} />
               </div>
               <h1 className="text-lg sm:text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-700 to-cyan-600">
-                TrigMaster
+                三角函数可视化演示 
               </h1>
             </div>
 
@@ -147,7 +147,42 @@ const App: React.FC = () => {
       <main className="max-w-6xl mx-auto p-3 sm:p-4 md:p-8 pb-8">
         
         {activeTab === 'visualization' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* 移动端：固定在顶部的角度控制条，方便在看单位圆时调节 */}
+            <div className="md:hidden sticky top-14 z-10 bg-white/95 backdrop-blur border-b border-slate-200 rounded-xl shadow-sm p-4 mb-4 -mx-3 sm:-mx-4 px-3 sm:px-4">
+              <div className="flex flex-col gap-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="text-xs uppercase tracking-wider text-slate-500 font-semibold w-full sm:w-auto">角度</span>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div className="relative">
+                      <input
+                        type="number"
+                        value={currentDegrees}
+                        onChange={handleDegreeInput}
+                        className="w-16 px-2 py-1.5 text-right text-sm border border-slate-300 rounded focus:ring-2 focus:ring-indigo-500 outline-none"
+                      />
+                      <span className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none">°</span>
+                    </div>
+                    <button onClick={() => setIsPlaying(!isPlaying)} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium min-h-[40px] ${isPlaying ? 'bg-amber-100 text-amber-700' : 'bg-indigo-600 text-white'}`}>
+                      {isPlaying ? <><Pause size={16} /> 暂停</> : <><Play size={16} /> 演示</>}
+                    </button>
+                    <button onClick={handleReset} className="p-2 text-slate-400 hover:bg-slate-100 rounded-lg min-w-[40px] min-h-[40px] flex items-center justify-center">
+                      <RotateCcw size={16} />
+                    </button>
+                    <div className="flex bg-slate-100 rounded-lg p-0.5">
+                      {[0.5, 1, 2].map((s) => (
+                        <button key={s} onClick={() => setSpeed(s)} className={`px-2 py-1 text-xs font-medium rounded ${speed === s ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500'}`}>{s}x</button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <input type="range" min="0" max={4 * Math.PI} step="0.01" value={angle % (4 * Math.PI)} onChange={handleSliderChange}
+                  className="w-full h-3 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-500" />
+                <div className="flex justify-between text-xs text-slate-400 px-0.5"><span>0°</span><span>360°</span><span>720°</span></div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {/* Left: Unit Circle */}
             <div className="flex flex-col gap-3 sm:gap-4">
               <UnitCircle angle={angle} selectedFunc={selectedFunc} />
@@ -175,8 +210,8 @@ const App: React.FC = () => {
             <div className="flex flex-col gap-3 sm:gap-4">
               <WaveGraph angle={angle} selectedFunc={selectedFunc} />
               
-              {/* Controls - 移动端加大触控区域 */}
-              <div className="bg-white border border-slate-200 rounded-xl p-4 sm:p-6 shadow-lg">
+              {/* Controls - 桌面端显示；移动端已有顶部固定条故隐藏 */}
+              <div className="hidden md:block bg-white border border-slate-200 rounded-xl p-4 sm:p-6 shadow-lg">
                 <div className="flex flex-col gap-4 sm:gap-6">
                     
                     {/* Angle Inputs Group */}
@@ -266,6 +301,7 @@ const App: React.FC = () => {
 
                 </div>
               </div>
+            </div>
             </div>
           </div>
         )}
