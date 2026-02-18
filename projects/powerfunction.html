@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>幂函数动态教学实验室</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入数学绘图库 -->
+    <script src="https://unpkg.com/function-plot/dist/function-plot.js"></script>
+    <style>
+        body { background-color: #f8fafc; }
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            outline: none;
+            border-radius: 4px;
+        }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #3b82f6;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col md:flex-row">
+        
+        <!-- 左侧：控制与说明 -->
+        <div class="w-full md:w-1/3 p-6 bg-slate-50 border-r border-slate-100">
+            <h1 class="text-2xl font-bold text-slate-800 mb-2">幂函数实验室</h1>
+            <p class="text-slate-500 text-sm mb-6">探索函数 $y = x^n$ 的奥秘</p>
+
+            <!-- 指数控制 -->
+            <div class="mb-8">
+                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                    调节幂指数 $n$: <span id="n-value" class="text-blue-600 text-xl ml-2">1</span>
+                </label>
+                <input type="range" min="-3" max="4" step="0.1" value="1" class="slider" id="n-slider">
+                <div class="flex justify-between text-xs text-slate-400 mt-2">
+                    <span>-3</span>
+                    <span>0</span>
+                    <span>4</span>
+                </div>
+            </div>
+
+            <!-- 快捷预设 -->
+            <div class="mb-8">
+                <label class="block text-sm font-semibold text-slate-700 mb-2">快捷预设</label>
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="setN(2)" class="px-3 py-2 bg-white border border-slate-200 rounded hover:bg-blue-50 text-sm transition">y = x²</button>
+                    <button onclick="setN(3)" class="px-3 py-2 bg-white border border-slate-200 rounded hover:bg-blue-50 text-sm transition">y = x³</button>
+                    <button onclick="setN(0.5)" class="px-3 py-2 bg-white border border-slate-200 rounded hover:bg-blue-50 text-sm transition">y = √x</button>
+                    <button onclick="setN(-1)" class="px-3 py-2 bg-white border border-slate-200 rounded hover:bg-blue-50 text-sm transition">y = 1/x</button>
+                    <button onclick="setN(1)" class="px-3 py-2 bg-white border border-slate-200 rounded hover:bg-blue-50 text-sm transition">y = x</button>
+                    <button onclick="setN(0)" class="px-3 py-2 bg-white border border-slate-200 rounded hover:bg-blue-50 text-sm transition">y = 1</button>
+                </div>
+            </div>
+
+            <!-- 性质面板 -->
+            <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                <h3 class="font-bold text-blue-800 mb-2 flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    当前性质
+                </h3>
+                <ul class="text-sm space-y-2 text-blue-900" id="properties">
+                    <!-- 动态生成性质 -->
+                </ul>
+            </div>
+        </div>
+
+        <!-- 右侧：图形展示 -->
+        <div class="w-full md:w-2/3 p-6 flex flex-col items-center justify-center min-h-[500px]">
+            <div id="plot" class="w-full h-full"></div>
+            <p class="mt-4 text-xs text-slate-400">支持缩放和平移观察</p>
+        </div>
+    </div>
+
+    <script>
+        const slider = document.getElementById('n-slider');
+        const nDisplay = document.getElementById('n-value');
+        const propertiesList = document.getElementById('properties');
+
+        function draw() {
+            const n = parseFloat(slider.value);
+            nDisplay.innerText = n;
+
+            // 更新性质描述
+            updateProperties(n);
+
+            // 绘图配置
+            functionPlot({
+                target: '#plot',
+                width: 600,
+                height: 500,
+                grid: true,
+                xAxis: { domain: [-5, 5] },
+                yAxis: { domain: [-5, 5] },
+                data: [{
+                    fn: `x^(${n})`,
+                    graphType: 'polyline',
+                    color: '#3b82f6',
+                    attr: { 'stroke-width': 3 }
+                }]
+            });
+        }
+
+        function updateProperties(n) {
+            let html = '';
+            
+            // 基础点
+            html += `<li>• 必过点: <b>(1, 1)</b>${n > 0 ? ' 和 <b>(0, 0)</b>' : ''}</li>`;
+            
+            // 象限
+            if (n > 0) {
+                html += `<li>• 图像分布: 第一${Math.abs(n*10)%20===0 ? '、三' : '、二'}象限</li>`;
+            } else if (n < 0) {
+                html += `<li>• 渐近线: x轴、y轴</li>`;
+            }
+
+            // 单调性简述
+            if (n > 0) {
+                html += `<li>• 在 [0, +∞) 上单调<b>递增</b></li>`;
+            } else if (n < 0) {
+                html += `<li>• 在 (0, +∞) 上单调<b>递减</b></li>`;
+            } else {
+                html += `<li>• 常数函数</li>`;
+            }
+
+            propertiesList.innerHTML = html;
+        }
+
+        function setN(val) {
+            slider.value = val;
+            draw();
+        }
+
+        // 监听输入
+        slider.oninput = draw;
+
+        // 初始化
+        window.onload = draw;
+        window.onresize = draw;
+    </script>
+</body>
+</html>
