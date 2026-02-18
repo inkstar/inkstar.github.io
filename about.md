@@ -10,8 +10,8 @@
 
 ### 💻 编程语言 & 框架
 
-* **前端**: HTML5, CSS3, JavaScript, Vue.js (正在深入学习中...)
-* **后端**: Python (常用的工具脚本开发)
+* **前端**: HTML5, CSS3, JavaScript, ArkTs, Vue.js 
+* **后端**: Python, C++
 * **工具**: Git, Docker, Vercel
 
 ### 🔧 常用工具
@@ -36,7 +36,7 @@
 
 * **GitHub**: [inkstar](https://github.com/inkstar)
 * **Email**: [1247207199@qq.com](mailto:1247207199@qq.com)
-* **Wechat**: [inkstar97](weixin://dl/add?username=inkstar97)（点击在微信内打开可加好友） / [扫码添加](/images/wechat.jpg)
+* **Wechat**: [inkstar97](weixin://dl/add?username=inkstar97)（点击在微信内打开可加好友） / <a href="images/wechat.jpg" target="_blank" rel="noopener">扫码添加</a>
 
 ---
 
