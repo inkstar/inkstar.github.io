@@ -54,7 +54,10 @@
         }
         .status-good { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .status-bad { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        svg { border: 1px solid #e9ecef; border-radius: 8px; background: #fafafa; width: 100%; height: auto; display: block; }
+        #plotArea { border: 1px solid #e9ecef; border-radius: 8px; background: #fafafa; width: 100%; height: auto; display: block; }
+        mjx-container { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+        mjx-container[display="true"] { margin: 0.35em 0; padding-bottom: 2px; }
+        mjx-container:not([display="true"]) { display: inline-grid; vertical-align: -0.15em; }
         .btn-group { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; }
         button {
             padding: 8px 16px; border: none; border-radius: 4px; background: #007bff; color: white;
@@ -70,6 +73,9 @@
             .container { padding: 18px; border-radius: 10px; }
             h2 { font-size: 21px; }
             .math-text, .status { font-size: 16px; }
+            .explanation { padding: 14px; font-size: 15px; }
+            .explanation p { margin-bottom: 12px; }
+            .explanation mjx-container { font-size: 96% !important; }
             .controls { gap: 12px; }
             .val-display { width: auto; min-width: 88px; text-align: center; }
             button { width: 100%; }
