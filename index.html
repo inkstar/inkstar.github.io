@@ -607,6 +607,9 @@
       coverpage: true,
       subMaxLevel: 3,
       auto2top: true,
+      alias: {
+        '/.*/_sidebar.md': '/_sidebar.md'
+      },
       requestHeaders: {
         'cache-control': 'max-age=0'
       },
@@ -1003,7 +1006,7 @@
             updateProgress();
 
             // 4. 左侧边栏文章结构大纲智能切换与 ScrollSpy 联动
-            (function() {
+            function setupSidebarArticleToc() {
               function escapeHtml(str) {
                 if (!str) return '';
                 return String(str)
@@ -1011,6 +1014,32 @@
                   .replace(/</g, '&lt;')
                   .replace(/>/g, '&gt;')
                   .replace(/"/g, '&quot;');
+              }
+
+              function getHeadingCleanText(el) {
+                if (!el) return '';
+                var span = el.querySelector('span');
+                if (span && span.textContent && span.textContent.trim()) {
+                  return span.textContent.trim();
+                }
+                var anchor = el.querySelector('.anchor');
+                if (anchor && anchor.textContent && anchor.textContent.trim()) {
+                  return anchor.textContent.trim();
+                }
+                return (el.innerText || el.textContent || '').trim();
+              }
+
+              function getHeadingTargetId(el, idx) {
+                var tid = el.getAttribute('id');
+                if (!tid) {
+                  var anchor = el.querySelector('.anchor');
+                  if (anchor) tid = anchor.getAttribute('data-id');
+                }
+                if (!tid) {
+                  tid = 'sec-heading-' + idx;
+                  el.setAttribute('id', tid);
+                }
+                return tid;
               }
 
               var sidebar = document.querySelector('aside.sidebar');
@@ -1023,8 +1052,8 @@
 
               // 首页或概览页，还原全站导航目录
               if (isHome) {
-                if (tocContainer) tocContainer.style.display = 'none';
-                sidebarNav.style.display = 'block';
+                if (tocContainer) tocContainer.style.setProperty('display', 'none', 'important');
+                sidebarNav.style.setProperty('display', 'block', 'important');
                 if (shortcut) shortcut.style.display = 'none';
                 if (window._tocScrollSpy) {
                   window.removeEventListener('scroll', window._tocScrollSpy);
@@ -1036,8 +1065,8 @@
               // 检索正文中的二级和三级标题 (H2, H3)
               var headings = document.querySelectorAll('.markdown-section h2, .markdown-section h3');
               if (!headings || headings.length < 2) {
-                if (tocContainer) tocContainer.style.display = 'none';
-                sidebarNav.style.display = 'block';
+                if (tocContainer) tocContainer.style.setProperty('display', 'none', 'important');
+                sidebarNav.style.setProperty('display', 'block', 'important');
                 if (shortcut) shortcut.style.display = 'none';
                 if (window._tocScrollSpy) {
                   window.removeEventListener('scroll', window._tocScrollSpy);
@@ -1050,10 +1079,7 @@
               var h1El = document.querySelector('.markdown-section h1');
               var articleTitle = '';
               if (h1El) {
-                var h1Clone = h1El.cloneNode(true);
-                var h1Anchor = h1Clone.querySelector('.anchor');
-                if (h1Anchor) h1Anchor.remove();
-                articleTitle = h1Clone.textContent.trim();
+                articleTitle = getHeadingCleanText(h1El);
               }
               if (!articleTitle) {
                 var breadcrumb = document.querySelector('.breadcrumb-current');
@@ -1084,25 +1110,15 @@
                 '<ul class="article-toc-nav">'
               ];
 
+              var validHeadingCount = 0;
               headings.forEach(function(h, idx) {
                 var tag = h.tagName.toLowerCase();
                 var level = tag === 'h2' ? '2' : '3';
-
-                var hClone = h.cloneNode(true);
-                var anchor = hClone.querySelector('.anchor');
-                if (anchor) anchor.remove();
-                var titleText = hClone.textContent.trim();
+                var titleText = getHeadingCleanText(h);
                 if (!titleText) return;
 
-                var targetId = h.getAttribute('id');
-                if (!targetId) {
-                  var anchorEl = h.querySelector('.anchor');
-                  if (anchorEl) targetId = anchorEl.getAttribute('data-id');
-                }
-                if (!targetId) {
-                  targetId = 'article-sec-' + idx;
-                  h.setAttribute('id', targetId);
-                }
+                var targetId = getHeadingTargetId(h, idx);
+                validHeadingCount++;
 
                 tocHtml.push(
                   '<li class="article-toc-item toc-level-' + level + '" data-target-id="' + escapeHtml(targetId) + '">',
@@ -1114,6 +1130,14 @@
               });
 
               tocHtml.push('</ul>');
+
+              if (validHeadingCount < 2) {
+                if (tocContainer) tocContainer.style.setProperty('display', 'none', 'important');
+                sidebarNav.style.setProperty('display', 'block', 'important');
+                if (shortcut) shortcut.style.display = 'none';
+                return;
+              }
+
               tocContainer.innerHTML = tocHtml.join('\n');
 
               // 全局目录顶部快捷入口
@@ -1128,24 +1152,24 @@
               }
 
               // 默认切换为“本文大纲”侧边栏模式
-              sidebarNav.style.display = 'none';
-              tocContainer.style.display = 'block';
+              sidebarNav.style.setProperty('display', 'none', 'important');
+              tocContainer.style.setProperty('display', 'block', 'important');
 
               // 交互：切换回全站目录
               var btnGlobal = tocContainer.querySelector('#btn-switch-to-global');
               if (btnGlobal) {
                 btnGlobal.onclick = function(e) {
                   e.stopPropagation();
-                  tocContainer.style.display = 'none';
-                  sidebarNav.style.display = 'block';
+                  tocContainer.style.setProperty('display', 'none', 'important');
+                  sidebarNav.style.setProperty('display', 'block', 'important');
                 };
               }
 
               // 交互：从全站目录快速切回本文大纲
               shortcut.onclick = function(e) {
                 e.stopPropagation();
-                sidebarNav.style.display = 'none';
-                tocContainer.style.display = 'block';
+                sidebarNav.style.setProperty('display', 'none', 'important');
+                tocContainer.style.setProperty('display', 'block', 'important');
               };
 
               // 交互：点击大纲章节平滑滚动定位
@@ -1227,12 +1251,16 @@
                   if (this.value && this.value.trim().length > 0) {
                     var tc = document.getElementById('sidebar-article-toc');
                     var sn = document.querySelector('aside.sidebar .sidebar-nav');
-                    if (tc) tc.style.display = 'none';
-                    if (sn) sn.style.display = 'block';
+                    if (tc) tc.style.setProperty('display', 'none', 'important');
+                    if (sn) sn.style.setProperty('display', 'block', 'important');
                   }
                 });
               }
-            })();
+            }
+
+            // 执行大纲构建（即时执行与微任务延迟双重保障）
+            setupSidebarArticleToc();
+            setTimeout(setupSidebarArticleToc, 120);
           });
         }
       ]
