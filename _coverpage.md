@@ -2,9 +2,10 @@
 
 > 既然选择了远方，便只顾风雨兼程。
 
-- 🚀 个人项目展示
+- 🚀 [物理·匀变速直线运动全景实验室 ↗](projects/uniform-linear-motion.html)
+- 📈 [Power Function 幂函数实验室 ↗](projects/powerfunction.html)
 - ✍️ 技术博客与心得
-- 🛠️ 正在构建中...
+- 🛠️ 持续构建探索中...
 
 [GitHub](https://github.com/inkstar)
-[开始探索](#README)
+[进入主页](#README)
