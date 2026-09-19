@@ -148,6 +148,8 @@ $$(a_1^2 + a_2^2)(b_1^2 + b_2^2) \ge (a_1b_1 + a_2b_2)^2$$
 $$S(r) = 2\pi r^2 + \frac{1000}{r} + \frac{1000}{r} \ge 3 \sqrt[3]{2\pi r^2 \cdot \frac{1000}{r} \cdot \frac{1000}{r}} = 3 \sqrt[3]{2\pi \times 10^6}$$
 当且仅当 $2\pi r^2 = \frac{1000}{r}$，即 $h = 2r$（**高与底面直径相等时，表面积最小，最省材料！**）。
 
+> 🎮 **在线动手体验**：本站已上线配套的 **[不等式最值与工业耗材优化实验室 ↗](projects/inequality-optimizer.html ':target=_blank')**！支持拖拽尺寸、观察 3D 包装盒透视与表面积函数 $S(x)$ 凹曲线极小值点。
+
 ### Python 最优化数值验证脚本：
 
 ```python

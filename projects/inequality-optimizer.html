@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>高中数学 · 不等式最值与工业耗材优化实验室 | Inkstar Lab</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <style>
+        body { background-color: #0b1120; color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .slider-thumb-modern::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
+            background: #10b981; cursor: pointer; box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-emerald-500 selection:text-slate-900">
+
+    <header class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800/80 px-4 lg:px-8 py-3.5 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                <span class="text-slate-950 font-black text-lg">≥</span>
+            </div>
+            <div>
+                <h1 class="text-base sm:text-lg font-bold text-white tracking-tight flex items-center gap-2">
+                    不等式原理与工业耗材优化实验室
+                    <span class="text-xs font-normal px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hidden sm:inline">基本不等式最值</span>
+                </h1>
+                <p class="text-xs text-slate-400">AM-GM Inequality & Industrial Packaging Optimization · 均值定理 / 表面积极小值</p>
+            </div>
+        </div>
+        <a href="../index.html" class="text-xs sm:text-sm px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            <span>返回主站</span>
+        </a>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5">
+        
+        <!-- 左侧：交互画布工作区 -->
+        <div class="lg:col-span-7 flex flex-col space-y-4">
+            
+            <div class="relative bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl flex flex-col items-center justify-center p-2 sm:p-4 aspect-[4/3] sm:aspect-[16/10]">
+                <canvas id="mainCanvas" class="w-full h-full cursor-grab active:cursor-grabbing touch-none"></canvas>
+                
+                <div class="absolute top-4 left-4 bg-slate-900/85 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-800 text-xs flex items-center gap-3">
+                    <span class="text-slate-300">📦 定容方柱体模型 (体积 $V = 1000\text{ cm}^3$)</span>
+                </div>
+
+                <div class="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs text-slate-400 bg-slate-900/85 backdrop-blur-md px-3.5 py-2 rounded-xl border border-slate-800">
+                    <div class="flex items-center gap-2">
+                        <span class="text-emerald-400 font-semibold font-mono">底面边长 x: <span id="labelX">10.0</span> cm</span>
+                        <span class="text-slate-500">|</span>
+                        <span class="text-sky-400 font-semibold font-mono">高度 h: <span id="labelH">10.0</span> cm</span>
+                    </div>
+                    <button id="btnAutoCube" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium transition shadow-md">
+                        🎯 一键取等 (正方体 x=h)
+                    </button>
+                </div>
+            </div>
+
+            <!-- 控制面板 -->
+            <div class="bg-slate-900/70 p-4 rounded-2xl border border-slate-800/80 space-y-4">
+                <div class="space-y-1.5">
+                    <div class="flex justify-between text-xs">
+                        <span class="text-slate-300 font-medium">底面边长 $x$ (cm)</span>
+                        <span id="sliderXVal" class="font-mono font-bold text-emerald-400">10.0 cm</span>
+                    </div>
+                    <input id="sliderX" type="range" min="3" max="25" value="10" step="0.1" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer slider-thumb-modern">
+                </div>
+
+                <div class="space-y-1.5">
+                    <div class="flex justify-between text-xs">
+                        <span class="text-slate-300 font-medium">规定容积 $V$ ($\text{cm}^3$)</span>
+                        <span id="sliderVVal" class="font-mono font-bold text-sky-400">1000 cm³</span>
+                    </div>
+                    <input id="sliderV" type="range" min="200" max="2000" value="1000" step="50" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer slider-thumb-modern">
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 右侧：数学推导与计算仪表盘 -->
+        <div class="lg:col-span-5 flex flex-col space-y-4">
+            
+            <div class="bg-slate-900/80 rounded-2xl border border-slate-800 p-5 space-y-4 shadow-xl">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                        耗材面积实时监测
+                    </h3>
+                    <span id="statusBadge" class="text-xs font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold">
+                        最优最省料状态
+                    </span>
+                </div>
+
+                <div class="space-y-2 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80 text-xs font-mono">
+                    <div class="flex justify-between text-slate-300">
+                        <span class="text-slate-400">底面底顶面积 (2x²):</span>
+                        <span id="valBaseArea" class="text-white">200.0 cm²</span>
+                    </div>
+                    <div class="flex justify-between text-slate-300">
+                        <span class="text-slate-400">侧壁展开面积 (4xh = 4V/x):</span>
+                        <span id="valSideArea" class="text-white">400.0 cm²</span>
+                    </div>
+                    <div class="flex justify-between text-emerald-300 font-bold border-t border-slate-800/60 pt-2 text-sm">
+                        <span>总耗材表面积 S:</span>
+                        <span id="valTotalArea">600.0 cm²</span>
+                    </div>
+                    <div class="flex justify-between text-slate-400 text-[11px]">
+                        <span>理论理论极小值 S_min:</span>
+                        <span id="valMinArea" class="text-sky-300 font-bold">600.0 cm²</span>
+                    </div>
+                </div>
+
+                <div class="p-3.5 bg-emerald-950/20 rounded-xl border border-emerald-500/20 text-xs text-emerald-200/90 leading-relaxed">
+                    <div class="font-bold text-emerald-300 mb-1">均值不等式（AM-GM）推导</div>
+                    $$S = 2x^2 + \frac{4V}{x} = 2x^2 + \frac{2V}{x} + \frac{2V}{x} \ge 3\sqrt[3]{2x^2 \cdot \frac{2V}{x} \cdot \frac{2V}{x}} = 6V^{2/3}$$
+                    <p class="mt-1 text-[11px] text-slate-400">
+                        当且仅当 $2x^2 = \frac{2V}{x}$，即 $x^3 = V \implies x = h = \sqrt[3]{V}$ 时，正方体表面积最小！
+                    </p>
+                </div>
+            </div>
+
+            <div class="bg-slate-900/80 rounded-2xl border border-slate-800 p-5 space-y-3 text-xs text-slate-300 leading-relaxed">
+                <h4 class="font-bold text-white text-sm flex items-center gap-2">
+                    <span>💡</span>
+                    基本不等式“三大铁律”
+                </h4>
+                <div class="space-y-1.5 text-slate-400 text-[11px]">
+                    <p>• <b class="text-slate-200">一正</b>：两数必须为正数 ($x > 0, h > 0$)；</p>
+                    <p>• <b class="text-slate-200">二定</b>：和求最小时积须为定值（此处拆为 $2x^2 + \frac{2V}{x} + \frac{2V}{x}$ 积为定值 $8V^2$）；</p>
+                    <p>• <b class="text-slate-200">三相等</b>：等号必须能够取到（实现在正方体 $x=h$ 处）。</p>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+        let V = 1000;
+        let x = 10;
+        const canvas = document.getElementById('mainCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const sliderX = document.getElementById('sliderX');
+        const sliderXVal = document.getElementById('sliderXVal');
+        const sliderV = document.getElementById('sliderV');
+        const sliderVVal = document.getElementById('sliderVVal');
+
+        const labelX = document.getElementById('labelX');
+        const labelH = document.getElementById('labelH');
+        const valBaseArea = document.getElementById('valBaseArea');
+        const valSideArea = document.getElementById('valSideArea');
+        const valTotalArea = document.getElementById('valTotalArea');
+        const valMinArea = document.getElementById('valMinArea');
+        const statusBadge = document.getElementById('statusBadge');
+        const btnAutoCube = document.getElementById('btnAutoCube');
+
+        function resizeCanvas() {
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+            return { w: rect.width, h: rect.height };
+        }
+
+        function drawScene() {
+            const { w, h } = resizeCanvas();
+            ctx.clearRect(0, 0, w, h);
+
+            const optimalX = Math.cbrt(V);
+            const heightBox = V / (x * x);
+            const baseArea = 2 * x * x;
+            const sideArea = 4 * x * heightBox;
+            const totalArea = baseArea + sideArea;
+            const minArea = 6 * Math.pow(V, 2/3);
+
+            // 更新文本面板
+            labelX.innerText = x.toFixed(1);
+            labelH.innerText = heightBox.toFixed(1);
+            valBaseArea.innerText = `${baseArea.toFixed(1)} cm²`;
+            valSideArea.innerText = `${sideArea.toFixed(1)} cm²`;
+            valTotalArea.innerText = `${totalArea.toFixed(1)} cm²`;
+            valMinArea.innerText = `${minArea.toFixed(1)} cm²`;
+
+            const diff = totalArea - minArea;
+            if (diff < 1.0) {
+                statusBadge.className = "text-xs font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30";
+                statusBadge.innerText = "🎯 最优最省料状态 (x = h)";
+            } else {
+                statusBadge.className = "text-xs font-mono px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30";
+                statusBadge.innerText = `多消耗耗材: +${diff.toFixed(1)} cm²`;
+            }
+
+            // 绘制左半边：3D 伪透视长方体包装盒
+            const boxCx = w * 0.35;
+            const boxCy = h * 0.65;
+            const scale = Math.min(w, h) * 0.015;
+            
+            const renderW = x * scale * 4;
+            const renderH = heightBox * scale * 4;
+            const renderD = x * scale * 2.5;
+
+            // 绘制 3D 棱台
+            ctx.save();
+            ctx.lineWidth = 2;
+            
+            // 顶面
+            ctx.fillStyle = diff < 1.0 ? 'rgba(16, 185, 129, 0.4)' : 'rgba(56, 189, 248, 0.4)';
+            ctx.strokeStyle = diff < 1.0 ? '#10b981' : '#38bdf8';
+            ctx.beginPath();
+            ctx.moveTo(boxCx - renderW/2, boxCy - renderH);
+            ctx.lineTo(boxCx + renderW/2, boxCy - renderH);
+            ctx.lineTo(boxCx + renderW/2 + renderD * 0.7, boxCy - renderH - renderD * 0.4);
+            ctx.lineTo(boxCx - renderW/2 + renderD * 0.7, boxCy - renderH - renderD * 0.4);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // 正面
+            ctx.fillStyle = diff < 1.0 ? 'rgba(16, 185, 129, 0.6)' : 'rgba(56, 189, 248, 0.6)';
+            ctx.beginPath();
+            ctx.rect(boxCx - renderW/2, boxCy - renderH, renderW, renderH);
+            ctx.fill();
+            ctx.stroke();
+
+            // 侧面
+            ctx.fillStyle = diff < 1.0 ? 'rgba(16, 185, 129, 0.3)' : 'rgba(56, 189, 248, 0.3)';
+            ctx.beginPath();
+            ctx.moveTo(boxCx + renderW/2, boxCy - renderH);
+            ctx.lineTo(boxCx + renderW/2 + renderD * 0.7, boxCy - renderH - renderD * 0.4);
+            ctx.lineTo(boxCx + renderW/2 + renderD * 0.7, boxCy - renderD * 0.4);
+            ctx.lineTo(boxCx + renderW/2, boxCy);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
+
+            // 绘制右半边：表面积 S(x) 凹函数曲线
+            const graphX = w * 0.65;
+            const graphY = h * 0.25;
+            const graphW = w * 0.28;
+            const graphH = h * 0.55;
+
+            ctx.save();
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(graphX, graphY, graphW, graphH);
+
+            // 坐标轴
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '10px monospace';
+            ctx.fillText("S(x) 表面积", graphX + 5, graphY + 12);
+            ctx.fillText("边长 x →", graphX + graphW - 45, graphY + graphH - 5);
+
+            // 曲线绘制 S(t) = 2t² + 4V/t
+            ctx.strokeStyle = '#10b981';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            for (let i = 0; i <= graphW; i++) {
+                const t = 4 + (i / graphW) * 20;
+                const st = 2 * t * t + (4 * V) / t;
+                const plotY = graphY + graphH - ((st - minArea) / (minArea * 0.8)) * graphH * 0.6 - 15;
+                if (i === 0) ctx.moveTo(graphX + i, plotY);
+                else ctx.lineTo(graphX + i, plotY);
+            }
+            ctx.stroke();
+
+            // 当前点指示器
+            const currI = ((x - 4) / 20) * graphW;
+            const currPlotY = graphY + graphH - ((totalArea - minArea) / (minArea * 0.8)) * graphH * 0.6 - 15;
+            ctx.fillStyle = '#f59e0b';
+            ctx.beginPath();
+            ctx.arc(graphX + currI, currPlotY, 5, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        sliderX.addEventListener('input', (e) => {
+            x = parseFloat(e.target.value);
+            sliderXVal.innerText = `${x.toFixed(1)} cm`;
+            drawScene();
+        });
+
+        sliderV.addEventListener('input', (e) => {
+            V = parseFloat(e.target.value);
+            sliderVVal.innerText = `${V} cm³`;
+            drawScene();
+        });
+
+        btnAutoCube.addEventListener('click', () => {
+            x = Math.cbrt(V);
+            sliderX.value = x;
+            sliderXVal.innerText = `${x.toFixed(1)} cm`;
+            drawScene();
+        });
+
+        window.addEventListener('resize', drawScene);
+        window.addEventListener('DOMContentLoaded', drawScene);
+    </script>
+</body>
+</html>

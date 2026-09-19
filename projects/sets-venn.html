@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>高中数学 · 集合布尔运算与交互式 Venn 图实验室 | Inkstar Lab</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <style>
+        body { background-color: #0b1120; color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-slate-900">
+
+    <header class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800/80 px-4 lg:px-8 py-3.5 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-indigo-500 to-purple-400 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                <span class="text-slate-950 font-black text-lg">∩</span>
+            </div>
+            <div>
+                <h1 class="text-base sm:text-lg font-bold text-white tracking-tight flex items-center gap-2">
+                    集合布尔运算与交互式 Venn 图实验室
+                    <span class="text-xs font-normal px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 hidden sm:inline">集合与逻辑</span>
+                </h1>
+                <p class="text-xs text-slate-400">Set Operations & Interactive Venn Diagram · 交并补 / 德·摩根律 / 搜索引擎布尔逻辑</p>
+            </div>
+        </div>
+        <a href="../index.html" class="text-xs sm:text-sm px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            <span>返回主站</span>
+        </a>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5">
+        
+        <div class="lg:col-span-7 flex flex-col space-y-4">
+            
+            <div class="relative bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl flex flex-col items-center justify-center p-4 aspect-[4/3] sm:aspect-[16/10]">
+                <canvas id="mainCanvas" class="w-full h-full"></canvas>
+                
+                <div class="absolute top-4 left-4 bg-slate-900/85 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-800 text-xs flex items-center gap-3">
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span>集合 A (数学)</span>
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-sky-400"></span>集合 B (物理)</span>
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>集合 C (计算机)</span>
+                </div>
+
+                <div class="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs text-slate-400 bg-slate-900/85 backdrop-blur-md px-3.5 py-2 rounded-xl border border-slate-800">
+                    <span class="text-indigo-300 font-mono">当前运算模式: <b id="labelOpMode" class="text-white">A ∩ B (交集)</b></span>
+                </div>
+            </div>
+
+            <!-- 快捷预设按钮组 -->
+            <div class="grid grid-cols-3 sm:grid-cols-6 gap-2 text-xs">
+                <button class="btn-op p-2.5 rounded-xl bg-indigo-600 text-white font-medium border border-indigo-500 shadow-md text-center transition" data-op="intersect_ab">
+                    A ∩ B
+                </button>
+                <button class="btn-op p-2.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-slate-300 text-center transition" data-op="union_ab">
+                    A ∪ B
+                </button>
+                <button class="btn-op p-2.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-slate-300 text-center transition" data-op="intersect_all">
+                    A ∩ B ∩ C
+                </button>
+                <button class="btn-op p-2.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-slate-300 text-center transition" data-op="diff_ab">
+                    A \ B (差集)
+                </button>
+                <button class="btn-op p-2.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-slate-300 text-center transition" data-op="comp_union">
+                    ∁(A ∪ B)
+                </button>
+                <button class="btn-op p-2.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-slate-300 text-center transition" data-op="sym_diff">
+                    A △ B (对称差)
+                </button>
+            </div>
+
+        </div>
+
+        <div class="lg:col-span-5 flex flex-col space-y-4">
+            
+            <div class="bg-slate-900/80 rounded-2xl border border-slate-800 p-5 space-y-4 shadow-xl">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-indigo-400"></span>
+                        集合运算代数与布尔搜索
+                    </h3>
+                </div>
+
+                <div class="space-y-2 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80 text-xs font-mono">
+                    <div class="flex justify-between text-slate-300">
+                        <span>数学集合表示:</span>
+                        <span id="valMathExpr" class="text-indigo-300 font-bold">{ x | x ∈ A 且 x ∈ B }</span>
+                    </div>
+                    <div class="flex justify-between text-slate-300">
+                        <span>计算机布尔搜索:</span>
+                        <span id="valBoolExpr" class="text-amber-300 font-bold">A AND B</span>
+                    </div>
+                    <div class="flex justify-between text-slate-400 text-[11px] border-t border-slate-800/60 pt-2">
+                        <span>德·摩根等价对偶:</span>
+                        <span id="valDeMorgan" class="text-emerald-300">∁(A ∩ B) = ∁A ∪ ∁B</span>
+                    </div>
+                </div>
+
+                <div class="p-3.5 bg-indigo-950/20 rounded-xl border border-indigo-500/20 text-xs text-indigo-200/90 leading-relaxed">
+                    <div class="font-bold text-indigo-300 mb-1">德·摩根律（De Morgan's Laws）</div>
+                    $$\complement_U (A \cap B) = \complement_U A \cup \complement_U B$$
+                    $$\complement_U (A \cup B) = \complement_U A \cap \complement_U B$$
+                    <p class="mt-1 text-[11px] text-slate-400">
+                        交集的补集等于补集的并集，并集的补集等于补集的交集。在数据库 SQL 查询与 Google 搜索过滤中无处不在！
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+        let currentOp = 'intersect_ab';
+
+        const canvas = document.getElementById('mainCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const labelOpMode = document.getElementById('labelOpMode');
+        const valMathExpr = document.getElementById('valMathExpr');
+        const valBoolExpr = document.getElementById('valBoolExpr');
+        const valDeMorgan = document.getElementById('valDeMorgan');
+
+        const ops = {
+            intersect_ab: {
+                label: 'A ∩ B (交集)',
+                math: '{ x | x ∈ A 且 x ∈ B }',
+                bool: 'A AND B',
+                demorgan: '∁(A ∩ B) = ∁A ∪ ∁B'
+            },
+            union_ab: {
+                label: 'A ∪ B (并集)',
+                math: '{ x | x ∈ A 或 x ∈ B }',
+                bool: 'A OR B',
+                demorgan: '∁(A ∪ B) = ∁A ∩ ∁B'
+            },
+            intersect_all: {
+                label: 'A ∩ B ∩ C (三集交集)',
+                math: '{ x | x ∈ A 且 x ∈ B 且 x ∈ C }',
+                bool: 'A AND B AND C',
+                demorgan: '∁(A ∩ B ∩ C) = ∁A ∪ ∁B ∪ ∁C'
+            },
+            diff_ab: {
+                label: 'A \\ B (相对差集)',
+                math: '{ x | x ∈ A 且 x ∉ B }',
+                bool: 'A NOT B',
+                demorgan: 'A \\ B = A ∩ ∁B'
+            },
+            comp_union: {
+                label: '∁_U (A ∪ B) (全集补集)',
+                math: '{ x | x ∉ A 且 x ∉ B }',
+                bool: 'NOT (A OR B)',
+                demorgan: '∁(A ∪ B) = ∁A ∩ ∁B'
+            },
+            sym_diff: {
+                label: 'A △ B (对称差)',
+                math: '(A ∪ B) \\ (A ∩ B)',
+                bool: 'A XOR B',
+                demorgan: '(A ∩ ∁B) ∪ (B ∩ ∁A)'
+            }
+        };
+
+        function resize() {
+            const dpr = window.devicePixelRatio || 1;
+            const r = canvas.getBoundingClientRect();
+            canvas.width = r.width * dpr;
+            canvas.height = r.height * dpr;
+            ctx.scale(dpr, dpr);
+            return { w: r.width, h: r.height };
+        }
+
+        function draw() {
+            const { w, h } = resize();
+            ctx.clearRect(0, 0, w, h);
+
+            const cx = w * 0.5;
+            const cy = h * 0.48;
+            const R = Math.min(w, h) * 0.26;
+            const dist = R * 0.85;
+
+            // 三圆心
+            const cA = { x: cx - dist * 0.5, y: cy - dist * 0.3 };
+            const cB = { x: cx + dist * 0.5, y: cy - dist * 0.3 };
+            const cC = { x: cx, y: cy + dist * 0.55 };
+
+            // 逐像素/网格采样高亮判定当前选中区域
+            const step = 3;
+            for (let x = 20; x < w - 20; x += step) {
+                for (let y = 20; y < h - 20; y += step) {
+                    const inA = Math.hypot(x - cA.x, y - cA.y) < R;
+                    const inB = Math.hypot(x - cB.x, y - cB.y) < R;
+                    const inC = Math.hypot(x - cC.x, y - cC.y) < R;
+
+                    let highlight = false;
+                    if (currentOp === 'intersect_ab' && (inA && inB)) highlight = true;
+                    else if (currentOp === 'union_ab' && (inA || inB)) highlight = true;
+                    else if (currentOp === 'intersect_all' && (inA && inB && inC)) highlight = true;
+                    else if (currentOp === 'diff_ab' && (inA && !inB)) highlight = true;
+                    else if (currentOp === 'comp_union' && (!inA && !inB)) highlight = true;
+                    else if (currentOp === 'sym_diff' && ((inA || inB) && !(inA && inB))) highlight = true;
+
+                    if (highlight) {
+                        ctx.fillStyle = 'rgba(99, 102, 241, 0.45)';
+                        ctx.fillRect(x, y, step, step);
+                    }
+                }
+            }
+
+            // 绘制三个圆圈边框
+            ctx.lineWidth = 2.5;
+
+            // 圆 A (红)
+            ctx.strokeStyle = '#f43f5e';
+            ctx.beginPath(); ctx.arc(cA.x, cA.y, R, 0, 2 * Math.PI); ctx.stroke();
+
+            // 圆 B (蓝)
+            ctx.strokeStyle = '#38bdf8';
+            ctx.beginPath(); ctx.arc(cB.x, cB.y, R, 0, 2 * Math.PI); ctx.stroke();
+
+            // 圆 C (绿)
+            ctx.strokeStyle = '#10b981';
+            ctx.beginPath(); ctx.arc(cC.x, cC.y, R, 0, 2 * Math.PI); ctx.stroke();
+
+            // 绘制全集 U 矩形外框
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(20, 20, w - 40, h - 40);
+
+            // 标签
+            ctx.font = 'bold 13px sans-serif';
+            ctx.fillStyle = '#f43f5e'; ctx.fillText('集合 A', cA.x - R * 0.7, cA.y - R * 0.7);
+            ctx.fillStyle = '#38bdf8'; ctx.fillText('集合 B', cB.x + R * 0.4, cB.y - R * 0.7);
+            ctx.fillStyle = '#10b981'; ctx.fillText('集合 C', cC.x - 20, cC.y + R * 0.9);
+            ctx.fillStyle = '#64748b'; ctx.fillText('全集 U', 30, 40);
+        }
+
+        document.querySelectorAll('.btn-op').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.btn-op').forEach(b => {
+                    b.className = "btn-op p-2.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-slate-300 text-center transition";
+                });
+                btn.className = "btn-op p-2.5 rounded-xl bg-indigo-600 text-white font-medium border border-indigo-500 shadow-md text-center transition";
+
+                currentOp = btn.getAttribute('data-op');
+                const info = ops[currentOp];
+                labelOpMode.innerText = info.label;
+                valMathExpr.innerText = info.math;
+                valBoolExpr.innerText = info.bool;
+                valDeMorgan.innerText = info.demorgan;
+                draw();
+            });
+        });
+
+        window.addEventListener('resize', draw);
+        window.addEventListener('DOMContentLoaded', draw);
+    </script>
+</body>
+</html>

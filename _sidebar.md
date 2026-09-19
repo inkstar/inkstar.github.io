@@ -1,11 +1,22 @@
 * [🏠 网站首页 / 封面](/)
 * [📑 博客目录与概览](README.md)
+* [📜 站点更新日志](CHANGELOG.md)
 
 * **💻 可视化教学交互页面**
   * <a href="projects/uniform-linear-motion.html" target="_blank" rel="noopener">物理·匀变速直线运动实验室 ↗</a>
-  * <a href="projects/powerfunction.html" target="_blank" rel="noopener">Power Function 模型 ↗</a>
   * <a href="projects/vector-lighting.html" target="_blank" rel="noopener">向量数量积与 3D 光照实验室 ↗</a>
+  * <a href="projects/conic-orbit.html" target="_blank" rel="noopener">天体轨道与圆锥曲线实验室 ↗</a>
+  * <a href="projects/derivative-descent.html" target="_blank" rel="noopener">导数切线与 AI 梯度下降实验室 ↗</a>
+  * <a href="projects/bayesian-prob.html" target="_blank" rel="noopener">贝叶斯真假阳性概率实验室 ↗</a>
+  * <a href="projects/inequality-optimizer.html" target="_blank" rel="noopener">不等式最值与耗材优化实验室 ↗</a>
+  * <a href="projects/sequence-mortgage.html" target="_blank" rel="noopener">数列求和与房贷等额本息实验室 ↗</a>
+  * <a href="projects/trigonometry-shadow.html" target="_blank" rel="noopener">解三角形双杆日照测量实验室 ↗</a>
+  * <a href="projects/function-growth-carbon14.html" target="_blank" rel="noopener">幂指对增长与碳-14 测年实验室 ↗</a>
+  * <a href="projects/solid-geometry-vectors.html" target="_blank" rel="noopener">立体几何法向量与二面角实验室 ↗</a>
+  * <a href="projects/combinatorics-pascal.html" target="_blank" rel="noopener">排列组合与动态杨辉三角实验室 ↗</a>
+  * <a href="projects/sets-venn.html" target="_blank" rel="noopener">集合运算与交互式 Venn 图 ↗</a>
   * <a href="projects/dailyproblem26052601.html" target="_blank" rel="noopener">三角函数极值区间演示 ↗</a>
+  * <a href="projects/powerfunction.html" target="_blank" rel="noopener">Power Function 模型 ↗</a>
   * <a href="https://ai.studio/apps/f7a31f6a-3ca5-46c3-865f-15d919971c63" target="_blank" rel="noopener">AI Studio 题目动画 ↗</a>
 
 * **📐 高中数学精讲专栏（沪教版同步体系）**

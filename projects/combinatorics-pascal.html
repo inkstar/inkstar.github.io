@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>高中数学 · 排列组合密码熵与杨辉三角实验室 | Inkstar Lab</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <style>
+        body { background-color: #0b1120; color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .slider-thumb-modern::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
+            background: #eab308; cursor: pointer; box-shadow: 0 0 10px rgba(234, 179, 8, 0.6);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-yellow-500 selection:text-slate-900">
+
+    <header class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800/80 px-4 lg:px-8 py-3.5 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-yellow-500 to-amber-400 flex items-center justify-center shadow-lg shadow-yellow-500/20">
+                <span class="text-slate-950 font-black text-lg">C</span>
+            </div>
+            <div>
+                <h1 class="text-base sm:text-lg font-bold text-white tracking-tight flex items-center gap-2">
+                    排列组合密码熵与杨辉三角实验室
+                    <span class="text-xs font-normal px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 hidden sm:inline">计数原理</span>
+                </h1>
+                <p class="text-xs text-slate-400">Combinatorics & Pascal's Triangle · 二项式系数 / 密码状态空间复杂度</p>
+            </div>
+        </div>
+        <a href="../index.html" class="text-xs sm:text-sm px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            <span>返回主站</span>
+        </a>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5">
+        
+        <div class="lg:col-span-7 flex flex-col space-y-4">
+            
+            <div class="bg-slate-900/80 p-1.5 rounded-xl border border-slate-800 flex items-center space-x-2 text-xs sm:text-sm">
+                <button id="tabPascal" class="flex-1 py-2 rounded-lg font-medium transition bg-yellow-500 text-slate-950 font-bold shadow-md">
+                    🔺 动态杨辉三角 (Pascal Triangle)
+                </button>
+                <button id="tabPassword" class="flex-1 py-2 rounded-lg font-medium transition text-slate-400 hover:text-white hover:bg-slate-800">
+                    🔐 乘法原理密码熵与暴力破解
+                </button>
+            </div>
+
+            <!-- 画布/容器 -->
+            <div class="relative bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl flex flex-col items-center justify-center p-4 aspect-[4/3] sm:aspect-[16/10] overflow-y-auto custom-scrollbar">
+                
+                <div id="pascalView" class="w-full flex flex-col items-center justify-center space-y-1 py-4 font-mono text-xs select-none">
+                    <!-- JS 动态注入杨辉三角节点 -->
+                </div>
+
+                <div id="passwordView" class="w-full h-full flex flex-col items-center justify-center p-6 space-y-5 hidden">
+                    <div class="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-3xl">
+                        🛡️
+                    </div>
+                    <div class="text-center space-y-1">
+                        <div class="text-lg font-bold text-white">乘法原理状态空间: <span id="pwdTotalCombs" class="text-amber-400 font-mono">1.00 × 10⁶</span></div>
+                        <p class="text-xs text-slate-400">基于 GPU 算力 (每秒测试 100 亿次哈希)</p>
+                    </div>
+                    <div id="pwdSafetyBadge" class="px-3 py-1.5 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-bold">
+                        破译时间: < 1 秒 ❌ (极度脆弱)
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 控制滑块 -->
+            <div class="bg-slate-900/70 p-4 rounded-2xl border border-slate-800/80 space-y-3">
+                <div id="pascalControls">
+                    <div class="flex justify-between text-xs mb-1.5">
+                        <span class="text-slate-300 font-medium">杨辉三角生成行数 $n$</span>
+                        <span id="labelRows" class="font-mono font-bold text-yellow-400">7 行</span>
+                    </div>
+                    <input id="sliderRows" type="range" min="3" max="10" value="7" step="1" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer slider-thumb-modern">
+                </div>
+
+                <div id="passwordControls" class="space-y-3 hidden">
+                    <div>
+                        <div class="flex justify-between text-xs mb-1.5">
+                            <span class="text-slate-300 font-medium">密码字符长度</span>
+                            <span id="labelPwdLen" class="font-mono font-bold text-amber-400">6 位</span>
+                        </div>
+                        <input id="sliderPwdLen" type="range" min="4" max="16" value="6" step="1" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer slider-thumb-modern">
+                    </div>
+                    <div class="flex flex-wrap gap-4 text-xs text-slate-300 pt-1">
+                        <label class="flex items-center gap-1.5 cursor-pointer">
+                            <input id="chkDigits" type="checkbox" checked class="rounded bg-slate-800 text-yellow-500"> 数字 (0-9)
+                        </label>
+                        <label class="flex items-center gap-1.5 cursor-pointer">
+                            <input id="chkLower" type="checkbox" class="rounded bg-slate-800 text-yellow-500"> 小写字母 (a-z)
+                        </label>
+                        <label class="flex items-center gap-1.5 cursor-pointer">
+                            <input id="chkUpper" type="checkbox" class="rounded bg-slate-800 text-yellow-500"> 大写字母 (A-Z)
+                        </label>
+                        <label class="flex items-center gap-1.5 cursor-pointer">
+                            <input id="chkSpecial" type="checkbox" class="rounded bg-slate-800 text-yellow-500"> 特殊符号 (!@#$)
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="lg:col-span-5 flex flex-col space-y-4">
+            
+            <div class="bg-slate-900/80 rounded-2xl border border-slate-800 p-5 space-y-4 shadow-xl">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-yellow-400"></span>
+                        二项式系数与递推恒等式
+                    </h3>
+                </div>
+
+                <div class="space-y-2 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80 text-xs font-mono">
+                    <div class="flex justify-between text-slate-300">
+                        <span>组合数加法递推公式:</span>
+                        <span class="text-yellow-300 font-bold">C(n+1, k) = C(n, k) + C(n, k-1)</span>
+                    </div>
+                    <div class="flex justify-between text-slate-300">
+                        <span>第 n 行二项式系数和:</span>
+                        <span id="valRowSum" class="text-sky-300 font-bold">2⁶ = 64</span>
+                    </div>
+                </div>
+
+                <div class="p-3.5 bg-yellow-950/20 rounded-xl border border-yellow-500/20 text-xs text-yellow-200/90 leading-relaxed">
+                    <div class="font-bold text-yellow-300 mb-1">二项式定理与杨辉三角</div>
+                    $$(a + b)^n = \sum_{k=0}^n C_n^k a^{n-k} b^k$$
+                    <p class="mt-1 text-[11px] text-slate-400">
+                        杨辉三角第 $n$ 行的各个数字，恰好就是 $(a+b)^n$ 展开式中每一项的二项式系数！
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+        let mode = 'pascal';
+        let rows = 7;
+        let pwdLen = 6;
+
+        const tabPascal = document.getElementById('tabPascal');
+        const tabPassword = document.getElementById('tabPassword');
+        const pascalView = document.getElementById('pascalView');
+        const passwordView = document.getElementById('passwordView');
+        const pascalControls = document.getElementById('pascalControls');
+        const passwordControls = document.getElementById('passwordControls');
+
+        const sliderRows = document.getElementById('sliderRows');
+        const labelRows = document.getElementById('labelRows');
+        const valRowSum = document.getElementById('valRowSum');
+
+        const sliderPwdLen = document.getElementById('sliderPwdLen');
+        const labelPwdLen = document.getElementById('labelPwdLen');
+        const pwdTotalCombs = document.getElementById('pwdTotalCombs');
+        const pwdSafetyBadge = document.getElementById('pwdSafetyBadge');
+        const chkDigits = document.getElementById('chkDigits');
+        const chkLower = document.getElementById('chkLower');
+        const chkUpper = document.getElementById('chkUpper');
+        const chkSpecial = document.getElementById('chkSpecial');
+
+        function generatePascal(n) {
+            const tri = [];
+            for (let i = 0; i < n; i++) {
+                const row = [1];
+                for (let j = 1; j < i; j++) {
+                    row.push(tri[i - 1][j - 1] + tri[i - 1][j]);
+                }
+                if (i > 0) row.push(1);
+                tri.push(row);
+            }
+            return tri;
+        }
+
+        function renderPascal() {
+            const tri = generatePascal(rows);
+            pascalView.innerHTML = '';
+            labelRows.innerText = `${rows} 行`;
+            valRowSum.innerText = `2^${rows - 1} = ${Math.pow(2, rows - 1)}`;
+
+            tri.forEach((row, rIdx) => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = "flex items-center justify-center space-x-1 sm:space-x-2";
+                
+                row.forEach((num, cIdx) => {
+                    const cell = document.createElement('span');
+                    cell.className = "px-2 py-1 rounded bg-slate-900 border border-slate-800 text-yellow-300 hover:bg-yellow-500 hover:text-slate-950 transition text-[11px] sm:text-xs min-w-[28px] text-center cursor-pointer";
+                    cell.innerText = num;
+                    cell.title = `C(${rIdx}, ${cIdx}) = ${num}`;
+                    rowDiv.appendChild(cell);
+                });
+                pascalView.appendChild(rowDiv);
+            });
+        }
+
+        function updatePassword() {
+            let charset = 0;
+            if (chkDigits.checked) charset += 10;
+            if (chkLower.checked) charset += 26;
+            if (chkUpper.checked) charset += 26;
+            if (chkSpecial.checked) charset += 32;
+
+            labelPwdLen.innerText = `${pwdLen} 位 (字符集大小: ${charset})`;
+            const total = Math.pow(charset, pwdLen);
+            pwdTotalCombs.innerText = total > 1e12 ? total.toExponential(2) : total.toLocaleString();
+
+            const sec = total / 1e10; // 每秒 100 亿次
+            const years = sec / (3600 * 24 * 365);
+
+            if (years < 1 / (365 * 24 * 60)) {
+                pwdSafetyBadge.className = "px-3 py-1.5 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-bold";
+                pwdSafetyBadge.innerText = "破译时间: < 1 秒 ❌ (极度脆弱)";
+            } else if (years < 1) {
+                pwdSafetyBadge.className = "px-3 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-bold";
+                pwdSafetyBadge.innerText = `破译时间: 约 ${(years * 365).toFixed(1)} 天 ⚠️ (中等风险)`;
+            } else {
+                pwdSafetyBadge.className = "px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold";
+                pwdSafetyBadge.innerText = `破译时间: 约 ${years > 10000 ? years.toExponential(1) : Math.round(years)} 年 ✅ (高强度安全)`;
+            }
+        }
+
+        tabPascal.addEventListener('click', () => {
+            mode = 'pascal';
+            tabPascal.className = "flex-1 py-2 rounded-lg font-medium transition bg-yellow-500 text-slate-950 font-bold shadow-md";
+            tabPassword.className = "flex-1 py-2 rounded-lg font-medium transition text-slate-400 hover:text-white hover:bg-slate-800";
+            pascalView.classList.remove('hidden');
+            passwordView.classList.add('hidden');
+            pascalControls.classList.remove('hidden');
+            passwordControls.classList.add('hidden');
+        });
+
+        tabPassword.addEventListener('click', () => {
+            mode = 'password';
+            tabPassword.className = "flex-1 py-2 rounded-lg font-medium transition bg-yellow-500 text-slate-950 font-bold shadow-md";
+            tabPascal.className = "flex-1 py-2 rounded-lg font-medium transition text-slate-400 hover:text-white hover:bg-slate-800";
+            passwordView.classList.remove('hidden');
+            pascalView.classList.add('hidden');
+            passwordControls.classList.remove('hidden');
+            pascalControls.classList.add('hidden');
+            updatePassword();
+        });
+
+        sliderRows.addEventListener('input', (e) => {
+            rows = parseInt(e.target.value);
+            renderPascal();
+        });
+
+        sliderPwdLen.addEventListener('input', (e) => {
+            pwdLen = parseInt(e.target.value);
+            updatePassword();
+        });
+
+        [chkDigits, chkLower, chkUpper, chkSpecial].forEach(chk => chk.addEventListener('change', updatePassword));
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderPascal();
+        });
+    </script>
+</body>
+</html>

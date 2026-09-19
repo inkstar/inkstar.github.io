@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>高中数学 · 解三角形与双杆日照测量实验室 | Inkstar Lab</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <style>
+        body { background-color: #0b1120; color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .slider-thumb-modern::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
+            background: #f59e0b; cursor: pointer; box-shadow: 0 0 10px rgba(245, 158, 11, 0.6);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-amber-500 selection:text-slate-900">
+
+    <header class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800/80 px-4 lg:px-8 py-3.5 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-amber-500 to-orange-400 flex items-center justify-center shadow-lg shadow-amber-500/20">
+                <span class="text-slate-950 font-black text-lg">sin</span>
+            </div>
+            <div>
+                <h1 class="text-base sm:text-lg font-bold text-white tracking-tight flex items-center gap-2">
+                    解三角形与双杆日照测量实验室
+                    <span class="text-xs font-normal px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 hidden sm:inline">上海高考经典模型</span>
+                </h1>
+                <p class="text-xs text-slate-400">Trigonometry & Double-Pole Solar Shadow Measurement · 正弦余弦定理 / 测高建模</p>
+            </div>
+        </div>
+        <a href="../index.html" class="text-xs sm:text-sm px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            <span>返回主站</span>
+        </a>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5">
+        
+        <div class="lg:col-span-7 flex flex-col space-y-4">
+            
+            <div class="relative bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl flex flex-col items-center justify-center p-2 sm:p-4 aspect-[4/3] sm:aspect-[16/10]">
+                <canvas id="mainCanvas" class="w-full h-full"></canvas>
+                
+                <div class="absolute top-4 left-4 bg-slate-900/85 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-800 text-xs flex items-center gap-3">
+                    <span class="text-slate-300">☀️ 平行太阳光照射与地面两标杆影子投影</span>
+                </div>
+
+                <div class="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs text-slate-400 bg-slate-900/85 backdrop-blur-md px-3.5 py-2 rounded-xl border border-slate-800">
+                    <span class="text-amber-300 font-mono">标杆1 影长: <span id="labelL1">2.0</span> m</span>
+                    <span class="text-slate-500">|</span>
+                    <span class="text-sky-300 font-mono">标杆2 影长: <span id="labelL2">3.0</span> m</span>
+                    <span class="text-slate-500">|</span>
+                    <span class="text-emerald-300 font-mono">太阳高度角 α: <span id="labelAngle">45.0°</span></span>
+                </div>
+            </div>
+
+            <!-- 控制滑块 -->
+            <div class="bg-slate-900/70 p-4 rounded-2xl border border-slate-800/80 space-y-3">
+                <div>
+                    <div class="flex justify-between text-xs mb-1.5">
+                        <span class="text-slate-300 font-medium">太阳仰角 $\alpha$ (高度角)</span>
+                        <span id="sliderAngleVal" class="font-mono font-bold text-amber-400">45.0°</span>
+                    </div>
+                    <input id="sliderAngle" type="range" min="15" max="75" value="45" step="0.5" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer slider-thumb-modern">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-800/60">
+                    <div>
+                        <div class="flex justify-between text-[11px] text-slate-400 mb-1">
+                            <span>标杆 1 高度 $H_1$</span>
+                            <span id="labelH1" class="font-mono text-white">2.0 m</span>
+                        </div>
+                        <input id="sliderH1" type="range" min="1" max="5" value="2" step="0.1" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer slider-thumb-modern">
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-[11px] text-slate-400 mb-1">
+                            <span>标杆 2 高度 $H_2$</span>
+                            <span id="labelH2" class="font-mono text-white">3.0 m</span>
+                        </div>
+                        <input id="sliderH2" type="range" min="1" max="5" value="3" step="0.1" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer slider-thumb-modern">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="lg:col-span-5 flex flex-col space-y-4">
+            
+            <div class="bg-slate-900/80 rounded-2xl border border-slate-800 p-5 space-y-4 shadow-xl">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                        解三角形几何参量
+                    </h3>
+                </div>
+
+                <div class="space-y-2 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80 text-xs font-mono">
+                    <div class="flex justify-between text-slate-300">
+                        <span>标杆 1 阴影直角边长 $L_1$:</span>
+                        <span id="valShadow1" class="text-amber-300 font-bold">2.00 m</span>
+                    </div>
+                    <div class="flex justify-between text-slate-300">
+                        <span>标杆 2 阴影直角边长 $L_2$:</span>
+                        <span id="valShadow2" class="text-sky-300 font-bold">3.00 m</span>
+                    </div>
+                    <div class="flex justify-between text-slate-300">
+                        <span>两标杆顶点连线与地面倾角:</span>
+                        <span id="valSlant" class="text-emerald-300 font-bold">--</span>
+                    </div>
+                </div>
+
+                <div class="p-3.5 bg-amber-950/20 rounded-xl border border-amber-500/20 text-xs text-amber-200/90 leading-relaxed">
+                    <div class="font-bold text-amber-300 mb-1">直角三角比与正余弦定理联立</div>
+                    $$L = \frac{H}{\tan\alpha} = H \cdot \cot\alpha$$
+                    $$c^2 = a^2 + b^2 - 2ab\cos C$$
+                    <p class="mt-1 text-[11px] text-slate-400">
+                        在上海高考真实考题中，通过测量两标杆影子顶端间距与已知两标杆间距，利用余弦定理构建方程，无需攀登建筑物即可精确求得太阳仰角与建筑物真实高度！
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+        let angle = 45;
+        let H1 = 2.0;
+        let H2 = 3.0;
+
+        const canvas = document.getElementById('mainCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const sliderAngle = document.getElementById('sliderAngle');
+        const sliderAngleVal = document.getElementById('sliderAngleVal');
+        const sliderH1 = document.getElementById('sliderH1');
+        const sliderH2 = document.getElementById('sliderH2');
+        const labelH1 = document.getElementById('labelH1');
+        const labelH2 = document.getElementById('labelH2');
+
+        const labelL1 = document.getElementById('labelL1');
+        const labelL2 = document.getElementById('labelL2');
+        const labelAngle = document.getElementById('labelAngle');
+        const valShadow1 = document.getElementById('valShadow1');
+        const valShadow2 = document.getElementById('valShadow2');
+        const valSlant = document.getElementById('valSlant');
+
+        function resize() {
+            const dpr = window.devicePixelRatio || 1;
+            const r = canvas.getBoundingClientRect();
+            canvas.width = r.width * dpr;
+            canvas.height = r.height * dpr;
+            ctx.scale(dpr, dpr);
+            return { w: r.width, h: r.height };
+        }
+
+        function draw() {
+            const { w, h } = resize();
+            ctx.clearRect(0, 0, w, h);
+
+            const rad = (angle * Math.PI) / 180;
+            const tanA = Math.tan(rad);
+            const L1 = H1 / tanA;
+            const L2 = H2 / tanA;
+
+            labelAngle.innerText = `${angle.toFixed(1)}°`;
+            labelL1.innerText = `${L1.toFixed(2)} m`;
+            labelL2.innerText = `${L2.toFixed(2)} m`;
+            valShadow1.innerText = `${L1.toFixed(2)} m`;
+            valShadow2.innerText = `${L2.toFixed(2)} m`;
+            
+            const slantDeg = Math.atan2(H2 - H1, 4.0) * 180 / Math.PI;
+            valSlant.innerText = `${slantDeg.toFixed(1)}°`;
+
+            const groundY = h * 0.78;
+            const scale = Math.min(w, h) * 0.08;
+
+            // 绘制地面
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(30, groundY);
+            ctx.lineTo(w - 30, groundY);
+            ctx.stroke();
+
+            // 标杆 1 位置
+            const pole1X = w * 0.35;
+            const pole1TopY = groundY - H1 * scale;
+            const shadow1EndX = pole1X - L1 * scale;
+
+            // 标杆 2 位置
+            const pole2X = w * 0.7;
+            const pole2TopY = groundY - H2 * scale;
+            const shadow2EndX = pole2X - L2 * scale;
+
+            // 绘制太阳平行光线 (虚线 橙色)
+            ctx.save();
+            ctx.strokeStyle = 'rgba(245, 158, 11, 0.4)';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([4, 4]);
+
+            // 光线 1
+            ctx.beginPath();
+            ctx.moveTo(shadow1EndX, groundY);
+            ctx.lineTo(pole1X + 40, pole1TopY - 40 * tanA);
+            ctx.stroke();
+
+            // 光线 2
+            ctx.beginPath();
+            ctx.moveTo(shadow2EndX, groundY);
+            ctx.lineTo(pole2X + 40, pole2TopY - 40 * tanA);
+            ctx.stroke();
+            ctx.restore();
+
+            // 绘制阴影 (深黑高亮)
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.8)';
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(shadow1EndX, groundY); ctx.lineTo(pole1X, groundY);
+            ctx.moveTo(shadow2EndX, groundY); ctx.lineTo(pole2X, groundY);
+            ctx.stroke();
+
+            // 绘制标杆 1 (蓝)
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = 5;
+            ctx.beginPath();
+            ctx.moveTo(pole1X, groundY); ctx.lineTo(pole1X, pole1TopY);
+            ctx.stroke();
+
+            // 绘制标杆 2 (蓝)
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = 5;
+            ctx.beginPath();
+            ctx.moveTo(pole2X, groundY); ctx.lineTo(pole2X, pole2TopY);
+            ctx.stroke();
+
+            // 标杆文字
+            ctx.fillStyle = '#f1f5f9';
+            ctx.font = 'bold 11px sans-serif';
+            ctx.fillText(`标杆1 (H₁=${H1.toFixed(1)}m)`, pole1X - 25, pole1TopY - 10);
+            ctx.fillText(`标杆2 (H₂=${H2.toFixed(1)}m)`, pole2X - 25, pole2TopY - 10);
+            ctx.fillStyle = '#f59e0b';
+            ctx.fillText(`影长 ${L1.toFixed(2)}m`, shadow1EndX + 5, groundY + 18);
+            ctx.fillText(`影长 ${L2.toFixed(2)}m`, shadow2EndX + 5, groundY + 18);
+        }
+
+        sliderAngle.addEventListener('input', (e) => {
+            angle = parseFloat(e.target.value);
+            sliderAngleVal.innerText = `${angle.toFixed(1)}°`;
+            draw();
+        });
+
+        sliderH1.addEventListener('input', (e) => {
+            H1 = parseFloat(e.target.value);
+            labelH1.innerText = `${H1.toFixed(1)} m`;
+            draw();
+        });
+
+        sliderH2.addEventListener('input', (e) => {
+            H2 = parseFloat(e.target.value);
+            labelH2.innerText = `${H2.toFixed(1)} m`;
+            draw();
+        });
+
+        window.addEventListener('resize', draw);
+        window.addEventListener('DOMContentLoaded', draw);
+    </script>
+</body>
+</html>

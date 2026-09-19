@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>高中数学 · 开普勒天体轨道与圆锥曲线实验室 | Inkstar Lab</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <style>
+        body { background-color: #0b1120; color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .slider-thumb-modern::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
+            background: #a855f7; cursor: pointer; box-shadow: 0 0 10px rgba(168, 85, 247, 0.6);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-purple-500 selection:text-slate-900">
+
+    <header class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800/80 px-4 lg:px-8 py-3.5 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-purple-500 to-indigo-400 flex items-center justify-center shadow-lg shadow-purple-500/20">
+                <span class="text-slate-950 font-black text-lg">🪐</span>
+            </div>
+            <div>
+                <h1 class="text-base sm:text-lg font-bold text-white tracking-tight flex items-center gap-2">
+                    开普勒天体轨道与圆锥曲线实验室
+                    <span class="text-xs font-normal px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 hidden sm:inline">圆锥曲线统一定义</span>
+                </h1>
+                <p class="text-xs text-slate-400">Kepler Celestial Orbits & Conic Sections · 椭圆 / 双曲线引力弹弓 / 离心率 e</p>
+            </div>
+        </div>
+        <a href="../index.html" class="text-xs sm:text-sm px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            <span>返回主站</span>
+        </a>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5">
+        
+        <div class="lg:col-span-7 flex flex-col space-y-4">
+            
+            <div class="relative bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl flex flex-col items-center justify-center p-2 sm:p-4 aspect-[4/3] sm:aspect-[16/10]">
+                <canvas id="mainCanvas" class="w-full h-full"></canvas>
+                
+                <div class="absolute top-4 left-4 bg-slate-900/85 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-800 text-xs flex items-center gap-3">
+                    <span class="text-slate-300">☀️ 中心引力源焦点 F₁ (太阳/主星)</span>
+                    <span id="orbitTypeBadge" class="px-1.5 py-0.5 rounded text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/30 font-bold">闭合椭圆轨道</span>
+                </div>
+
+                <div class="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs text-slate-400 bg-slate-900/85 backdrop-blur-md px-3.5 py-2 rounded-xl border border-slate-800">
+                    <div class="flex items-center gap-2">
+                        <span class="text-purple-300 font-mono">离心率 e = <span id="labelE">0.50</span></span>
+                        <span class="text-slate-500">|</span>
+                        <span id="labelPerigee" class="text-amber-300 font-mono">近日点: 0.67 AU</span>
+                    </div>
+                    <button id="btnToggleAnim" class="px-2.5 py-1 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-medium transition shadow-md flex items-center gap-1">
+                        <span id="playIcon">⏸</span>
+                        <span id="playText">暂停运行</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 控制滑块 -->
+            <div class="bg-slate-900/70 p-4 rounded-2xl border border-slate-800/80 space-y-3">
+                <div class="flex justify-between text-xs">
+                    <span class="text-slate-300 font-medium">轨道离心率 $e$</span>
+                    <span id="sliderEVal" class="font-mono font-bold text-purple-400">e = 0.50 (椭圆)</span>
+                </div>
+                <input id="sliderE" type="range" min="0" max="2.2" value="0.5" step="0.02" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer slider-thumb-modern">
+
+                <!-- 预设按钮 -->
+                <div class="grid grid-cols-4 gap-2 pt-2 border-t border-slate-800/60 text-xs">
+                    <button class="btn-preset p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-center text-slate-300" data-e="0">
+                        ⭕ 正圆 (e=0)
+                    </button>
+                    <button class="btn-preset p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-center text-purple-300 font-bold" data-e="0.5">
+                        🪐 椭圆 (e=0.5)
+                    </button>
+                    <button class="btn-preset p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-center text-amber-300" data-e="1.0">
+                        ⚡ 抛物线 (e=1)
+                    </button>
+                    <button class="btn-preset p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-center text-rose-300" data-e="1.6">
+                        🚀 双曲线 (e=1.6)
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="lg:col-span-5 flex flex-col space-y-4">
+            
+            <div class="bg-slate-900/80 rounded-2xl border border-slate-800 p-5 space-y-4 shadow-xl">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-purple-400"></span>
+                        圆锥曲线几何参数
+                    </h3>
+                </div>
+
+                <div class="space-y-2 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80 text-xs font-mono">
+                    <div class="flex justify-between text-slate-300">
+                        <span>半通径 p (焦准距乘 e):</span>
+                        <span class="text-white">1.00 AU</span>
+                    </div>
+                    <div class="flex justify-between text-slate-300">
+                        <span>近日距 r_min = p/(1+e):</span>
+                        <span id="valRmin" class="text-amber-300 font-bold">0.67 AU</span>
+                    </div>
+                    <div class="flex justify-between text-slate-300">
+                        <span>远日距 r_max = p/(1-e):</span>
+                        <span id="valRmax" class="text-sky-300 font-bold">2.00 AU</span>
+                    </div>
+                    <div class="flex justify-between text-purple-300 font-bold border-t border-slate-800/60 pt-2">
+                        <span>半长轴 a = (r_min + r_max)/2:</span>
+                        <span id="valA">1.33 AU</span>
+                    </div>
+                </div>
+
+                <div class="p-3.5 bg-purple-950/20 rounded-xl border border-purple-500/20 text-xs text-purple-200/90 leading-relaxed">
+                    <div class="font-bold text-purple-300 mb-1">开普勒极坐标统一定义</div>
+                    $$r(\theta) = \frac{p}{1 + e\cos\theta}$$
+                    <p class="mt-1 text-[11px] text-slate-400">
+                        万有引力定律下，所有天体运行轨迹皆由圆锥曲线描绘。离心率 $e < 1$ 为闭合轨道（地球/彗星）；$e > 1$ 为引力弹弓借力飞离太阳系的双曲线！
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+        let e = 0.5;
+        let isPlaying = true;
+        let trueAnomaly = 0; // 行星真近点角
+        const p = 1.0;
+
+        const canvas = document.getElementById('mainCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const sliderE = document.getElementById('sliderE');
+        const sliderEVal = document.getElementById('sliderEVal');
+        const labelE = document.getElementById('labelE');
+        const orbitTypeBadge = document.getElementById('orbitTypeBadge');
+        const labelPerigee = document.getElementById('labelPerigee');
+        const valRmin = document.getElementById('valRmin');
+        const valRmax = document.getElementById('valRmax');
+        const valA = document.getElementById('valA');
+        const btnToggleAnim = document.getElementById('btnToggleAnim');
+        const playIcon = document.getElementById('playIcon');
+        const playText = document.getElementById('playText');
+
+        function resize() {
+            const dpr = window.devicePixelRatio || 1;
+            const r = canvas.getBoundingClientRect();
+            canvas.width = r.width * dpr;
+            canvas.height = r.height * dpr;
+            ctx.scale(dpr, dpr);
+            return { w: r.width, h: r.height };
+        }
+
+        function draw() {
+            const { w, h } = resize();
+            ctx.clearRect(0, 0, w, h);
+
+            const cx = w * 0.45;
+            const cy = h * 0.5;
+            const scale = Math.min(w, h) * 0.28;
+
+            // 更新标签
+            labelE.innerText = e.toFixed(2);
+            const rMin = p / (1 + e);
+            valRmin.innerText = `${rMin.toFixed(2)} AU`;
+            labelPerigee.innerText = `近日点: ${rMin.toFixed(2)} AU`;
+
+            if (e < 0.05) {
+                sliderEVal.innerText = `e = ${e.toFixed(2)} (正圆轨道)`;
+                orbitTypeBadge.innerText = "正圆轨道";
+                valRmax.innerText = `${rMin.toFixed(2)} AU`;
+                valA.innerText = `${rMin.toFixed(2)} AU`;
+            } else if (e < 0.99) {
+                sliderEVal.innerText = `e = ${e.toFixed(2)} (闭合椭圆)`;
+                orbitTypeBadge.innerText = "闭合椭圆轨道";
+                const rMax = p / (1 - e);
+                valRmax.innerText = `${rMax.toFixed(2)} AU`;
+                valA.innerText = `${((rMin + rMax) / 2).toFixed(2)} AU`;
+            } else if (e <= 1.01) {
+                sliderEVal.innerText = `e = 1.00 (临界抛物线)`;
+                orbitTypeBadge.innerText = "临界抛物线逃逸";
+                valRmax.innerText = "∞ (脱离引力)";
+                valA.innerText = "∞";
+            } else {
+                sliderEVal.innerText = `e = ${e.toFixed(2)} (双曲线飞越)`;
+                orbitTypeBadge.innerText = "双曲线引力弹弓";
+                valRmax.innerText = "无远日点 (逃逸)";
+                valA.innerText = "负实数";
+            }
+
+            // 绘制坐标轴网格
+            ctx.strokeStyle = 'rgba(51, 65, 85, 0.4)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, cy); ctx.lineTo(w, cy);
+            ctx.moveTo(cx, 0); ctx.lineTo(cx, h);
+            ctx.stroke();
+
+            // 绘制引力源太阳 (焦点 F1)
+            ctx.save();
+            const sunGlow = ctx.createRadialGradient(cx, cy, 0, cx, cy, 18);
+            sunGlow.addColorStop(0, '#f59e0b');
+            sunGlow.addColorStop(1, 'transparent');
+            ctx.fillStyle = sunGlow;
+            ctx.beginPath(); ctx.arc(cx, cy, 18, 0, 2 * Math.PI); ctx.fill();
+            ctx.fillStyle = '#fef08a';
+            ctx.beginPath(); ctx.arc(cx, cy, 7, 0, 2 * Math.PI); ctx.fill();
+            ctx.restore();
+
+            // 绘制圆锥曲线轨道
+            ctx.strokeStyle = '#a855f7';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+
+            let maxTheta = Math.PI;
+            if (e >= 1.0) {
+                maxTheta = Math.acos(-1 / e) - 0.05; // 双曲线渐近角
+            }
+
+            const steps = 360;
+            let first = true;
+            for (let i = -steps; i <= steps; i++) {
+                const th = (i / steps) * maxTheta;
+                const denom = 1 + e * Math.cos(th);
+                if (denom > 0.001) {
+                    const r = p / denom;
+                    const rx = cx + r * Math.cos(th) * scale;
+                    const ry = cy - r * Math.sin(th) * scale;
+                    if (first) { ctx.moveTo(rx, ry); first = false; }
+                    else ctx.lineTo(rx, ry);
+                }
+            }
+            ctx.stroke();
+
+            // 绘制运动中的行星
+            const curDenom = 1 + e * Math.cos(trueAnomaly);
+            if (curDenom > 0.01) {
+                const curR = p / curDenom;
+                const px = cx + curR * Math.cos(trueAnomaly) * scale;
+                const py = cy - curR * Math.sin(trueAnomaly) * scale;
+
+                // 连线矢径
+                ctx.strokeStyle = 'rgba(168, 85, 247, 0.4)';
+                ctx.setLineDash([2, 2]);
+                ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(px, py); ctx.stroke();
+                ctx.setLineDash([]);
+
+                // 行星小球 (天蓝色)
+                ctx.fillStyle = '#38bdf8';
+                ctx.beginPath(); ctx.arc(px, py, 6, 0, 2 * Math.PI); ctx.fill();
+            }
+
+            // 行星开普勒速度更新 (角速度与 r^2 成反比，开普勒第二定律面积守恒)
+            if (isPlaying) {
+                const curR = p / (1 + e * Math.cos(trueAnomaly));
+                const omega = 0.04 / (curR * curR);
+                trueAnomaly += omega;
+                if (e < 1.0) {
+                    trueAnomaly = trueAnomaly % (2 * Math.PI);
+                } else {
+                    if (trueAnomaly > maxTheta) trueAnomaly = -maxTheta;
+                }
+            }
+        }
+
+        function animLoop() {
+            draw();
+            requestAnimationFrame(animLoop);
+        }
+
+        sliderE.addEventListener('input', (eTarget) => {
+            e = parseFloat(eTarget.target.value);
+            sliderE.value = e;
+        });
+
+        document.querySelectorAll('.btn-preset').forEach(btn => {
+            btn.addEventListener('click', () => {
+                e = parseFloat(btn.getAttribute('data-e'));
+                sliderE.value = e;
+            });
+        });
+
+        btnToggleAnim.addEventListener('click', () => {
+            isPlaying = !isPlaying;
+            if (isPlaying) {
+                playIcon.innerText = '⏸'; playText.innerText = '暂停运行';
+            } else {
+                playIcon.innerText = '▶'; playText.innerText = '继续运行';
+            }
+        });
+
+        window.addEventListener('resize', draw);
+        window.addEventListener('DOMContentLoaded', animLoop);
+    </script>
+</body>
+</html>

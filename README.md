@@ -8,16 +8,37 @@ updated: 2026-09-19
 
 #### 个人博客与项目交互实验室
 
-托管于 [GitHub Pages](https://pages.github.com/)，自定义域名：[www.inkstar.org](https://www.inkstar.org)。
+托管于 [GitHub Pages](https://pages.github.com/)，自定义域名：[www.inkstar.org](https://www.inkstar.org)。  
+👉 **[📜 查看站点详细修改日志 (Changelog)](CHANGELOG.md)**
 
 ---
 
 ## 🚀 可视化教学交互页面
 
 - 🚗 **[物理·匀变速直线运动实验室 ↗](projects/uniform-linear-motion.html ':target=_blank')**  
-  高中物理必修一核心考点可视化实验室：包含动力学仿真跑道、智能滑块小车矢量箭头、打点残影、四维图像联动（$v-t$、$x-t$、$a-t$、$v^2-x$）、五大核心公式图谱、“知三求二”智能推导演算器、三大性质（时间中点 vs 位移中点、纸带打点与逐差法、初速为0比例王国几何积木切片）以及高考刹车死时间陷阱、追及相遇临界模型。
+  高中物理必修一核心考点可视化实验室：动力学仿真跑道、矢量箭头、打点残影、四维图像联动与知三求二演算器。
 - 🎮 **[向量数量积与 3D 光照着色交互实验室 ↗](projects/vector-lighting.html ':target=_blank')**  
-  高中数学平面/空间向量核心应用实验室：提供 2D 截面投影与 3D 真实球体 Phong/Lambert 着色双模式。支持鼠标/手指直接拖拽光源位置，实时可视化法向量 $\vec{n}$、光照向量 $\vec{l}$、夹角弧度 $\theta$ 与数量积 $\vec{n} \cdot \vec{l}$ 算式推导，展示 3D 图形学游戏引擎如何利用向量内积计算物体表面明暗与高光。
+  高中数学向量核心应用实验室：提供 2D 截面投影与 3D 真实球体 Phong/Lambert 着色双模式，展示游戏引擎向量点积光照着色。
+- 🪐 **[开普勒天体轨道与圆锥曲线实验室 ↗](projects/conic-orbit.html ':target=_blank')**  
+  天体物理圆锥曲线统一定义仿真：滑块调节离心率 $e$，动态模拟正圆、闭合椭圆行星运转与双曲线引力弹弓飞越。
+- 📈 **[导数切线与 AI 梯度下降实验室 ↗](projects/derivative-descent.html ':target=_blank')**  
+  微积分导数应用实验室：非凸函数瞬时切线斜率求解，模拟现代 AI 深度学习小球沿负导数方向自动滚落收敛极小值。
+- 🔬 **[贝叶斯真假阳性与蒙特卡洛概率实验室 ↗](projects/bayesian-prob.html ':target=_blank')**  
+  概率统计逆推实验室：破解医疗筛查真假阳性直觉悖论，10,000 人群树状图比例分割与全概率推导演算。
+- 📦 **[不等式最值与工业耗材优化实验室 ↗](projects/inequality-optimizer.html ':target=_blank')**  
+  基本不等式最值应用：3D 方柱体包装耗材表面积动态计算，直观展示均值定理取等极小值点。
+- 💰 **[数列求和与房贷等额本息还款实验室 ↗](projects/sequence-mortgage.html ':target=_blank')**  
+  等比数列前 $n$ 项和实际应用：月供等额本息计算，本金与利息流动态堆叠柱状图分解。
+- ☀️ **[解三角形与双杆日照测量实验室 ↗](projects/trigonometry-shadow.html ':target=_blank')**  
+  还原上海高考填空 11 题真实模型：地面双杆影子投影随太阳高度角变化，正余弦定理联立解三角形。
+- 🌋 **[幂指对增长模型与碳-14 测年实验室 ↗](projects/function-growth-carbon14.html ':target=_blank')**  
+  指数爆炸 vs 对数漫步对决，结合放射性同位素指数衰减反解古生物年代。
+- 🧊 **[空间向量法与二面角计算实验室 ↗](projects/solid-geometry-vectors.html ':target=_blank')**  
+  3D 笛卡尔坐标系空间截面鼠标旋转、法向量外积与二面角/点面距离求解。
+- 🔺 **[排列组合密码熵与杨辉三角实验室 ↗](projects/combinatorics-pascal.html ':target=_blank')**  
+  动态杨辉三角二项式展开与 GPU 算力密码暴力破解安全评估。
+- ∩ **[集合布尔运算与交互式 Venn 图实验室 ↗](projects/sets-venn.html ':target=_blank')**  
+  三集合交并补差集高亮渲染与搜索引擎布尔检索逻辑。
 - 📈 **[Power Function 幂函数模型 ↗](projects/powerfunction.html ':target=_blank')**  
   交互式幂函数性质与图像动态演练。
 - 📊 **[三角函数极值区间演示 ↗](projects/dailyproblem26052601.html ':target=_blank')**  

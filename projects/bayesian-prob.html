@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>高中数学 · 贝叶斯真假阳性与蒙特卡洛概率实验室 | Inkstar Lab</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <style>
+        body { background-color: #0b1120; color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .slider-thumb-modern::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
+            background: #06b6d4; cursor: pointer; box-shadow: 0 0 10px rgba(6, 182, 212, 0.6);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-cyan-500 selection:text-slate-900">
+
+    <header class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800/80 px-4 lg:px-8 py-3.5 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-cyan-500 to-blue-400 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+                <span class="text-slate-950 font-black text-lg">P</span>
+            </div>
+            <div>
+                <h1 class="text-base sm:text-lg font-bold text-white tracking-tight flex items-center gap-2">
+                    贝叶斯真假阳性与蒙特卡洛概率实验室
+                    <span class="text-xs font-normal px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 hidden sm:inline">全概率与条件概率</span>
+                </h1>
+                <p class="text-xs text-slate-400">Bayesian Inference & Monte Carlo Simulation · 逆概率推断 / 医疗真假阳性直觉悖论</p>
+            </div>
+        </div>
+        <a href="../index.html" class="text-xs sm:text-sm px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            <span>返回主站</span>
+        </a>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5">
+        
+        <div class="lg:col-span-7 flex flex-col space-y-4">
+            
+            <div class="relative bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl flex flex-col items-center justify-center p-4 aspect-[4/3] sm:aspect-[16/10]">
+                <canvas id="mainCanvas" class="w-full h-full"></canvas>
+                
+                <div class="absolute top-4 left-4 bg-slate-900/85 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-800 text-xs flex items-center gap-3">
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>真阳性(确诊)</span>
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span>假阳性(健康误报)</span>
+                </div>
+
+                <div class="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs text-slate-400 bg-slate-900/85 backdrop-blur-md px-3.5 py-2 rounded-xl border border-slate-800">
+                    <span class="text-slate-300">测出阳性后，真正患病的概率:</span>
+                    <span id="labelBayesRes" class="text-cyan-400 text-sm font-bold font-mono">19.76%</span>
+                </div>
+            </div>
+
+            <!-- 控制滑块 -->
+            <div class="bg-slate-900/70 p-4 rounded-2xl border border-slate-800/80 space-y-3">
+                <div>
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-slate-300 font-medium">全人群真实患病率 $P(D)$</span>
+                        <span id="labelDiseaseRate" class="font-mono font-bold text-cyan-400">0.50%</span>
+                    </div>
+                    <input id="sliderD" type="range" min="0.05" max="3.0" value="0.5" step="0.05" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer slider-thumb-modern">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-800/60">
+                    <div>
+                        <div class="flex justify-between text-[11px] text-slate-400 mb-1">
+                            <span>试剂灵敏度 (真阳率)</span>
+                            <span id="labelSensitivity" class="font-mono text-emerald-400">98.0%</span>
+                        </div>
+                        <input id="sliderSens" type="range" min="80" max="100" value="98" step="0.5" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer slider-thumb-modern">
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-[11px] text-slate-400 mb-1">
+                            <span>试剂假阳性率 (健康误报率)</span>
+                            <span id="labelFalseAlarm" class="font-mono text-rose-400">2.0%</span>
+                        </div>
+                        <input id="sliderFA" type="range" min="0.5" max="8.0" value="2.0" step="0.1" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer slider-thumb-modern">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="lg:col-span-5 flex flex-col space-y-4">
+            
+            <div class="bg-slate-900/80 rounded-2xl border border-slate-800 p-5 space-y-4 shadow-xl">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+                        贝叶斯后验概率推导
+                    </h3>
+                </div>
+
+                <div class="space-y-2 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80 text-xs font-mono">
+                    <div class="flex justify-between text-slate-300">
+                        <span>全人群总检出阳性率 P(阳性):</span>
+                        <span id="valTotalPos" class="text-white font-bold">2.48%</span>
+                    </div>
+                    <div class="flex justify-between text-slate-300">
+                        <span>真阳性联合概率 P(患病 ∩ 阳性):</span>
+                        <span id="valTruePosJoint" class="text-emerald-300">0.49%</span>
+                    </div>
+                    <div class="flex justify-between text-slate-300">
+                        <span>假阳性联合概率 P(健康 ∩ 阳性):</span>
+                        <span id="valFalsePosJoint" class="text-rose-300">1.99%</span>
+                    </div>
+                    <div class="flex justify-between text-cyan-300 font-bold border-t border-slate-800/60 pt-2 text-sm">
+                        <span>后验确诊率 P(患病 | 阳性):</span>
+                        <span id="valPosterior">19.76%</span>
+                    </div>
+                </div>
+
+                <div class="p-3.5 bg-cyan-950/20 rounded-xl border border-cyan-500/20 text-xs text-cyan-200/90 leading-relaxed">
+                    <div class="font-bold text-cyan-300 mb-1">直觉为何在概率面前破产？</div>
+                    $$P(\text{患病}|\text{阳性}) = \frac{P(D)P(\text{阳性}|D)}{P(D)P(\text{阳性}|D) + P(\bar{D})P(\text{阳性}|\bar{D})}$$
+                    <p class="mt-1 text-[11px] text-slate-400">
+                        因为罕见病的基础发病率极低（0.5%），导致健康基数无比庞大（99.5%）。即便试剂只有 2% 的微小误判率，误判出的健康人数依然是真实患病人数的 4 倍以上！
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+        let pD = 0.005;
+        let sens = 0.98;
+        let fa = 0.02;
+
+        const canvas = document.getElementById('mainCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const sliderD = document.getElementById('sliderD');
+        const sliderSens = document.getElementById('sliderSens');
+        const sliderFA = document.getElementById('sliderFA');
+
+        const labelDiseaseRate = document.getElementById('labelDiseaseRate');
+        const labelSensitivity = document.getElementById('labelSensitivity');
+        const labelFalseAlarm = document.getElementById('labelFalseAlarm');
+        const labelBayesRes = document.getElementById('labelBayesRes');
+
+        const valTotalPos = document.getElementById('valTotalPos');
+        const valTruePosJoint = document.getElementById('valTruePosJoint');
+        const valFalsePosJoint = document.getElementById('valFalsePosJoint');
+        const valPosterior = document.getElementById('valPosterior');
+
+        function resize() {
+            const dpr = window.devicePixelRatio || 1;
+            const r = canvas.getBoundingClientRect();
+            canvas.width = r.width * dpr;
+            canvas.height = r.height * dpr;
+            ctx.scale(dpr, dpr);
+            return { w: r.width, h: r.height };
+        }
+
+        function draw() {
+            const { w, h } = resize();
+            ctx.clearRect(0, 0, w, h);
+
+            const pNoD = 1 - pD;
+            const jointTruePos = pD * sens;
+            const jointFalsePos = pNoD * fa;
+            const totalPos = jointTruePos + jointFalsePos;
+            const posterior = jointTruePos / totalPos;
+
+            labelDiseaseRate.innerText = `${(pD * 100).toFixed(2)}%`;
+            labelSensitivity.innerText = `${(sens * 100).toFixed(1)}%`;
+            labelFalseAlarm.innerText = `${(fa * 100).toFixed(1)}%`;
+            labelBayesRes.innerText = `${(posterior * 100).toFixed(2)}%`;
+
+            valTotalPos.innerText = `${(totalPos * 100).toFixed(2)}%`;
+            valTruePosJoint.innerText = `${(jointTruePos * 100).toFixed(3)}%`;
+            valFalsePosJoint.innerText = `${(jointFalsePos * 100).toFixed(3)}%`;
+            valPosterior.innerText = `${(posterior * 100).toFixed(2)}%`;
+
+            // 绘制 10,000 人群比例矩形树图 (Treemap)
+            const ox = 40, oy = 40;
+            const tw = w - 80, th = h - 80;
+
+            // 划分左右两块: 左边患病人群 (宽度 tw * pD), 右边健康人群 (宽度 tw * (1-pD))
+            const dw = Math.max(8, tw * pD * 4); // 适度视觉放大真实患病宽度以便观察
+            const nw = tw - dw;
+
+            // 患病人群中的真阳性 (下半部 绿)
+            const dhTrue = th * sens;
+            ctx.fillStyle = '#10b981';
+            ctx.fillRect(ox, oy + th - dhTrue, dw, dhTrue);
+
+            // 患病人群中的漏检假阴性 (上半部 灰黑)
+            ctx.fillStyle = '#1e293b';
+            ctx.fillRect(ox, oy, dw, th - dhTrue);
+
+            // 健康人群中的假阳性 (下半部 红色误报)
+            const nhFalse = th * fa;
+            ctx.fillStyle = '#f43f5e';
+            ctx.fillRect(ox + dw, oy + th - nhFalse, nw, nhFalse);
+
+            // 健康人群中的真阴性 (上半部 深蓝健康)
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(ox + dw, oy, nw, th - nhFalse);
+
+            // 边框描绘
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(ox, oy, tw, th);
+            ctx.beginPath();
+            ctx.moveTo(ox + dw, oy); ctx.lineTo(ox + dw, oy + th);
+            ctx.stroke();
+
+            // 文字标注
+            ctx.font = 'bold 11px sans-serif';
+            ctx.fillStyle = '#10b981';
+            ctx.fillText(`真阳性: ${(jointTruePos * 100).toFixed(2)}%`, ox + 5, oy + th - dhTrue / 2);
+
+            ctx.fillStyle = '#f43f5e';
+            ctx.fillText(`假阳性误报: ${(jointFalsePos * 100).toFixed(2)}% (健康误判)`, ox + dw + 15, oy + th - nhFalse / 2 + 4);
+        }
+
+        sliderD.addEventListener('input', (e) => {
+            pD = parseFloat(e.target.value) / 100;
+            draw();
+        });
+
+        sliderSens.addEventListener('input', (e) => {
+            sens = parseFloat(e.target.value) / 100;
+            draw();
+        });
+
+        sliderFA.addEventListener('input', (e) => {
+            fa = parseFloat(e.target.value) / 100;
+            draw();
+        });
+
+        window.addEventListener('resize', draw);
+        window.addEventListener('DOMContentLoaded', draw);
+    </script>
+</body>
+</html>

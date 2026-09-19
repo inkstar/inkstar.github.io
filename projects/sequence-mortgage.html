@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>高中数学 · 数列求和与房贷等额本息实验室 | Inkstar Lab</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <style>
+        body { background-color: #0b1120; color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .slider-thumb-modern::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
+            background: #3b82f6; cursor: pointer; box-shadow: 0 0 10px rgba(59, 130, 246, 0.6);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-blue-500 selection:text-slate-900">
+
+    <header class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800/80 px-4 lg:px-8 py-3.5 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-blue-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/20">
+                <span class="text-slate-950 font-black text-lg">∑</span>
+            </div>
+            <div>
+                <h1 class="text-base sm:text-lg font-bold text-white tracking-tight flex items-center gap-2">
+                    数列求和与房贷等额本息还款实验室
+                    <span class="text-xs font-normal px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30 hidden sm:inline">等比数列应用</span>
+                </h1>
+                <p class="text-xs text-slate-400">Sequence Sum & Mortgage Loan Equal Installment · 复利模型 / 错位相减</p>
+            </div>
+        </div>
+        <a href="../index.html" class="text-xs sm:text-sm px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            <span>返回主站</span>
+        </a>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5">
+        
+        <div class="lg:col-span-7 flex flex-col space-y-4">
+            
+            <div class="relative bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl flex flex-col items-center justify-center p-4 aspect-[4/3] sm:aspect-[16/10]">
+                <canvas id="mainCanvas" class="w-full h-full"></canvas>
+                
+                <div class="absolute top-4 left-4 bg-slate-900/85 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-800 text-xs flex items-center gap-3">
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>本金偿还</span>
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>利息偿还</span>
+                </div>
+
+                <div class="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs text-slate-400 bg-slate-900/85 backdrop-blur-md px-3.5 py-2 rounded-xl border border-slate-800">
+                    <span class="text-blue-300 font-mono">每月还款额: <b id="labelMonthly" class="text-white text-sm">¥ 4,890</b> 元</span>
+                    <span class="text-slate-500">|</span>
+                    <span class="text-rose-300 font-mono">累计还款总额: <b id="labelTotalPay" class="text-white">176.0</b> 万元</span>
+                </div>
+            </div>
+
+            <!-- 控制滑块 -->
+            <div class="bg-slate-900/70 p-4 rounded-2xl border border-slate-800/80 space-y-3">
+                <div>
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-slate-300 font-medium">贷款本金 $P$</span>
+                        <span id="labelPrincipal" class="font-mono font-bold text-blue-400">100 万元</span>
+                    </div>
+                    <input id="sliderP" type="range" min="30" max="500" value="100" step="10" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer slider-thumb-modern">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-800/60">
+                    <div>
+                        <div class="flex justify-between text-[11px] text-slate-400 mb-1">
+                            <span>年化利率 $R$</span>
+                            <span id="labelRate" class="font-mono text-white">3.5 %</span>
+                        </div>
+                        <input id="sliderRate" type="range" min="2.0" max="6.5" value="3.5" step="0.1" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer slider-thumb-modern">
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-[11px] text-slate-400 mb-1">
+                            <span>贷款年限 $N$</span>
+                            <span id="labelYears" class="font-mono text-white">30 年 (360期)</span>
+                        </div>
+                        <input id="sliderYears" type="range" min="5" max="30" value="30" step="5" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer slider-thumb-modern">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="lg:col-span-5 flex flex-col space-y-4">
+            
+            <div class="bg-slate-900/80 rounded-2xl border border-slate-800 p-5 space-y-4 shadow-xl">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+                        等比数列还款演算账单
+                    </h3>
+                </div>
+
+                <div class="space-y-2 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80 text-xs font-mono">
+                    <div class="flex justify-between text-slate-300">
+                        <span>贷款本金总额:</span>
+                        <span id="valLoan" class="text-white">100.00 万元</span>
+                    </div>
+                    <div class="flex justify-between text-slate-300">
+                        <span>支付总利息 (纯利息损失):</span>
+                        <span id="valInterest" class="text-rose-400 font-bold">43.70 万元</span>
+                    </div>
+                    <div class="flex justify-between text-blue-300 font-bold border-t border-slate-800/60 pt-2 text-sm">
+                        <span>每月固定还款额 (等额本息):</span>
+                        <span id="valMonthPay">4,490.45 元</span>
+                    </div>
+                </div>
+
+                <div class="p-3.5 bg-blue-950/20 rounded-xl border border-blue-500/20 text-xs text-blue-200/90 leading-relaxed">
+                    <div class="font-bold text-blue-300 mb-1">等比数列前 n 项和推导</div>
+                    $$x = \frac{P \cdot r(1+r)^n}{(1+r)^n - 1}$$
+                    <p class="mt-1 text-[11px] text-slate-400">
+                        设第 $n$ 个月还款 $x$ 元，折现到贷款起始日的现值依次构成公比为 $q = \frac{1}{1+r}$ 的等比数列。由等比数列求和公式立得每月还款闭式解！
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+        let P = 100 * 10000; // 本金
+        let annualRate = 0.035;
+        let years = 30;
+
+        const canvas = document.getElementById('mainCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const sliderP = document.getElementById('sliderP');
+        const sliderRate = document.getElementById('sliderRate');
+        const sliderYears = document.getElementById('sliderYears');
+
+        const labelPrincipal = document.getElementById('labelPrincipal');
+        const labelRate = document.getElementById('labelRate');
+        const labelYears = document.getElementById('labelYears');
+        const labelMonthly = document.getElementById('labelMonthly');
+        const labelTotalPay = document.getElementById('labelTotalPay');
+        const valLoan = document.getElementById('valLoan');
+        const valInterest = document.getElementById('valInterest');
+        const valMonthPay = document.getElementById('valMonthPay');
+
+        function resize() {
+            const dpr = window.devicePixelRatio || 1;
+            const r = canvas.getBoundingClientRect();
+            canvas.width = r.width * dpr;
+            canvas.height = r.height * dpr;
+            ctx.scale(dpr, dpr);
+            return { w: r.width, h: r.height };
+        }
+
+        function draw() {
+            const { w, h } = resize();
+            ctx.clearRect(0, 0, w, h);
+
+            const n = years * 12; // 总月数
+            const r = annualRate / 12; // 月利率
+
+            // 等比数列求和公式
+            const monthlyPayment = (P * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+            const totalRepayment = monthlyPayment * n;
+            const totalInterest = totalRepayment - P;
+
+            labelPrincipal.innerText = `${(P / 10000).toFixed(0)} 万元`;
+            labelRate.innerText = `${(annualRate * 100).toFixed(1)} %`;
+            labelYears.innerText = `${years} 年 (${n}期)`;
+            labelMonthly.innerText = `¥ ${Math.round(monthlyPayment).toLocaleString()} 元`;
+            labelTotalPay.innerText = `${(totalRepayment / 10000).toFixed(2)} 万元`;
+
+            valLoan.innerText = `${(P / 10000).toFixed(2)} 万元`;
+            valInterest.innerText = `${(totalInterest / 10000).toFixed(2)} 万元`;
+            valMonthPay.innerText = `¥ ${monthlyPayment.toFixed(2)} 元`;
+
+            // 绘制月度本金 vs 利息还款柱状图
+            const ox = 50, oy = h - 45;
+            const plotW = w - 80, plotH = h - 90;
+
+            let remainingP = P;
+            const barW = Math.max(1, plotW / n);
+
+            for (let m = 1; m <= n; m++) {
+                const interestMonth = remainingP * r;
+                const principalMonth = monthlyPayment - interestMonth;
+                remainingP -= principalMonth;
+
+                const bx = ox + ((m - 1) / n) * plotW;
+                
+                // 本金高度 (蓝)
+                const pH = (principalMonth / monthlyPayment) * plotH;
+                // 利息高度 (红)
+                const iH = (interestMonth / monthlyPayment) * plotH;
+
+                ctx.fillStyle = '#3b82f6';
+                ctx.fillRect(bx, oy - pH, barW, pH);
+
+                ctx.fillStyle = '#f43f5e';
+                ctx.fillRect(bx, oy - pH - iH, barW, iH);
+            }
+
+            // 坐标系辅助
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(ox, oy); ctx.lineTo(ox + plotW, oy);
+            ctx.moveTo(ox, oy); ctx.lineTo(ox, oy - plotH);
+            ctx.stroke();
+
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '10px sans-serif';
+            ctx.fillText("第 1 期", ox, oy + 15);
+            ctx.fillText(`第 ${n} 期 (末期)`, ox + plotW - 65, oy + 15);
+            ctx.fillText("本金比例逐月递增 ↑", ox + 15, oy - 15);
+            ctx.fillText("利息比例逐月递减 ↓", ox + 15, oy - plotH + 15);
+        }
+
+        sliderP.addEventListener('input', (e) => {
+            P = parseFloat(e.target.value) * 10000;
+            draw();
+        });
+
+        sliderRate.addEventListener('input', (e) => {
+            annualRate = parseFloat(e.target.value) / 100;
+            draw();
+        });
+
+        sliderYears.addEventListener('input', (e) => {
+            years = parseInt(e.target.value);
+            draw();
+        });
+
+        window.addEventListener('resize', draw);
+        window.addEventListener('DOMContentLoaded', draw);
+    </script>
+</body>
+</html>

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>高中数学 · 幂指对增长与碳-14 测年实验室 | Inkstar Lab</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <style>
+        body { background-color: #0b1120; color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .slider-thumb-modern::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
+            background: #ec4899; cursor: pointer; box-shadow: 0 0 10px rgba(236, 72, 153, 0.6);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-pink-500 selection:text-slate-900">
+
+    <header class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800/80 px-4 lg:px-8 py-3.5 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-pink-500 to-rose-400 flex items-center justify-center shadow-lg shadow-pink-500/20">
+                <span class="text-slate-950 font-black text-lg">2ˣ</span>
+            </div>
+            <div>
+                <h1 class="text-base sm:text-lg font-bold text-white tracking-tight flex items-center gap-2">
+                    幂指对增长模型与碳-14 测年实验室
+                    <span class="text-xs font-normal px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/30 hidden sm:inline">基本初等函数</span>
+                </h1>
+                <p class="text-xs text-slate-400">Power / Exponential / Logarithmic Growth & Carbon-14 Dating · 指数爆炸 / 放射衰变</p>
+            </div>
+        </div>
+        <a href="../index.html" class="text-xs sm:text-sm px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            <span>返回主站</span>
+        </a>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5">
+        
+        <div class="lg:col-span-7 flex flex-col space-y-4">
+            
+            <!-- 模式切换 -->
+            <div class="bg-slate-900/80 p-1.5 rounded-xl border border-slate-800 flex items-center space-x-2 text-xs sm:text-sm">
+                <button id="tabGrowth" class="flex-1 py-2 rounded-lg font-medium transition bg-pink-600 text-white shadow-md">
+                    🌋 三大增长模型终极对决
+                </button>
+                <button id="tabC14" class="flex-1 py-2 rounded-lg font-medium transition text-slate-400 hover:text-white hover:bg-slate-800">
+                    🦴 碳-14 考古测年年代推算
+                </button>
+            </div>
+
+            <!-- 画布 -->
+            <div class="relative bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl flex flex-col items-center justify-center p-2 sm:p-4 aspect-[4/3] sm:aspect-[16/10]">
+                <canvas id="mainCanvas" class="w-full h-full"></canvas>
+            </div>
+
+            <!-- 控制条 -->
+            <div class="bg-slate-900/70 p-4 rounded-2xl border border-slate-800/80 space-y-3">
+                <div id="growthControls">
+                    <div class="flex justify-between text-xs mb-1.5">
+                        <span class="text-slate-300 font-medium">输入自变量 $x$ 刻度</span>
+                        <span id="labelXVal" class="font-mono font-bold text-pink-400">x = 8.0</span>
+                    </div>
+                    <input id="sliderX" type="range" min="1" max="25" value="8" step="0.5" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer slider-thumb-modern">
+                </div>
+
+                <div id="c14Controls" class="hidden">
+                    <div class="flex justify-between text-xs mb-1.5">
+                        <span class="text-slate-300 font-medium">文物中碳-14 残留活度比例 $N(t)/N_0$</span>
+                        <span id="labelC14Val" class="font-mono font-bold text-emerald-400">50.0% (正好一个半衰期)</span>
+                    </div>
+                    <input id="sliderC14" type="range" min="1" max="100" value="50" step="1" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer slider-thumb-modern">
+                </div>
+            </div>
+
+        </div>
+
+        <div class="lg:col-span-5 flex flex-col space-y-4">
+            
+            <div class="bg-slate-900/80 rounded-2xl border border-slate-800 p-5 space-y-4 shadow-xl">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <h3 id="panelTitle" class="text-sm font-bold text-white flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-pink-400"></span>
+                        增长速度实时对比
+                    </h3>
+                </div>
+
+                <!-- 增长模式数值 -->
+                <div id="growthStats" class="space-y-2 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80 text-xs font-mono">
+                    <div class="flex justify-between text-rose-400 font-bold">
+                        <span>🔥 指数增长 2ˣ:</span>
+                        <span id="valExp">256.0</span>
+                    </div>
+                    <div class="flex justify-between text-amber-300">
+                        <span>📐 幂函数增长 x²:</span>
+                        <span id="valPow">64.0</span>
+                    </div>
+                    <div class="flex justify-between text-sky-400">
+                        <span>🚶 对数慢增长 log₂(x):</span>
+                        <span id="valLog">3.00</span>
+                    </div>
+                </div>
+
+                <!-- 碳14数值 -->
+                <div id="c14Stats" class="space-y-2 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80 text-xs font-mono hidden">
+                    <div class="flex justify-between text-slate-300">
+                        <span>碳-14 半衰期 T:</span>
+                        <span class="text-slate-200">5,730 年</span>
+                    </div>
+                    <div class="flex justify-between text-emerald-400 font-bold text-sm border-t border-slate-800/60 pt-2">
+                        <span>推算文物年代 t:</span>
+                        <span id="valYears">距今 5,730 年</span>
+                    </div>
+                    <div class="flex justify-between text-slate-400 text-[11px]">
+                        <span>历史对应纪元:</span>
+                        <span id="valEra" class="text-amber-300">仰韶文化新石器时代</span>
+                    </div>
+                </div>
+
+                <!-- 公式框 -->
+                <div class="p-3.5 bg-pink-950/20 rounded-xl border border-pink-500/20 text-xs text-pink-200/90 leading-relaxed">
+                    <div id="formulaTitle" class="font-bold text-pink-300 mb-1">终极增长规律</div>
+                    <div id="formulaBody">
+                        $$\lim_{x \to +\infty} \frac{\log_a x}{x^\alpha} = 0, \quad \lim_{x \to +\infty} \frac{x^\alpha}{a^x} = 0 \quad (a>1, \alpha>0)$$
+                        <p class="mt-1 text-[11px] text-slate-400">
+                            无论底数多小（只要大于1），指数函数最终必将以不可遏制的速率远远超越一切多项式与幂函数！
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+        let mode = 'growth';
+        let xVal = 8;
+        let c14Ratio = 0.5;
+
+        const canvas = document.getElementById('mainCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const tabGrowth = document.getElementById('tabGrowth');
+        const tabC14 = document.getElementById('tabC14');
+        const growthControls = document.getElementById('growthControls');
+        const c14Controls = document.getElementById('c14Controls');
+        const growthStats = document.getElementById('growthStats');
+        const c14Stats = document.getElementById('c14Stats');
+
+        const sliderX = document.getElementById('sliderX');
+        const labelXVal = document.getElementById('labelXVal');
+        const sliderC14 = document.getElementById('sliderC14');
+        const labelC14Val = document.getElementById('labelC14Val');
+
+        const valExp = document.getElementById('valExp');
+        const valPow = document.getElementById('valPow');
+        const valLog = document.getElementById('valLog');
+        const valYears = document.getElementById('valYears');
+        const valEra = document.getElementById('valEra');
+
+        function resize() {
+            const dpr = window.devicePixelRatio || 1;
+            const r = canvas.getBoundingClientRect();
+            canvas.width = r.width * dpr;
+            canvas.height = r.height * dpr;
+            ctx.scale(dpr, dpr);
+            return { w: r.width, h: r.height };
+        }
+
+        function draw() {
+            const { w, h } = resize();
+            ctx.clearRect(0, 0, w, h);
+
+            if (mode === 'growth') {
+                drawGrowth(w, h);
+            } else {
+                drawC14(w, h);
+            }
+        }
+
+        function drawGrowth(w, h) {
+            const expY = Math.pow(2, xVal);
+            const powY = Math.pow(xVal, 2);
+            const logY = Math.log2(xVal);
+
+            valExp.innerText = expY > 1e6 ? expY.toExponential(2) : expY.toLocaleString();
+            valPow.innerText = powY.toFixed(1);
+            valLog.innerText = logY.toFixed(2);
+
+            const ox = 50, oy = h - 40;
+            const plotW = w - 80, plotH = h - 80;
+
+            // 坐标系
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(ox, oy); ctx.lineTo(ox + plotW, oy);
+            ctx.moveTo(ox, oy); ctx.lineTo(ox, oy - plotH);
+            ctx.stroke();
+
+            // 曲线绘制: x in [0.5, 20]
+            const maxVal = Math.min(Math.pow(2, xVal) * 1.2, 500);
+
+            function plotCurve(fn, color, width) {
+                ctx.strokeStyle = color;
+                ctx.lineWidth = width;
+                ctx.beginPath();
+                for (let i = 0; i <= plotW; i++) {
+                    const curX = 0.5 + (i / plotW) * 16;
+                    const curY = fn(curX);
+                    const py = oy - Math.min(plotH, (curY / maxVal) * plotH);
+                    if (i === 0) ctx.moveTo(ox + i, py);
+                    else ctx.lineTo(ox + i, py);
+                }
+                ctx.stroke();
+            }
+
+            plotCurve(x => Math.pow(2, x), '#f43f5e', 2.5); // 指数 红
+            plotCurve(x => Math.pow(x, 2), '#f59e0b', 2);   // 幂函数 黄
+            plotCurve(x => Math.log2(x), '#38bdf8', 2);    // 对数 蓝
+
+            // 当前 x 垂直指示线
+            const px = ox + ((xVal - 0.5) / 16) * plotW;
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.setLineDash([3, 3]);
+            ctx.beginPath();
+            ctx.moveTo(px, oy); ctx.lineTo(px, oy - plotH);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // 图例
+            ctx.font = '11px sans-serif';
+            ctx.fillStyle = '#f43f5e'; ctx.fillText('y = 2ˣ (指数爆炸)', ox + 20, 30);
+            ctx.fillStyle = '#f59e0b'; ctx.fillText('y = x² (幂函数)', ox + 140, 30);
+            ctx.fillStyle = '#38bdf8'; ctx.fillText('y = log₂x (对数漫步)', ox + 240, 30);
+        }
+
+        function drawC14(w, h) {
+            const halflife = 5730;
+            // t = - 5730 * log2(c14Ratio)
+            const age = -halflife * Math.log2(c14Ratio);
+            valYears.innerText = `距今 ${Math.round(age).toLocaleString()} 年`;
+
+            let era = "现代样本";
+            if (age > 10000) era = "旧石器时代晚期 (史前人类遗址)";
+            else if (age > 5000) era = "仰韶文化 / 红山文化新石器时代";
+            else if (age > 3000) era = "商周青铜器时代";
+            else if (age > 2000) era = "秦汉时期";
+            else if (age > 1000) era = "唐宋时期";
+            else era = "明清近世";
+            valEra.innerText = era;
+
+            const ox = 50, oy = h - 40;
+            const plotW = w - 80, plotH = h - 80;
+
+            // 衰变曲线
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(ox, oy); ctx.lineTo(ox + plotW, oy);
+            ctx.moveTo(ox, oy); ctx.lineTo(ox, oy - plotH);
+            ctx.stroke();
+
+            ctx.strokeStyle = '#10b981';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            for (let i = 0; i <= plotW; i++) {
+                const t = (i / plotW) * 25000;
+                const ratio = Math.pow(0.5, t / halflife);
+                const py = oy - ratio * plotH;
+                if (i === 0) ctx.moveTo(ox + i, py);
+                else ctx.lineTo(ox + i, py);
+            }
+            ctx.stroke();
+
+            // 当前点
+            const ptX = ox + (age / 25000) * plotW;
+            const ptY = oy - c14Ratio * plotH;
+
+            ctx.fillStyle = '#ec4899';
+            ctx.beginPath();
+            ctx.arc(ptX, ptY, 6, 0, 2 * Math.PI);
+            ctx.fill();
+
+            ctx.fillStyle = '#f1f5f9';
+            ctx.font = '11px monospace';
+            ctx.fillText(`剩余 ${(c14Ratio * 100).toFixed(1)}% → ${Math.round(age)} 年`, ptX + 10, ptY - 8);
+        }
+
+        tabGrowth.addEventListener('click', () => {
+            mode = 'growth';
+            tabGrowth.className = "flex-1 py-2 rounded-lg font-medium transition bg-pink-600 text-white shadow-md";
+            tabC14.className = "flex-1 py-2 rounded-lg font-medium transition text-slate-400 hover:text-white hover:bg-slate-800";
+            growthControls.classList.remove('hidden');
+            c14Controls.classList.add('hidden');
+            growthStats.classList.remove('hidden');
+            c14Stats.classList.add('hidden');
+            draw();
+        });
+
+        tabC14.addEventListener('click', () => {
+            mode = 'c14';
+            tabC14.className = "flex-1 py-2 rounded-lg font-medium transition bg-pink-600 text-white shadow-md";
+            tabGrowth.className = "flex-1 py-2 rounded-lg font-medium transition text-slate-400 hover:text-white hover:bg-slate-800";
+            c14Controls.classList.remove('hidden');
+            growthControls.classList.add('hidden');
+            c14Stats.classList.remove('hidden');
+            growthStats.classList.add('hidden');
+            draw();
+        });
+
+        sliderX.addEventListener('input', (e) => {
+            xVal = parseFloat(e.target.value);
+            labelXVal.innerText = `x = ${xVal.toFixed(1)}`;
+            draw();
+        });
+
+        sliderC14.addEventListener('input', (e) => {
+            const pct = parseFloat(e.target.value);
+            c14Ratio = pct / 100;
+            labelC14Val.innerText = `${pct.toFixed(1)}% (约 ${(ageInHalflife(c14Ratio)).toFixed(2)} 个半衰期)`;
+            draw();
+        });
+
+        function ageInHalflife(r) {
+            return -Math.log2(r);
+        }
+
+        window.addEventListener('resize', draw);
+        window.addEventListener('DOMContentLoaded', draw);
+    </script>
+</body>
+</html>

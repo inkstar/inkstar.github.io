@@ -155,6 +155,8 @@ $$N(t) = N_0 \cdot \left(\frac{1}{2}\right)^{\frac{t}{T_{1/2}}}$$
 两边取自然对数，逆解时间 $t$：
 $$\frac{N(t)}{N_0} = 0.685 = (0.5)^{\frac{t}{5730}} \implies \ln(0.685) = \frac{t}{5730} \ln(0.5) \implies t = 5730 \times \frac{\ln(0.685)}{\ln(0.5)}$$
 
+> 🎮 **在线动手体验**：本站已上线配套的 **[幂指对增长模型与碳-14 测年实验室 ↗](projects/function-growth-carbon14.html ':target=_blank')**！支持直观对比指数爆炸与对数漫步，并滑动调节碳-14 残留量实时推算文物距今年代。
+
 ### Python 计算器脚本：
 
 ```python
