@@ -8,7 +8,7 @@
   * <a href="projects/dailyproblem26052601.html" target="_blank" rel="noopener">三角函数极值区间演示 ↗</a>
   * <a href="https://ai.studio/apps/f7a31f6a-3ca5-46c3-865f-15d919971c63" target="_blank" rel="noopener">AI Studio 题目动画 ↗</a>
 
-* **📐 高中数学精讲专栏（沪教版体系）**
+* **📐 高中数学精讲专栏（沪教版同步体系）**
   * **📘 必修第一册（高一上）**
     * [集合与常用逻辑用语深度解析](blog/highschool-sets-and-logic-guide.md)
     * [等式、不等式与基本不等式最值模型](blog/highschool-inequalities-guide.md)
@@ -16,8 +16,15 @@
   * **📗 必修第二册（高一下）**
     * [三角比、三角函数与解三角形建模](blog/highschool-trigonometry-guide.md)
     * [平面向量、数量积与动态极值转化](blog/highschool-vectors-guide.md)
-  * **📙 选择性必修（高二 / 高三）**
+  * **📙 选择性必修第一册（高二上）**
+    * [空间几何体、立体几何与空间向量](blog/highschool-solid-geometry-guide.md)
+    * [平面解析几何与圆锥曲线综合探究](blog/highschool-conic-sections-guide.md)
+  * **📕 选择性必修第二册（高二下）**
     * [数列通项求和、数学归纳法与递推创新](blog/highschool-sequences-induction-guide.md)
+    * [导数及其应用、单调性与极值点偏移](blog/highschool-derivatives-guide.md)
+  * **📓 选择性必修第三册（高三）**
+    * [计数原理、排列组合模型与二项式定理](blog/highschool-combinatorics-guide.md)
+    * [概率论、数理统计与随机变量分布](blog/highschool-probability-statistics-guide.md)
 
 * **📝 技术博客专栏**
   * **🗄️ 数据库与后端架构**
