@@ -45,20 +45,27 @@ flowchart TD
 下图清晰展示了 Docsify 与 Mermaid 在浏览器运行时内的生命周期协同流程：
 
 ```mermaid
-flowchart TD
-    A["用户访问或路由切换 (如 #/blog/xxx)"] --> B["Docsify 异步拉取 Markdown 源文件"]
-    B --> C["Docsify hook.beforeEach 预处理 (元数据卡片等)"]
-    C --> D["Marked.js 词法与语法分析"]
-    D --> E{"Marked code renderer 判定"}
-    E -->|"lang === 'mermaid'"| F["输出专用容器 <div class='mermaid'>...</div>"]
-    E -->|"普通代码块"| G["输出标准容器 <pre><code>...</code></pre>"]
-    F --> H["Docsify hook.afterEach 注入底部与全局 DOM"]
-    G --> H
-    H --> I["DOM 挂载至宿主容器 #app"]
-    I --> J["Docsify hook.doneEach 页面渲染完毕"]
-    J --> K["Mermaid.run 扫描待排版容器"]
-    K --> L["计算拓扑节点坐标与文本盒模型尺寸"]
-    L --> M["生成自适应矢量 SVG 并挂载替换"]
+flowchart LR
+    subgraph S1["1. 路由与拉取"]
+        direction TB
+        A["用户访问 / 切换路由"] --> B["Docsify 异步拉取 .md 源文件"]
+        B --> C["beforeEach 预处理元数据卡片"]
+    end
+
+    subgraph S2["2. Marked 编译拦截"]
+        direction TB
+        D["词法分析与 Token 流"] --> E{"代码块类型判定"}
+        E -->|"mermaid"| F["直出 &lt;div class='mermaid'&gt;"]
+        E -->|"普通代码"| G["标准 &lt;pre&gt;&lt;code&gt;"]
+    end
+
+    subgraph S3["3. 挂载与矢量重绘"]
+        direction TB
+        H["afterEach 注入全局底栏并挂载"] --> I["doneEach 触发局部重绘"]
+        I --> J["Mermaid.run 生成自适应 SVG"]
+    end
+
+    S1 --> S2 --> S3
 ```
 
 整个管道环环相扣，只要在任一环节存在配置缺失或时序错位，流程图就会彻底失效。
@@ -294,20 +301,19 @@ sequenceDiagram
 
 ```mermaid
 stateDiagram-v2
-    [*] --> RawMarkdown: 文档载入
-    RawMarkdown --> CodeToken: Marked 识别到 ```mermaid
-    CodeToken --> HtmlContainer: 自定义 Renderer 直出 div.mermaid
-    HtmlContainer --> Queued: hook.doneEach 收集未渲染节点
-    state Queued {
-        [*] --> SyntaxCheck: 校验语法合法性
-        SyntaxCheck --> LayoutCalc: 计算 DAG 有向无环图布局
-        LayoutCalc --> SvgGen: 注入 CSS 变量与矢量路径
+    direction LR
+    [*] --> 原始Markdown: 载入文档
+    原始Markdown --> 词法Token: Marked识别
+    词法Token --> DOM容器: 直出 div.mermaid
+    DOM容器 --> 渲染队列: doneEach收集
+    state 渲染队列 {
+        [*] --> 语法校验
+        语法校验 --> 矢量渲染: 拓扑计算与着色
     }
-    Queued --> Rendered: 生成最终 SVG
-    Queued --> ErrorBoundary: 遇到语法异常
-    ErrorBoundary --> FallbackCard: 抛出警告并保留友好兜底
-    Rendered --> [*]
-    FallbackCard --> [*]
+    渲染队列 --> 渲染成功: 生成矢量SVG
+    渲染队列 --> 异常兜底: 语法错误触发降级
+    渲染成功 --> [*]
+    异常兜底 --> [*]
 ```
 
 ### 5.3 物理实验室解题模型决策树（Flowchart LR）

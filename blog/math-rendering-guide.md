@@ -240,16 +240,27 @@ mjx-container[display="true"] {
 在构建本站的[《物理·匀变速直线运动全景实验室》](projects/uniform-linear-motion.html)过程中，我们经历了一套从**纯静态 KaTeX** 到 **MathJax 3 矢量架构**的完整演进：
 
 ```mermaid
-flowchart TD
-    A["用户打开物理实验室页面"] --> B["DOM 骨架加载完成"]
-    B --> C["MathJax 3 (SVG 模式) 初始化"]
-    C --> D["排版 Tab 1 主控台动态公式"]
-    D --> E{"用户交互事件"}
-    E -->|"切换到核心公式/避坑指南 Tab"| F["读取新激活面板 DOM 容器"]
-    F --> G["调用 MathJax.typesetPromise([pane]) 局部重绘"]
-    E -->|"在知三求二演武场输入参数"| H["数学求解器计算出物理方程"]
-    H --> I["利用 String.raw 动态组装 LaTeX"]
-    I --> J["注入结果 DOM 并执行局部 typesetPromise"]
+flowchart LR
+    subgraph S1["1. 页面初始化"]
+        direction TB
+        A["打开物理实验室"] --> B["DOM 骨架加载就绪"]
+        B --> C["MathJax 3 矢量模式初始化"]
+    end
+
+    subgraph S2["2. Tab 切换与局部排版"]
+        direction TB
+        D["切换至核心公式/避坑指南"] --> E["读取激活面板 DOM 容器"]
+        E --> F["局部 typesetPromise([pane])"]
+    end
+
+    subgraph S3["3. 演武场动态求解推导"]
+        direction TB
+        G["知三求二参数输入"] --> H["String.raw 动态组装 LaTeX"]
+        H --> I["注入结果 DOM 局部重绘"]
+    end
+
+    S1 --> S2
+    S1 --> S3
 ```
 
 ### 核心收益
