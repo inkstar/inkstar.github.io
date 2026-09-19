@@ -1,0 +1,2276 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>高中物理 · 匀变速直线运动全景交互实验室 | Inkstar Lab</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                        },
+                        physics: {
+                            velocity: '#0284c7',   // 蓝色代表速度
+                            accel: '#ea580c',      // 橙色代表加速度
+                            disp: '#16a34a',       // 绿色代表位移
+                            time: '#9333ea'        // 紫色代表时间
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- KaTeX 数学公式渲染 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f1f5f9;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans SC", sans-serif;
+        }
+        .slider-thumb-modern::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #38bdf8;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
+            border: 2px solid #0f172a;
+            transition: transform 0.15s ease;
+        }
+        .slider-thumb-modern::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+        .katex { font-size: 1.08em; line-height: 1.2; }
+        .tab-btn.active {
+            background-color: #2563eb;
+            color: #ffffff;
+            box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.4);
+        }
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- 顶部导航条 -->
+    <header class="bg-slate-900/90 backdrop-blur border-b border-slate-800 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-blue-600 to-emerald-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                    <span class="text-white font-black text-xl">a</span>
+                </div>
+                <div>
+                    <h1 class="text-base sm:text-lg font-bold text-white tracking-tight flex items-center gap-2">
+                        匀变速直线运动全景实验室
+                        <span class="text-xs font-normal px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 hidden sm:inline">高中物理</span>
+                    </h1>
+                    <p class="text-xs text-slate-400">Kinematics Interactive Lab · 图像 / 公式 / 性质 / 实验</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <a href="../index.html" class="text-xs sm:text-sm px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    <span>返回主站</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 模块切换 Tabs -->
+    <div class="bg-slate-900 border-b border-slate-800 sticky top-16 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav class="flex space-x-1 sm:space-x-2 py-2.5 overflow-x-auto text-xs sm:text-sm no-scrollbar">
+                <button onclick="switchTab('sandbox')" id="tab-btn-sandbox" class="tab-btn active px-3.5 py-2 rounded-lg font-medium transition flex items-center gap-2 whitespace-nowrap">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    物理沙盒与图像联动
+                </button>
+                <button onclick="switchTab('formulas')" id="tab-btn-formulas" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition flex items-center gap-2 whitespace-nowrap">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                    核心公式与知三求二
+                </button>
+                <button onclick="switchTab('properties')" id="tab-btn-properties" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition flex items-center gap-2 whitespace-nowrap">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                    三大性质深度剖析
+                </button>
+                <button onclick="switchTab('traps')" id="tab-btn-traps" class="tab-btn px-3.5 py-2 rounded-lg font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition flex items-center gap-2 whitespace-nowrap">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    高考陷阱与经典模型
+                </button>
+            </nav>
+        </div>
+    </div>
+
+    <!-- 主体内容容器 -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- ==============================================
+             MODULE 1: 物理沙盒与图像联动
+             ============================================== -->
+        <section id="module-sandbox" class="space-y-6">
+            
+            <!-- 顶部物理跑道仿真区域 -->
+            <div class="bg-slate-800/80 rounded-2xl border border-slate-700/80 shadow-xl overflow-hidden backdrop-blur">
+                <div class="p-4 sm:px-6 border-b border-slate-700/80 flex flex-wrap items-center justify-between gap-3 bg-slate-800/50">
+                    <div class="flex items-center gap-3">
+                        <span class="flex h-3 w-3 relative">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                        </span>
+                        <h2 class="font-bold text-white text-base sm:text-lg">动力学跑道仿真 (Motion Sandbox)</h2>
+                        <span class="text-xs text-slate-400 hidden sm:inline">直观感受位置、速度矢量与加速度矢量</span>
+                    </div>
+
+                    <!-- 状态信息胶囊 -->
+                    <div class="flex flex-wrap items-center gap-2 text-xs">
+                        <div class="bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-700 font-mono">
+                            时间 <span class="text-purple-400 font-bold" id="hud-time">0.00</span> s
+                        </div>
+                        <div class="bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-700 font-mono">
+                            位置 <span class="text-emerald-400 font-bold" id="hud-x">0.00</span> m
+                        </div>
+                        <div class="bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-700 font-mono">
+                            速度 <span class="text-sky-400 font-bold" id="hud-v">0.00</span> m/s
+                        </div>
+                        <div class="bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-700 font-mono">
+                            加速度 <span class="text-amber-400 font-bold" id="hud-a">0.00</span> m/s²
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 跑道 Canvas -->
+                <div class="relative w-full bg-slate-950 p-2 sm:p-4">
+                    <canvas id="trackCanvas" class="w-full h-44 sm:h-52 rounded-xl block border border-slate-800"></canvas>
+                    <div class="absolute bottom-4 left-6 text-xs text-slate-400 pointer-events-none flex items-center gap-3">
+                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-sky-400 inline-block"></span> 速度矢量 $\vec{v}$</span>
+                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span> 加速度矢量 $\vec{a}$</span>
+                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-purple-400/60 inline-block"></span> 轨迹残影点 (每0.5s)</span>
+                    </div>
+                </div>
+
+                <!-- 播放控制与时间轴 -->
+                <div class="p-4 sm:p-5 bg-slate-900/60 border-t border-slate-800 flex flex-col md:flex-row items-center gap-4">
+                    <!-- 播放按钮组 -->
+                    <div class="flex items-center gap-2 w-full md:w-auto justify-center">
+                        <button id="btn-play" onclick="togglePlay()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white rounded-lg font-medium text-sm transition flex items-center gap-1.5 shadow-lg shadow-emerald-900/30">
+                            <svg id="play-icon" class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            <span id="play-text">运行</span>
+                        </button>
+                        <button onclick="stepForward(0.1)" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-300 rounded-lg text-sm border border-slate-700 transition" title="前进 0.1s">
+                            +0.1s
+                        </button>
+                        <button onclick="resetSimulation()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-300 rounded-lg text-sm border border-slate-700 transition" title="重置时间为0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                        </button>
+                        <div class="flex items-center gap-1 bg-slate-800 rounded-lg p-1 border border-slate-700 text-xs">
+                            <button onclick="setSpeed(0.5)" class="speed-btn px-2 py-1 rounded text-slate-400 hover:text-white" data-speed="0.5">0.5x</button>
+                            <button onclick="setSpeed(1)" class="speed-btn active px-2 py-1 rounded bg-blue-600 text-white" data-speed="1">1x</button>
+                            <button onclick="setSpeed(2)" class="speed-btn px-2 py-1 rounded text-slate-400 hover:text-white" data-speed="2">2x</button>
+                        </div>
+                    </div>
+
+                    <!-- 时间进度滑块 -->
+                    <div class="flex-grow flex items-center gap-3 w-full">
+                        <span class="text-xs text-slate-400 font-mono w-10 text-right">0.0s</span>
+                        <input type="range" id="sim-time-slider" min="0" max="10" step="0.02" value="0" class="flex-grow h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer slider-thumb-modern">
+                        <span class="text-xs text-slate-400 font-mono w-10 text-left" id="max-time-display">10.0s</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 控制面板与经典预设 + 联动图表 -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- 左侧：参数控制与典型物理情景 (4列) -->
+                <div class="lg:col-span-4 space-y-5">
+                    
+                    <!-- 物理参数滑块 -->
+                    <div class="bg-slate-800/80 rounded-2xl p-5 border border-slate-700/80 shadow-lg">
+                        <h3 class="font-bold text-white text-base mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                            初始条件与加速度设定
+                        </h3>
+
+                        <!-- 初速度 v0 -->
+                        <div class="mb-4">
+                            <div class="flex justify-between items-center text-xs mb-1.5">
+                                <span class="text-slate-300 font-medium">初速度 <span class="font-mono text-sky-400 font-bold">$v_0$</span></span>
+                                <span class="font-mono text-sky-400 font-bold text-sm" id="val-v0">0.0 m/s</span>
+                            </div>
+                            <input type="range" id="slider-v0" min="-15" max="20" step="0.5" value="0" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer slider-thumb-modern">
+                            <div class="flex justify-between text-[10px] text-slate-500 mt-1 font-mono">
+                                <span>-15 m/s (反向)</span>
+                                <span>0</span>
+                                <span>+20 m/s</span>
+                            </div>
+                        </div>
+
+                        <!-- 加速度 a -->
+                        <div class="mb-4">
+                            <div class="flex justify-between items-center text-xs mb-1.5">
+                                <span class="text-slate-300 font-medium">加速度 <span class="font-mono text-amber-400 font-bold">$a$</span></span>
+                                <span class="font-mono text-amber-400 font-bold text-sm" id="val-a">+3.0 m/s²</span>
+                            </div>
+                            <input type="range" id="slider-a" min="-10" max="10" step="0.5" value="3" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer slider-thumb-modern">
+                            <div class="flex justify-between text-[10px] text-slate-500 mt-1 font-mono">
+                                <span>-10 m/s²</span>
+                                <span>0</span>
+                                <span>+10 m/s²</span>
+                            </div>
+                        </div>
+
+                        <!-- 运动总时长 T_max -->
+                        <div>
+                            <div class="flex justify-between items-center text-xs mb-1.5">
+                                <span class="text-slate-300 font-medium">观察时长 <span class="font-mono text-purple-400 font-bold">$t_{max}$</span></span>
+                                <span class="font-mono text-purple-400 font-bold text-sm" id="val-tmax">8.0 s</span>
+                            </div>
+                            <input type="range" id="slider-tmax" min="4" max="16" step="1" value="8" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer slider-thumb-modern">
+                        </div>
+                    </div>
+
+                    <!-- 经典高中物理预设情景 -->
+                    <div class="bg-slate-800/80 rounded-2xl p-5 border border-slate-700/80 shadow-lg">
+                        <h3 class="font-bold text-white text-sm mb-3 flex items-center gap-2">
+                            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                            经典物理情境一键载入
+                        </h3>
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <button onclick="loadScenario(0, 3, 8)" class="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-700 border border-slate-700 text-left transition group">
+                                <div class="font-semibold text-white group-hover:text-emerald-400 transition">① 静止匀加速</div>
+                                <div class="text-[11px] text-slate-400 mt-0.5 font-mono">$v_0=0,\,a=+3$</div>
+                            </button>
+                            <button onclick="loadScenario(16, -4, 6)" class="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-700 border border-slate-700 text-left transition group">
+                                <div class="font-semibold text-white group-hover:text-amber-400 transition">② 汽车刹车停下</div>
+                                <div class="text-[11px] text-slate-400 mt-0.5 font-mono">$v_0=16,\,a=-4$</div>
+                            </button>
+                            <button onclick="loadScenario(12, -3, 9)" class="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-700 border border-slate-700 text-left transition group">
+                                <div class="font-semibold text-white group-hover:text-sky-400 transition">③ 往返/竖直上抛</div>
+                                <div class="text-[11px] text-slate-400 mt-0.5 font-mono">$v_0=12,\,a=-3$</div>
+                            </button>
+                            <button onclick="loadScenario(-10, 4, 8)" class="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-700 border border-slate-700 text-left transition group">
+                                <div class="font-semibold text-white group-hover:text-purple-400 transition">④ 负向初速正加速</div>
+                                <div class="text-[11px] text-slate-400 mt-0.5 font-mono">$v_0=-10,\,a=+4$</div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 当前状态智能物理评注 -->
+                    <div class="bg-gradient-to-br from-slate-900 to-slate-800/90 rounded-2xl p-4 border border-blue-500/20 shadow-lg">
+                        <div class="text-xs font-bold text-blue-400 mb-2 flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                            物理状态洞察分析
+                        </div>
+                        <div id="physics-insight" class="text-xs text-slate-300 leading-relaxed space-y-1.5">
+                            <!-- 动态分析文字 -->
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- 右侧：运动学核心多图像联动 (8列) -->
+                <div class="lg:col-span-8 space-y-5">
+                    <div class="bg-slate-800/80 rounded-2xl p-5 border border-slate-700/80 shadow-lg">
+                        <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-700/80">
+                            <div>
+                                <h3 class="font-bold text-white text-base flex items-center gap-2">
+                                    运动学图像多维透视
+                                    <span class="text-xs font-mono px-2 py-0.5 bg-blue-500/20 text-blue-300 rounded border border-blue-500/30">核心考点</span>
+                                </h3>
+                                <p class="text-xs text-slate-400 mt-0.5">观察斜率（导数/瞬时率）与面积（积分/累积量）的物理真谛</p>
+                            </div>
+
+                            <!-- 图像类型切换 -->
+                            <div class="flex items-center gap-1.5 bg-slate-900 p-1 rounded-xl border border-slate-700 text-xs">
+                                <button onclick="setGraphMode('vt')" id="gbtn-vt" class="g-btn px-3 py-1.5 rounded-lg bg-blue-600 text-white font-medium transition">v-t 图像</button>
+                                <button onclick="setGraphMode('xt')" id="gbtn-xt" class="g-btn px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">x-t 图像</button>
+                                <button onclick="setGraphMode('at')" id="gbtn-at" class="g-btn px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">a-t 图像</button>
+                                <button onclick="setGraphMode('v2x')" id="gbtn-v2x" class="g-btn px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">v²-x 图像</button>
+                            </div>
+                        </div>
+
+                        <!-- 图像 Canvas 容器 -->
+                        <div class="mt-4 relative bg-slate-950 rounded-xl p-2 border border-slate-800">
+                            <canvas id="graphCanvas" class="w-full h-72 sm:h-80 block rounded-lg"></canvas>
+                        </div>
+
+                        <!-- 图像核心考点解读卡片 -->
+                        <div id="graph-explainer" class="mt-4 p-4 rounded-xl bg-slate-900/80 border border-slate-800 text-xs text-slate-300">
+                            <!-- 动态注入当前图像的物理考点 -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==============================================
+             MODULE 2: 核心公式体系与“知三求二”计算器
+             ============================================== -->
+        <section id="module-formulas" class="hidden space-y-6">
+            
+            <!-- 五大基本公式卡片矩阵 -->
+            <div class="bg-slate-800/80 rounded-2xl p-6 border border-slate-700/80 shadow-xl">
+                <div class="max-w-3xl mb-6">
+                    <h2 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+                        <span>匀变速直线运动五大基本公式体系</span>
+                        <span class="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full">高频必背</span>
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-400 mt-1">
+                        五个物理量：初速度 $v_0$、末速度 $v$、加速度 $a$、时间 $t$、位移 $x$。每个公式包含其中4个量，缺少1个量。解题时“缺谁不用谁”！
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- 公式 1 -->
+                    <div class="bg-slate-900/90 rounded-xl p-4 border border-slate-700/60 hover:border-blue-500/50 transition">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">① 速度-时间公式</span>
+                            <span class="text-[11px] px-2 py-0.5 rounded bg-slate-800 text-slate-400">不含位移 $x$</span>
+                        </div>
+                        <div class="py-3 text-center text-lg font-bold text-white bg-slate-950/60 rounded-lg border border-slate-800/80 my-2">
+                            $$v = v_0 + at$$
+                        </div>
+                        <p class="text-xs text-slate-400 leading-relaxed mt-2">
+                            <b class="text-slate-200">物理意义：</b>末速度等于初速度加上这一段时间内的速度增量 $\Delta v = at$。
+                        </p>
+                    </div>
+
+                    <!-- 公式 2 -->
+                    <div class="bg-slate-900/90 rounded-xl p-4 border border-slate-700/60 hover:border-emerald-500/50 transition">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">② 位移-时间公式</span>
+                            <span class="text-[11px] px-2 py-0.5 rounded bg-slate-800 text-slate-400">不含末速度 $v$</span>
+                        </div>
+                        <div class="py-3 text-center text-lg font-bold text-white bg-slate-950/60 rounded-lg border border-slate-800/80 my-2">
+                            $$x = v_0 t + \frac{1}{2} a t^2$$
+                        </div>
+                        <p class="text-xs text-slate-400 leading-relaxed mt-2">
+                            <b class="text-slate-200">几何来源：</b>$v-t$ 图形中矩形面积 $v_0 t$ 与三角形面积 $\frac{1}{2}at^2$ 之和。
+                        </p>
+                    </div>
+
+                    <!-- 公式 3 -->
+                    <div class="bg-slate-900/90 rounded-xl p-4 border border-slate-700/60 hover:border-amber-500/50 transition">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs font-bold text-amber-400 uppercase tracking-wider">③ 速度-位移公式</span>
+                            <span class="text-[11px] px-2 py-0.5 rounded bg-slate-800 text-slate-400">不含时间 $t$</span>
+                        </div>
+                        <div class="py-3 text-center text-lg font-bold text-white bg-slate-950/60 rounded-lg border border-slate-800/80 my-2">
+                            $$v^2 - v_0^2 = 2ax$$
+                        </div>
+                        <p class="text-xs text-slate-400 leading-relaxed mt-2">
+                            <b class="text-slate-200">解题秘籍：</b>题干若未提及时间 $t$ 且不求时间 $t$ 时，首选此公式！结合动能定理 $W = \Delta E_k$ 亦可得。
+                        </p>
+                    </div>
+
+                    <!-- 公式 4 -->
+                    <div class="bg-slate-900/90 rounded-xl p-4 border border-slate-700/60 hover:border-purple-500/50 transition">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs font-bold text-purple-400 uppercase tracking-wider">④ 平均速度位移公式</span>
+                            <span class="text-[11px] px-2 py-0.5 rounded bg-slate-800 text-slate-400">不含加速度 $a$</span>
+                        </div>
+                        <div class="py-3 text-center text-lg font-bold text-white bg-slate-950/60 rounded-lg border border-slate-800/80 my-2">
+                            $$x = \bar{v} t = \frac{v_0 + v}{2} t$$
+                        </div>
+                        <p class="text-xs text-slate-400 leading-relaxed mt-2">
+                            <b class="text-slate-200">关键性质：</b>匀变速运动的平均速度刚好等于初末速度的算术平均值。
+                        </p>
+                    </div>
+
+                    <!-- 公式 5 -->
+                    <div class="bg-slate-900/90 rounded-xl p-4 border border-slate-700/60 hover:border-rose-500/50 transition">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs font-bold text-rose-400 uppercase tracking-wider">⑤ 逆向位移公式</span>
+                            <span class="text-[11px] px-2 py-0.5 rounded bg-slate-800 text-slate-400">不含初速度 $v_0$</span>
+                        </div>
+                        <div class="py-3 text-center text-lg font-bold text-white bg-slate-950/60 rounded-lg border border-slate-800/80 my-2">
+                            $$x = vt - \frac{1}{2} a t^2$$
+                        </div>
+                        <p class="text-xs text-slate-400 leading-relaxed mt-2">
+                            <b class="text-slate-200">妙用场景：</b>刹车至静止（末速 $v=0$）的逆向思维法，等效于初速为0的匀加速运动！
+                        </p>
+                    </div>
+
+                    <!-- 矢量约定法则 -->
+                    <div class="bg-gradient-to-br from-slate-900 to-indigo-950/40 rounded-xl p-4 border border-indigo-500/30">
+                        <div class="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            矢量正负号定则
+                        </div>
+                        <ul class="text-xs text-slate-300 space-y-1.5 leading-relaxed">
+                            <li>• 公式中 $v_0, v, a, x$ 均为矢量。</li>
+                            <li>• <b class="text-white">先定正方向：</b>通常以初速度 $v_0$ 方向为正方向。</li>
+                            <li>• <b class="text-emerald-400">加速：</b>$a$ 与 $v_0$ 同向，代入正值 $a > 0$。</li>
+                            <li>• <b class="text-rose-400">减速：</b>$a$ 与 $v_0$ 反向，代入负值 $a < 0$。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- “知三求二” 智能交互演算器 -->
+            <div class="bg-slate-800/80 rounded-2xl p-6 border border-slate-700/80 shadow-xl">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-700">
+                    <div>
+                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                            “知三求二” 智能解题演武场
+                            <span class="text-xs font-normal bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded border border-blue-500/30">全场景覆盖</span>
+                        </h3>
+                        <p class="text-xs text-slate-400 mt-0.5">勾选任意 3 个已知物理量并输入数值，系统将自动选择最佳公式推导出另外 2 个未知量</p>
+                    </div>
+                    <button onclick="resetSolver()" class="text-xs px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 transition self-start md:self-auto">
+                        清空重填
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6">
+                    <!-- 输入区 (5列) -->
+                    <div class="lg:col-span-5 space-y-3">
+                        <div class="text-xs font-semibold text-slate-400 mb-2">请勾选恰好 3 个已知量（已选：<span id="solver-selected-count" class="text-emerald-400 font-bold">3</span>/3）：</div>
+
+                        <!-- 输入项 v0 -->
+                        <div class="flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800 solver-row" id="row-v0">
+                            <label class="flex items-center gap-2.5 cursor-pointer text-sm">
+                                <input type="checkbox" id="check-v0" checked onchange="handleSolverCheck()" class="rounded border-slate-700 text-blue-600 focus:ring-0 w-4 h-4 bg-slate-800">
+                                <span class="font-medium text-slate-200">初速度 $v_0$</span>
+                            </label>
+                            <div class="flex items-center gap-1.5">
+                                <input type="number" id="input-v0" value="5" step="0.1" class="w-24 px-2 py-1 bg-slate-800 border border-slate-700 rounded text-right font-mono text-sm text-sky-400 focus:outline-none focus:border-blue-500">
+                                <span class="text-xs text-slate-500 w-9">m/s</span>
+                            </div>
+                        </div>
+
+                        <!-- 输入项 v -->
+                        <div class="flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800 solver-row" id="row-v">
+                            <label class="flex items-center gap-2.5 cursor-pointer text-sm">
+                                <input type="checkbox" id="check-v" checked onchange="handleSolverCheck()" class="rounded border-slate-700 text-blue-600 focus:ring-0 w-4 h-4 bg-slate-800">
+                                <span class="font-medium text-slate-200">末速度 $v$</span>
+                            </label>
+                            <div class="flex items-center gap-1.5">
+                                <input type="number" id="input-v" value="15" step="0.1" class="w-24 px-2 py-1 bg-slate-800 border border-slate-700 rounded text-right font-mono text-sm text-sky-400 focus:outline-none focus:border-blue-500">
+                                <span class="text-xs text-slate-500 w-9">m/s</span>
+                            </div>
+                        </div>
+
+                        <!-- 输入项 a -->
+                        <div class="flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800 solver-row" id="row-a">
+                            <label class="flex items-center gap-2.5 cursor-pointer text-sm">
+                                <input type="checkbox" id="check-a" checked onchange="handleSolverCheck()" class="rounded border-slate-700 text-blue-600 focus:ring-0 w-4 h-4 bg-slate-800">
+                                <span class="font-medium text-slate-200">加速度 $a$</span>
+                            </label>
+                            <div class="flex items-center gap-1.5">
+                                <input type="number" id="input-a" value="2" step="0.1" class="w-24 px-2 py-1 bg-slate-800 border border-slate-700 rounded text-right font-mono text-sm text-amber-400 focus:outline-none focus:border-amber-500">
+                                <span class="text-xs text-slate-500 w-9">m/s²</span>
+                            </div>
+                        </div>
+
+                        <!-- 输入项 t -->
+                        <div class="flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800 solver-row opacity-60" id="row-t">
+                            <label class="flex items-center gap-2.5 cursor-pointer text-sm">
+                                <input type="checkbox" id="check-t" onchange="handleSolverCheck()" class="rounded border-slate-700 text-blue-600 focus:ring-0 w-4 h-4 bg-slate-800">
+                                <span class="font-medium text-slate-200">运动时间 $t$</span>
+                            </label>
+                            <div class="flex items-center gap-1.5">
+                                <input type="number" id="input-t" value="5" step="0.1" disabled class="w-24 px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-right font-mono text-sm text-purple-400 focus:outline-none">
+                                <span class="text-xs text-slate-500 w-9">s</span>
+                            </div>
+                        </div>
+
+                        <!-- 输入项 x -->
+                        <div class="flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800 solver-row opacity-60" id="row-x">
+                            <label class="flex items-center gap-2.5 cursor-pointer text-sm">
+                                <input type="checkbox" id="check-x" onchange="handleSolverCheck()" class="rounded border-slate-700 text-blue-600 focus:ring-0 w-4 h-4 bg-slate-800">
+                                <span class="font-medium text-slate-200">位移 $x$</span>
+                            </label>
+                            <div class="flex items-center gap-1.5">
+                                <input type="number" id="input-x" value="50" step="0.1" disabled class="w-24 px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-right font-mono text-sm text-emerald-400 focus:outline-none">
+                                <span class="text-xs text-slate-500 w-9">m</span>
+                            </div>
+                        </div>
+
+                        <button onclick="calculateSolver()" id="btn-calc" class="w-full py-3 bg-blue-600 hover:bg-blue-500 active:scale-[0.98] text-white rounded-xl font-bold text-sm transition shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                            开始智能求解与步骤推导
+                        </button>
+                    </div>
+
+                    <!-- 输出与解题推导区 (7列) -->
+                    <div class="lg:col-span-7 bg-slate-950 rounded-xl p-5 border border-slate-800 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+                                <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span> 推导演算与答案卡
+                                </span>
+                                <span class="text-xs text-slate-500 font-mono" id="solver-case-tag">已匹配模型: 已知 v0, v, a</span>
+                            </div>
+
+                            <div id="solver-output-content" class="space-y-4 text-xs sm:text-sm text-slate-300">
+                                <!-- 动态注入计算步骤与公式推导 -->
+                            </div>
+                        </div>
+
+                        <div id="solver-apply-btn" class="mt-6 pt-4 border-t border-slate-900 hidden">
+                            <button onclick="applySolverToSandbox()" class="text-xs px-3 py-2 rounded-lg bg-emerald-600/20 text-emerald-300 hover:bg-emerald-600/30 border border-emerald-500/30 transition flex items-center gap-1.5">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path></svg>
+                                将此解题参数同步至“物理沙盒”实时查看运动
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- ==============================================
+             MODULE 3: 三大性质深度剖析
+             ============================================== -->
+        <section id="module-properties" class="hidden space-y-6">
+
+            <!-- 性质 1: 时间中点速度 vs 位移中点速度 -->
+            <div class="bg-slate-800/80 rounded-2xl p-6 border border-slate-700/80 shadow-xl">
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                    <div>
+                        <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">性质一 · 极值与不等式</span>
+                        <h2 class="text-lg sm:text-xl font-bold text-white mt-1">时间中点速度 $v_{t/2}$ 与 位移中点速度 $v_{x/2}$ 对比</h2>
+                    </div>
+                    <div class="px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-full text-xs font-semibold">
+                        恒有：$v_{x/2} > v_{t/2}$ (当 $a \neq 0$)
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- 左侧理论与证明 (5列) -->
+                    <div class="lg:col-span-5 space-y-4 text-xs sm:text-sm text-slate-300">
+                        <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-sky-400">时间中点瞬时速度：</span>
+                                <span class="text-xs text-slate-400">算术平均数</span>
+                            </div>
+                            <div class="text-center font-bold text-white text-base py-1">
+                                $$v_{\frac{t}{2}} = \bar{v} = \frac{v_0 + v}{2}$$
+                            </div>
+                            <div class="text-slate-400 text-xs">
+                                匀变速直线运动中，时间中点的瞬时速度恒等于全程的平均速度！
+                            </div>
+                        </div>
+
+                        <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-amber-400">位移中点瞬时速度：</span>
+                                <span class="text-xs text-slate-400">平方平均数 (均方根)</span>
+                            </div>
+                            <div class="text-center font-bold text-white text-base py-1">
+                                $$v_{\frac{x}{2}} = \sqrt{\frac{v_0^2 + v^2}{2}}$$
+                            </div>
+                            <div class="text-slate-400 text-xs">
+                                由前半程 $v_{x/2}^2 - v_0^2 = 2a\frac{x}{2}$ 与后半程 $v^2 - v_{x/2}^2 = 2a\frac{x}{2}$ 联立消去 $ax$ 立即推得。
+                            </div>
+                        </div>
+
+                        <!-- 不等式证明 -->
+                        <div class="p-3.5 rounded-xl bg-gradient-to-r from-blue-900/20 to-indigo-900/20 border border-blue-500/20 text-xs text-slate-300 leading-relaxed">
+                            <b class="text-blue-300">不等式数学证明：</b>
+                            $$v_{\frac{x}{2}}^2 - v_{\frac{t}{2}}^2 = \frac{v_0^2 + v^2}{2} - \left(\frac{v_0+v}{2}\right)^2 = \frac{(v - v_0)^2}{4}$$
+                            因为 $(v - v_0)^2 > 0$（当 $a \neq 0$ 时），故不论是<b>匀加速</b>还是<b>匀减速</b>，恒有 $v_{\frac{x}{2}} > v_{\frac{t}{2}}$！
+                        </div>
+                    </div>
+
+                    <!-- 右侧交互对比与动态位置 (7列) -->
+                    <div class="lg:col-span-7 bg-slate-950 rounded-xl p-5 border border-slate-800 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+                                <span class="font-semibold text-slate-200 text-sm">动态数值对比与中点相对位置</span>
+                                <span class="text-xs text-slate-500">调节初末速度即时验证</span>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 mb-5">
+                                <div>
+                                    <label class="text-xs text-slate-400 block mb-1">初速度 $v_0$ (m/s)</label>
+                                    <input type="range" id="prop-slider-v0" min="0" max="30" step="1" value="4" oninput="updateMidpointDemo()" class="w-full h-2 bg-slate-800 rounded slider-thumb-modern">
+                                    <span class="text-xs text-sky-400 font-mono font-bold" id="prop-val-v0">4 m/s</span>
+                                </div>
+                                <div>
+                                    <label class="text-xs text-slate-400 block mb-1">末速度 $v$ (m/s)</label>
+                                    <input type="range" id="prop-slider-v" min="0" max="30" step="1" value="20" oninput="updateMidpointDemo()" class="w-full h-2 bg-slate-800 rounded slider-thumb-modern">
+                                    <span class="text-xs text-emerald-400 font-mono font-bold" id="prop-val-v">20 m/s</span>
+                                </div>
+                            </div>
+
+                            <!-- 数值对比栏 -->
+                            <div class="grid grid-cols-2 gap-3 mb-4">
+                                <div class="p-3 bg-slate-900 rounded-xl border border-sky-500/30 text-center">
+                                    <div class="text-xs text-slate-400">时间中点速度 $v_{t/2}$</div>
+                                    <div class="text-xl font-bold font-mono text-sky-400 mt-1" id="val-vt2">12.00 <span class="text-xs">m/s</span></div>
+                                </div>
+                                <div class="p-3 bg-slate-900 rounded-xl border border-amber-500/30 text-center">
+                                    <div class="text-xs text-slate-400">位移中点速度 $v_{x/2}$</div>
+                                    <div class="text-xl font-bold font-mono text-amber-400 mt-1" id="val-vx2">14.42 <span class="text-xs">m/s</span></div>
+                                </div>
+                            </div>
+
+                            <!-- 差值提示 -->
+                            <div class="text-center text-xs text-emerald-400 font-mono mb-4">
+                                差值 $\Delta v = v_{x/2} - v_{t/2} =$ <span id="val-vdiff" class="font-bold">2.42</span> m/s (> 0 恒成立)
+                            </div>
+
+                            <!-- 几何位置直观画板 -->
+                            <canvas id="midpointCanvas" class="w-full h-36 bg-slate-900 rounded-xl border border-slate-800"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 性质 2: 纸带打点与逐差法原理 -->
+            <div class="bg-slate-800/80 rounded-2xl p-6 border border-slate-700/80 shadow-xl">
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                    <div>
+                        <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">性质二 · 实验与推论</span>
+                        <h2 class="text-lg sm:text-xl font-bold text-white mt-1">打点计时器纸带与逐差法 $\Delta x = aT^2$</h2>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="regenerateTape()" class="text-xs px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                            重新打点模拟
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 纸带动画与刻度 Canvas -->
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 mb-5 overflow-hidden">
+                    <div class="flex justify-between items-center text-xs text-slate-400 mb-2">
+                        <span>虚拟运动纸带 (打点计时器频率: 50Hz, 计数点周期: <b class="text-white font-mono">T = 0.10 s</b>)</span>
+                        <span class="font-mono text-emerald-400" id="tape-params-display">a = 2.0 m/s², x0 = 0</span>
+                    </div>
+                    <canvas id="tapeCanvas" class="w-full h-28 bg-amber-50 rounded-lg border border-amber-200 block shadow-inner"></canvas>
+                </div>
+
+                <!-- 逐差法核心计算解析 -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-slate-900/90 rounded-xl p-4 border border-slate-800">
+                        <h4 class="font-bold text-white text-xs mb-2 text-sky-400 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-sky-400"></span> 连续相等时间位移差
+                        </h4>
+                        <div class="text-center font-bold text-white text-sm py-2">
+                            $$\Delta x = x_{k+1} - x_k = aT^2$$
+                        </div>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            任意两个相邻且相等的时段内，位移增量恒等于常数 $aT^2$。这是判定物体是否做匀变速运动的铁律！
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-900/90 rounded-xl p-4 border border-slate-800">
+                        <h4 class="font-bold text-white text-xs mb-2 text-emerald-400 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span> 六段逐差法求加速度
+                        </h4>
+                        <div class="text-center font-bold text-white text-xs py-2">
+                            $$a = \frac{(x_4+x_5+x_6) - (x_1+x_2+x_3)}{9T^2}$$
+                        </div>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            逐差法的巧妙之处：将纸带分为前后两大段，最大限度减小测量偶然误差，所有测量数据均被有效利用。
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-900/90 rounded-xl p-4 border border-slate-800">
+                        <h4 class="font-bold text-white text-xs mb-2 text-amber-400 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-amber-400"></span> 瞬时速度求解公式
+                        </h4>
+                        <div class="text-center font-bold text-white text-sm py-2">
+                            $$v_n = \frac{x_n + x_{n+1}}{2T}$$
+                        </div>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            利用“时间中点的瞬时速度等于这段时间的平均速度”，可精确求出某计数点的瞬时速度。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 纸带实时数据表 -->
+                <div class="mt-4 overflow-x-auto">
+                    <table class="w-full text-xs text-left text-slate-300 font-mono">
+                        <thead class="bg-slate-900 text-slate-400 uppercase">
+                            <tr>
+                                <th class="p-2.5">区间</th>
+                                <th class="p-2.5">x₁</th>
+                                <th class="p-2.5">x₂</th>
+                                <th class="p-2.5">x₃</th>
+                                <th class="p-2.5">x₄</th>
+                                <th class="p-2.5">x₅</th>
+                                <th class="p-2.5">x₆</th>
+                                <th class="p-2.5 text-emerald-400">逐差计算 a</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800 bg-slate-950/60" id="tape-table-body">
+                            <!-- 动态计算行 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 性质 3: 初速为0的匀加速直线运动比例王国 -->
+            <div class="bg-slate-800/80 rounded-2xl p-6 border border-slate-700/80 shadow-xl">
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                    <div>
+                        <span class="text-xs font-bold text-purple-400 uppercase tracking-wider">性质三 · 比例王国</span>
+                        <h2 class="text-lg sm:text-xl font-bold text-white mt-1">初速度为 0 的匀加速直线运动比例王国与几何切片</h2>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- 左侧：几何切片积木展示 (6列) -->
+                    <div class="lg:col-span-6 bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
+                        <div>
+                            <div class="text-xs font-bold text-slate-300 mb-2 flex items-center justify-between">
+                                <span>$v-t$ 图像面积分割图解 (梯形面积之比 $1:3:5:7$)</span>
+                                <span class="text-purple-400 font-mono">初速 $v_0 = 0$</span>
+                            </div>
+                            <canvas id="ratioCanvas" class="w-full h-56 bg-slate-900 rounded-lg border border-slate-800"></canvas>
+                        </div>
+                        <div class="text-xs text-slate-400 mt-3 leading-relaxed">
+                            <b class="text-slate-200">几何奥秘：</b>将大三角形按等时间 $T$ 剖切，依次得到 1 个小三角形、以及由小三角形组合而成的等高梯形。其面积比刚好构成奇数数列：<b>$1 : 3 : 5 : 7 : \cdots : (2n-1)$</b>！
+                        </div>
+                    </div>
+
+                    <!-- 右侧：比例王国全览 (6列) -->
+                    <div class="lg:col-span-6 space-y-3 text-xs sm:text-sm">
+                        <!-- 比例 1 -->
+                        <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800">
+                            <div class="font-bold text-sky-400 mb-1">1. 等时间末瞬时速度之比</div>
+                            <div class="text-slate-300 font-mono text-xs">
+                                $$v_1 : v_2 : v_3 : \cdots : v_n = 1 : 2 : 3 : \cdots : n$$
+                            </div>
+                        </div>
+
+                        <!-- 比例 2 -->
+                        <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800">
+                            <div class="font-bold text-emerald-400 mb-1">2. 前 1T、前 2T、前 3T 内累计位移之比</div>
+                            <div class="text-slate-300 font-mono text-xs">
+                                $$x_1 : x_2 : x_3 : \cdots : x_n = 1 : 4 : 9 : \cdots : n^2$$
+                            </div>
+                        </div>
+
+                        <!-- 比例 3 -->
+                        <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800">
+                            <div class="font-bold text-amber-400 mb-1">3. 连续相等时间间隔内位移之比 (第1个T、第2个T...)</div>
+                            <div class="text-slate-300 font-mono text-xs">
+                                $$\Delta x_I : \Delta x_{II} : \Delta x_{III} : \cdots = 1 : 3 : 5 : \cdots : (2n-1)$$
+                            </div>
+                        </div>
+
+                        <!-- 比例 4 -->
+                        <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800">
+                            <div class="font-bold text-rose-400 mb-1">4. 通过连续相等位移所需时间之比</div>
+                            <div class="text-slate-300 font-mono text-xs">
+                                $$t_I : t_{II} : t_{III} : \cdots = 1 : (\sqrt{2}-1) : (\sqrt{3}-\sqrt{2}) : \cdots : (\sqrt{n}-\sqrt{n-1})$$
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- ==============================================
+             MODULE 4: 高考陷阱与经典模型
+             ============================================== -->
+        <section id="module-traps" class="hidden space-y-6">
+
+            <!-- 避坑 1: 汽车刹车死时间陷阱 -->
+            <div class="bg-slate-800/80 rounded-2xl p-6 border border-slate-700/80 shadow-xl">
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                    <div>
+                        <span class="text-xs font-bold text-rose-400 uppercase tracking-wider">高考高频易错警示 · 避坑指南</span>
+                        <h2 class="text-lg sm:text-xl font-bold text-white mt-1">汽车刹车“死时间”陷阱分析</h2>
+                    </div>
+                    <span class="text-xs px-2.5 py-1 bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-full font-semibold">
+                        易错率高达 65%
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- 左侧：陷阱模拟器 (5列) -->
+                    <div class="lg:col-span-5 bg-slate-900 p-5 rounded-xl border border-slate-800 space-y-4">
+                        <div class="text-xs font-bold text-slate-300">刹车参数模拟器：</div>
+                        <div>
+                            <label class="text-xs text-slate-400 block mb-1">初速度 $v_0$</label>
+                            <input type="number" id="brake-v0" value="20" class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm text-sky-400 font-mono">
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400 block mb-1">加速度大小 $a$ (减速，大小为正)</label>
+                            <input type="number" id="brake-a" value="4" class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm text-amber-400 font-mono">
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400 block mb-1">题目所问时间 $t$</label>
+                            <input type="number" id="brake-t" value="6" class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm text-purple-400 font-mono">
+                        </div>
+                        <button onclick="calcBrakeDemo()" class="w-full py-2.5 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-xs font-bold transition">
+                            检测是否存在死时间陷阱
+                        </button>
+                    </div>
+
+                    <!-- 右侧：对比结果展示 (7列) -->
+                    <div class="lg:col-span-7 bg-slate-950 p-5 rounded-xl border border-slate-800 flex flex-col justify-between">
+                        <div id="brake-result-content">
+                            <!-- 动态结果 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 避坑 2: 追及相遇问题临界条件 -->
+            <div class="bg-slate-800/80 rounded-2xl p-6 border border-slate-700/80 shadow-xl">
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                    <div>
+                        <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">经典力学模型 · 双体运动</span>
+                        <h2 class="text-lg sm:text-xl font-bold text-white mt-1">追及与相遇问题：速度相等临界条件</h2>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 space-y-3">
+                        <div class="flex items-center gap-2 text-amber-400 font-bold text-sm">
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> 模型一：速度大者减速追速度小者
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            典型情境：后车刹车匀减速，追赶前方匀速行驶的前车。
+                        </p>
+                        <ul class="text-xs text-slate-400 space-y-1.5 list-disc list-inside">
+                            <li>若两车<b>速度相等</b>时，恰好后车在后方：<b class="text-emerald-400">永不相撞</b>，此时两车相距<b>最近</b>。</li>
+                            <li>若两车<b>速度相等</b>时，后车恰好追上前车：<b class="text-amber-400">恰好不相碰</b>（临界安全状态）。</li>
+                            <li>若在速度相等之前就已经相遇：<b class="text-rose-400">必定相撞</b>（或相遇并超越）。</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 space-y-3">
+                        <div class="flex items-center gap-2 text-sky-400 font-bold text-sm">
+                            <span class="w-2.5 h-2.5 rounded-full bg-sky-400"></span> 模型二：初速小者加速追初速大者
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            典型情境：后车从静止开始匀加速启动，追赶前方匀速行驶的前车。
+                        </p>
+                        <ul class="text-xs text-slate-400 space-y-1.5 list-disc list-inside">
+                            <li>两车<b>速度相等前</b>：前车速度 > 后车速度，两车间距持续增大。</li>
+                            <li>两车<b>速度相等瞬间</b>：两车距离达到<b class="text-sky-400">最大值</b>！</li>
+                            <li>两车<b>速度相等后</b>：后车速度 > 前车速度，间距缩小，最终必定相遇并超越。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- 页脚版权与信息 -->
+    <footer class="bg-slate-950 border-t border-slate-900 mt-12 py-6 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div>
+                Inkstar Interactive Physics Lab · 匀变速直线运动可视化
+            </div>
+            <div>
+                托管于 <a href="https://github.com/inkstar/inkstar.github.io" target="_blank" class="text-slate-400 hover:text-slate-200 underline">GitHub Pages</a> · 域名: www.inkstar.org
+            </div>
+        </div>
+    </footer>
+
+    <!-- 核心 JavaScript 交互逻辑 -->
+    <script>
+        // ==========================================
+        // 全局状态管理
+        // ==========================================
+        const state = {
+            v0: 0,              // 初速度 m/s
+            a: 3.0,             // 加速度 m/s^2
+            tMax: 8.0,          // 最大时间
+            currentTime: 0,     // 当前时间 s
+            isPlaying: false,   // 是否播放中
+            playbackSpeed: 1.0, // 播放倍率
+            graphMode: 'vt',    // 'vt', 'xt', 'at', 'v2x'
+            lastFrameTimestamp: null
+        };
+
+        // DOM 元素缓存
+        const trackCanvas = document.getElementById('trackCanvas');
+        const trackCtx = trackCanvas.getContext('2d');
+        const graphCanvas = document.getElementById('graphCanvas');
+        const graphCtx = graphCanvas.getContext('2d');
+
+        const hudTime = document.getElementById('hud-time');
+        const hudX = document.getElementById('hud-x');
+        const hudV = document.getElementById('hud-v');
+        const hudA = document.getElementById('hud-a');
+
+        const sliderV0 = document.getElementById('slider-v0');
+        const sliderA = document.getElementById('slider-a');
+        const sliderTmax = document.getElementById('slider-tmax');
+        const simTimeSlider = document.getElementById('sim-time-slider');
+
+        const valV0 = document.getElementById('val-v0');
+        const valA = document.getElementById('val-a');
+        const valTmax = document.getElementById('val-tmax');
+        const maxTimeDisplay = document.getElementById('max-time-display');
+
+        const btnPlay = document.getElementById('btn-play');
+        const playIcon = document.getElementById('play-icon');
+        const playText = document.getElementById('play-text');
+        const physicsInsight = document.getElementById('physics-insight');
+        const graphExplainer = document.getElementById('graph-explainer');
+
+        // ==========================================
+        // 物理公式计算助手
+        // ==========================================
+        function calcDisplacement(v0, a, t) {
+            return v0 * t + 0.5 * a * t * t;
+        }
+
+        function calcVelocity(v0, a, t) {
+            return v0 + a * t;
+        }
+
+        // ==========================================
+        // 模块与选项卡切换
+        // ==========================================
+        function switchTab(tabId) {
+            const tabs = ['sandbox', 'formulas', 'properties', 'traps'];
+            tabs.forEach(t => {
+                const mod = document.getElementById(`module-${t}`);
+                const btn = document.getElementById(`tab-btn-${t}`);
+                if (t === tabId) {
+                    mod.classList.remove('hidden');
+                    btn.classList.add('active');
+                    btn.classList.remove('text-slate-300');
+                } else {
+                    mod.classList.add('hidden');
+                    btn.classList.remove('active');
+                    btn.classList.add('text-slate-300');
+                }
+            });
+
+            if (tabId === 'sandbox') {
+                requestAnimationFrame(renderLoop);
+            } else if (tabId === 'properties') {
+                setTimeout(() => {
+                    updateMidpointDemo();
+                    regenerateTape();
+                    drawRatioCanvas();
+                }, 50);
+            } else if (tabId === 'traps') {
+                calcBrakeDemo();
+            }
+        }
+
+        // ==========================================
+        // 物理沙盒仿真与控制器
+        // ==========================================
+        function initControls() {
+            sliderV0.oninput = (e) => {
+                state.v0 = parseFloat(e.target.value);
+                valV0.textContent = (state.v0 > 0 ? '+' : '') + state.v0.toFixed(1) + ' m/s';
+                updateInsights();
+                renderAll();
+            };
+
+            sliderA.oninput = (e) => {
+                state.a = parseFloat(e.target.value);
+                valA.textContent = (state.a > 0 ? '+' : '') + state.a.toFixed(1) + ' m/s²';
+                updateInsights();
+                renderAll();
+            };
+
+            sliderTmax.oninput = (e) => {
+                state.tMax = parseFloat(e.target.value);
+                valTmax.textContent = state.tMax.toFixed(1) + ' s';
+                maxTimeDisplay.textContent = state.tMax.toFixed(1) + 's';
+                simTimeSlider.max = state.tMax;
+                if (state.currentTime > state.tMax) {
+                    state.currentTime = state.tMax;
+                }
+                renderAll();
+            };
+
+            simTimeSlider.oninput = (e) => {
+                state.currentTime = parseFloat(e.target.value);
+                if (state.isPlaying) pauseSimulation();
+                renderAll();
+            };
+        }
+
+        function loadScenario(v0, a, tmax) {
+            state.v0 = v0;
+            state.a = a;
+            state.tMax = tmax;
+            state.currentTime = 0;
+
+            sliderV0.value = v0;
+            sliderA.value = a;
+            sliderTmax.value = tmax;
+
+            valV0.textContent = (v0 > 0 ? '+' : '') + v0.toFixed(1) + ' m/s';
+            valA.textContent = (a > 0 ? '+' : '') + a.toFixed(1) + ' m/s²';
+            valTmax.textContent = tmax.toFixed(1) + ' s';
+            maxTimeDisplay.textContent = tmax.toFixed(1) + 's';
+            simTimeSlider.max = tmax;
+            simTimeSlider.value = 0;
+
+            updateInsights();
+            renderAll();
+        }
+
+        function togglePlay() {
+            if (state.isPlaying) {
+                pauseSimulation();
+            } else {
+                playSimulation();
+            }
+        }
+
+        function playSimulation() {
+            state.isPlaying = true;
+            playIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+            playText.textContent = '暂停';
+            btnPlay.classList.replace('bg-emerald-600', 'bg-amber-600');
+            btnPlay.classList.replace('hover:bg-emerald-500', 'hover:bg-amber-500');
+            state.lastFrameTimestamp = performance.now();
+            requestAnimationFrame(animationStep);
+        }
+
+        function pauseSimulation() {
+            state.isPlaying = false;
+            playIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+            playText.textContent = '运行';
+            btnPlay.classList.replace('bg-amber-600', 'bg-emerald-600');
+            btnPlay.classList.replace('hover:bg-amber-500', 'hover:bg-emerald-500');
+        }
+
+        function resetSimulation() {
+            pauseSimulation();
+            state.currentTime = 0;
+            simTimeSlider.value = 0;
+            renderAll();
+        }
+
+        function stepForward(dt) {
+            pauseSimulation();
+            state.currentTime = Math.min(state.tMax, state.currentTime + dt);
+            simTimeSlider.value = state.currentTime;
+            renderAll();
+        }
+
+        function setSpeed(sp) {
+            state.playbackSpeed = sp;
+            document.querySelectorAll('.speed-btn').forEach(b => {
+                if (parseFloat(b.dataset.speed) === sp) {
+                    b.classList.add('bg-blue-600', 'text-white');
+                    b.classList.remove('text-slate-400');
+                } else {
+                    b.classList.remove('bg-blue-600', 'text-white');
+                    b.classList.add('text-slate-400');
+                }
+            });
+        }
+
+        function animationStep(timestamp) {
+            if (!state.isPlaying) return;
+            const deltaSec = (timestamp - state.lastFrameTimestamp) / 1000;
+            state.lastFrameTimestamp = timestamp;
+
+            state.currentTime += deltaSec * state.playbackSpeed;
+            if (state.currentTime >= state.tMax) {
+                state.currentTime = state.tMax;
+                pauseSimulation();
+            }
+            simTimeSlider.value = state.currentTime;
+            renderAll();
+
+            if (state.isPlaying) {
+                requestAnimationFrame(animationStep);
+            }
+        }
+
+        // ==========================================
+        // 动态物理状态评注与分析
+        // ==========================================
+        function updateInsights() {
+            const v0 = state.v0;
+            const a = state.a;
+            let text = '';
+
+            if (a === 0) {
+                text = `<div>• <b>匀速直线运动：</b>加速度为 0，速度恒为 <span class="text-sky-400 font-mono">${v0} m/s</span>，位移与时间成正比。</div>`;
+            } else if ((v0 > 0 && a > 0) || (v0 < 0 && a < 0)) {
+                text = `<div>• <b>同向加速运动：</b>速度与加速度同向（$a \\cdot v_0 > 0$），速率持续增大，单位时间内位移越来越大。</div>`;
+            } else if (v0 === 0) {
+                text = `<div>• <b>初速为零匀加速：</b>速度从 0 开始以 <span class="text-amber-400 font-mono">${Math.abs(a)} m/s²</span> 的速率增加，位移比例严格符合 $1:3:5:7$。</div>`;
+            } else {
+                const tStop = Math.abs(v0 / a);
+                const xMax = (v0 * v0) / (2 * Math.abs(a));
+                text = `<div>• <b>减速与折返运动：</b>速度与加速度反向，物体先做匀减速运动。</div>
+                        <div>• <b>速度减为0时刻：</b><span class="text-purple-400 font-mono">t = ${tStop.toFixed(2)} s</span>，此时达到反向折返点。</div>
+                        <div>• <b>最大位移：</b><span class="text-emerald-400 font-mono">x = ${xMax.toFixed(2)} m</span>。过此点后，物体反向加速！</div>`;
+            }
+            physicsInsight.innerHTML = text;
+            renderMathInElement(physicsInsight, { throwOnError: false });
+        }
+
+        // ==========================================
+        // 图像模式切换
+        // ==========================================
+        function setGraphMode(mode) {
+            state.graphMode = mode;
+            ['vt', 'xt', 'at', 'v2x'].forEach(m => {
+                const btn = document.getElementById(`gbtn-${m}`);
+                if (m === mode) {
+                    btn.classList.add('bg-blue-600', 'text-white');
+                    btn.classList.remove('text-slate-400');
+                } else {
+                    btn.classList.remove('bg-blue-600', 'text-white');
+                    btn.classList.add('text-slate-400');
+                }
+            });
+            updateGraphExplainer();
+            drawGraph();
+        }
+
+        function updateGraphExplainer() {
+            let html = '';
+            if (state.graphMode === 'vt') {
+                html = `<div class="space-y-1.5">
+                    <div class="font-semibold text-white flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span> <b>v-t 图像高考三大杀招：</b></div>
+                    <div>1. <b>切线/直线斜率：</b>$\\text{slope} = \\frac{\\Delta v}{\\Delta t} = a$。斜率大小为加速度大小，斜率正负为加速度方向。</div>
+                    <div>2. <b>面积物理含义：</b>图线与 $t$ 轴所围的<b>“面积”表示位移 $x$</b>。时间轴上方为正位移，时间轴下方为负位移，总位移为代数和！</div>
+                    <div>3. <b>纵截距：</b>$t=0$ 时的初速度 $v_0$；与 $t$ 轴交点即瞬时速度为 0 的折返时刻。</div>
+                </div>`;
+            } else if (state.graphMode === 'xt') {
+                html = `<div class="space-y-1.5">
+                    <div class="font-semibold text-white flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> <b>x-t 图像考点精要：</b></div>
+                    <div>1. <b>图线形状：</b>由于 $x = v_0 t + \\frac{1}{2}at^2$，图线为一抛物线。开口向上表示 $a > 0$，开口向下表示 $a < 0$。</div>
+                    <div>2. <b>切线斜率：</b>任意时刻曲线上切线的斜率等于该时刻的<b>瞬时速度 $v$</b>；极值点处斜率为 0，对应速度减为 0。</div>
+                    <div>3. <b>两点割线斜率：</b>连线割线的斜率表示对应时间段内的<b>平均速度 $\\bar{v}$</b>。</div>
+                </div>`;
+            } else if (state.graphMode === 'at') {
+                html = `<div class="space-y-1.5">
+                    <div class="font-semibold text-white flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-500"></span> <b>a-t 图像考点精要：</b></div>
+                    <div>1. <b>水平直线：</b>匀变速运动中加速度恒定，$a-t$ 图线为平行于时间轴的直线。</div>
+                    <div>2. <b>面积含义：</b>矩形阴影面积表示该时间段内的<b>速度变化量 $\\Delta v = a \\Delta t$</b>。</div>
+                </div>`;
+            } else if (state.graphMode === 'v2x') {
+                html = `<div class="space-y-1.5">
+                    <div class="font-semibold text-white flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-purple-500"></span> <b>v²-x 图像（高阶思维）：</b></div>
+                    <div>1. <b>线性化方程：</b>由公式 $v^2 - v_0^2 = 2ax$ 变形得 $v^2 = 2ax + v_0^2$。</div>
+                    <div>2. <b>斜率物理意义：</b>图线斜率 $\\text{slope} = 2a$。故加速度 $a = \\frac{\\text{slope}}{2}$。</div>
+                    <div>3. <b>纵截距：</b>截距即为初速度的平方 $v_0^2$。</div>
+                </div>`;
+            }
+            graphExplainer.innerHTML = html;
+            renderMathInElement(graphExplainer, { throwOnError: false });
+        }
+
+        // ==========================================
+        // 绘图与渲染引擎 (Canvas 高画质渲染)
+        // ==========================================
+        function resizeCanvas(canvas) {
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+            if (canvas.width !== rect.width * dpr || canvas.height !== rect.height * dpr) {
+                canvas.width = rect.width * dpr;
+                canvas.height = rect.height * dpr;
+            }
+            const ctx = canvas.getContext('2d');
+            ctx.resetTransform();
+            ctx.scale(dpr, dpr);
+            return { width: rect.width, height: rect.height };
+        }
+
+        function renderAll() {
+            const t = state.currentTime;
+            const v0 = state.v0;
+            const a = state.a;
+            const x = calcDisplacement(v0, a, t);
+            const v = calcVelocity(v0, a, t);
+
+            // 更新 HUD 数据卡片
+            hudTime.textContent = t.toFixed(2);
+            hudX.textContent = (x > 0 ? '+' : '') + x.toFixed(2);
+            hudV.textContent = (v > 0 ? '+' : '') + v.toFixed(2);
+            hudA.textContent = (a > 0 ? '+' : '') + a.toFixed(2);
+
+            drawTrack();
+            drawGraph();
+        }
+
+        // 绘制跑道 Canvas
+        function drawTrack() {
+            const { width, height } = resizeCanvas(trackCanvas);
+            const ctx = trackCtx;
+            ctx.clearRect(0, 0, width, height);
+
+            // 计算位移范围以自适应确定比例尺
+            const tMax = state.tMax;
+            const samplePoints = [0, tMax, state.currentTime];
+            if (state.a !== 0) {
+                const tVertex = -state.v0 / state.a;
+                if (tVertex > 0 && tVertex < tMax) samplePoints.push(tVertex);
+            }
+            let minX = 0, maxX = 0;
+            samplePoints.forEach(pt => {
+                const val = calcDisplacement(state.v0, state.a, pt);
+                if (val < minX) minX = val;
+                if (val > maxX) maxX = val;
+            });
+            // 保持一定视野边界
+            minX = Math.min(-10, Math.floor(minX / 10) * 10 - 10);
+            maxX = Math.max(30, Math.ceil(maxX / 10) * 10 + 10);
+            const rangeX = maxX - minX;
+
+            const marginH = 40;
+            const trackY = height * 0.55;
+            const scaleX = (width - marginH * 2) / rangeX;
+
+            function worldToScreenX(val) {
+                return marginH + (val - minX) * scaleX;
+            }
+
+            // 1. 绘制轨道背景
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(marginH, trackY - 14, width - marginH * 2, 28);
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(marginH, trackY - 14, width - marginH * 2, 28);
+
+            // 2. 绘制跑道标尺刻度
+            let step = 10;
+            if (rangeX > 150) step = 25;
+            if (rangeX <= 40) step = 5;
+
+            const startTick = Math.ceil(minX / step) * step;
+            ctx.font = '10px monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+
+            for (let tx = startTick; tx <= maxX; tx += step) {
+                const sx = worldToScreenX(tx);
+                const isZero = (tx === 0);
+
+                ctx.beginPath();
+                ctx.strokeStyle = isZero ? '#38bdf8' : '#64748b';
+                ctx.lineWidth = isZero ? 2 : 1;
+                ctx.moveTo(sx, trackY + 14);
+                ctx.lineTo(sx, trackY + 24);
+                ctx.stroke();
+
+                ctx.fillStyle = isZero ? '#38bdf8' : '#94a3b8';
+                ctx.fillText(tx + 'm', sx, trackY + 27);
+            }
+
+            // 3. 绘制轨迹残影打点 (每 0.5s)
+            const ghostDt = 0.5;
+            for (let gt = 0; gt <= state.currentTime; gt += ghostDt) {
+                const gx = calcDisplacement(state.v0, state.a, gt);
+                const screenGx = worldToScreenX(gx);
+                ctx.beginPath();
+                ctx.arc(screenGx, trackY, 3.5, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(168, 85, 247, 0.45)';
+                ctx.fill();
+            }
+
+            // 4. 绘制小车实体
+            const curX = calcDisplacement(state.v0, state.a, state.currentTime);
+            const curV = calcVelocity(state.v0, state.a, state.currentTime);
+            const carScreenX = worldToScreenX(curX);
+
+            const carW = 44;
+            const carH = 22;
+            const carY = trackY - carH - 4;
+
+            // 车轮
+            ctx.fillStyle = '#475569';
+            ctx.beginPath();
+            ctx.arc(carScreenX - carW * 0.3, trackY - 3, 5, 0, Math.PI * 2);
+            ctx.arc(carScreenX + carW * 0.3, trackY - 3, 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 车身渐变
+            const carGrad = ctx.createLinearGradient(carScreenX - carW/2, carY, carScreenX + carW/2, carY + carH);
+            carGrad.addColorStop(0, '#38bdf8');
+            carGrad.addColorStop(1, '#0284c7');
+            ctx.fillStyle = carGrad;
+            ctx.beginPath();
+            ctx.roundRect(carScreenX - carW/2, carY, carW, carH, 6);
+            ctx.fill();
+            ctx.strokeStyle = '#bae6fd';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            // 质点中心高亮
+            ctx.beginPath();
+            ctx.arc(carScreenX, trackY - carH/2 - 4, 3, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.fill();
+
+            // 5. 绘制速度矢量箭头 (蓝色)
+            if (Math.abs(curV) > 0.05) {
+                const arrowLen = Math.min(80, Math.max(-80, curV * 3.5));
+                drawArrow(ctx, carScreenX, carY - 8, carScreenX + arrowLen, carY - 8, '#38bdf8', `v: ${curV.toFixed(1)} m/s`);
+            }
+
+            // 6. 绘制加速度矢量箭头 (橙色)
+            if (Math.abs(state.a) > 0.05) {
+                const aLen = Math.min(70, Math.max(-70, state.a * 5.0));
+                drawArrow(ctx, carScreenX, carY - 24, carScreenX + aLen, carY - 24, '#f59e0b', `a: ${state.a.toFixed(1)} m/s²`);
+            }
+        }
+
+        function drawArrow(ctx, fromX, fromY, toX, toY, color, label) {
+            const headlen = 7;
+            const dx = toX - fromX;
+            const dy = toY - fromY;
+            const angle = Math.atan2(dy, dx);
+
+            ctx.strokeStyle = color;
+            ctx.fillStyle = color;
+            ctx.lineWidth = 2.5;
+
+            ctx.beginPath();
+            ctx.moveTo(fromX, fromY);
+            ctx.lineTo(toX, toY);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(toX, toY);
+            ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 6), toY - headlen * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 6), toY - headlen * Math.sin(angle + Math.PI / 6));
+            ctx.closePath();
+            ctx.fill();
+
+            if (label) {
+                ctx.font = '10px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(label, (fromX + toX) / 2, fromY - 5);
+            }
+        }
+
+        // 绘制运动学多维图像 Canvas
+        function drawGraph() {
+            const { width, height } = resizeCanvas(graphCanvas);
+            const ctx = graphCtx;
+            ctx.clearRect(0, 0, width, height);
+
+            const padL = 50, padR = 30, padT = 30, padB = 40;
+            const plotW = width - padL - padR;
+            const plotH = height - padT - padB;
+
+            const mode = state.graphMode;
+            const tMax = state.tMax;
+            const curT = state.currentTime;
+
+            // 根据模式获取 Y 轴数据范围
+            let minY = 0, maxY = 0;
+            const numSamples = 100;
+            const curveData = [];
+
+            if (mode === 'vt') {
+                for (let i = 0; i <= numSamples; i++) {
+                    const ti = (i / numSamples) * tMax;
+                    const vi = calcVelocity(state.v0, state.a, ti);
+                    curveData.push({ t: ti, val: vi });
+                    if (vi < minY) minY = vi;
+                    if (vi > maxY) maxY = vi;
+                }
+            } else if (mode === 'xt') {
+                for (let i = 0; i <= numSamples; i++) {
+                    const ti = (i / numSamples) * tMax;
+                    const xi = calcDisplacement(state.v0, state.a, ti);
+                    curveData.push({ t: ti, val: xi });
+                    if (xi < minY) minY = xi;
+                    if (xi > maxY) maxY = xi;
+                }
+            } else if (mode === 'at') {
+                const a = state.a;
+                minY = Math.min(-2, a - 2);
+                maxY = Math.max(2, a + 2);
+                curveData.push({ t: 0, val: a }, { t: tMax, val: a });
+            } else if (mode === 'v2x') {
+                for (let i = 0; i <= numSamples; i++) {
+                    const ti = (i / numSamples) * tMax;
+                    const xi = calcDisplacement(state.v0, state.a, ti);
+                    const vi = calcVelocity(state.v0, state.a, ti);
+                    const v2 = vi * vi;
+                    curveData.push({ t: ti, x: xi, val: v2 });
+                    if (v2 < minY) minY = v2;
+                    if (v2 > maxY) maxY = v2;
+                }
+            }
+
+            // 保持坐标系充盈饱满
+            const ySpan = Math.max(1, maxY - minY);
+            minY = Math.floor(minY - ySpan * 0.15);
+            maxY = Math.ceil(maxY + ySpan * 0.15);
+
+            function toScreen(t, val) {
+                const sx = padL + (t / tMax) * plotW;
+                const sy = padT + (1 - (val - minY) / (maxY - minY)) * plotH;
+                return { x: sx, y: sy };
+            }
+
+            // 1. 绘制网格线与原点轴
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 1;
+
+            // 横向网格
+            const yTicks = 5;
+            ctx.font = '10px monospace';
+            ctx.fillStyle = '#64748b';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+
+            for (let i = 0; i <= yTicks; i++) {
+                const yVal = minY + (i / yTicks) * (maxY - minY);
+                const sy = padT + (1 - i / yTicks) * plotH;
+                ctx.beginPath();
+                ctx.moveTo(padL, sy);
+                ctx.lineTo(padL + plotW, sy);
+                ctx.stroke();
+                ctx.fillText(yVal.toFixed(1), padL - 8, sy);
+            }
+
+            // 零轴高亮 (若在视野内)
+            if (minY <= 0 && maxY >= 0) {
+                const zeroPos = toScreen(0, 0);
+                ctx.strokeStyle = '#475569';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(padL, zeroPos.y);
+                ctx.lineTo(padL + plotW, zeroPos.y);
+                ctx.stroke();
+            }
+
+            // 纵向时间网格与刻度
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            const tTicks = 5;
+            for (let i = 0; i <= tTicks; i++) {
+                const ti = (i / tTicks) * tMax;
+                const sx = padL + (i / tTicks) * plotW;
+                ctx.beginPath();
+                ctx.strokeStyle = '#1e293b';
+                ctx.moveTo(sx, padT);
+                ctx.lineTo(sx, padT + plotH);
+                ctx.stroke();
+                ctx.fillText(ti.toFixed(1) + 's', sx, padT + plotH + 8);
+            }
+
+            // 轴标题
+            ctx.font = '11px sans-serif';
+            ctx.fillStyle = '#94a3b8';
+            ctx.textAlign = 'left';
+            const yLabels = { vt: '速度 v (m/s)', xt: '位移 x (m)', at: '加速度 a (m/s²)', v2x: 'v² (m²/s²)' };
+            ctx.fillText(yLabels[mode], padL, padT - 18);
+            ctx.textAlign = 'right';
+            ctx.fillText('时间 t (s)', padL + plotW, padT + plotH + 24);
+
+            // 2. 模式特有绘制 (阴影面积 / 切线)
+            if (mode === 'vt') {
+                // 绘制当前时刻积分阴影面积 (位移 x)
+                const zeroY = toScreen(0, 0).y;
+                const curPos = toScreen(curT, calcVelocity(state.v0, state.a, curT));
+
+                ctx.save();
+                ctx.beginPath();
+                const steps = Math.floor((curT / tMax) * 100);
+                ctx.moveTo(toScreen(0, 0).x, zeroY);
+                for (let i = 0; i <= steps; i++) {
+                    const ti = (i / steps) * curT;
+                    const vi = calcVelocity(state.v0, state.a, ti);
+                    const p = toScreen(ti, vi);
+                    ctx.lineTo(p.x, p.y);
+                }
+                ctx.lineTo(curPos.x, zeroY);
+                ctx.closePath();
+                ctx.fillStyle = 'rgba(56, 189, 248, 0.18)';
+                ctx.fill();
+                ctx.restore();
+
+                // 面积标注文本
+                const curDisp = calcDisplacement(state.v0, state.a, curT);
+                ctx.font = 'bold 11px sans-serif';
+                ctx.fillStyle = '#38bdf8';
+                ctx.textAlign = 'center';
+                const midT = curT * 0.5;
+                const midV = calcVelocity(state.v0, state.a, midT);
+                const midPos = toScreen(midT, midV * 0.5);
+                if (curT > 0.8) {
+                    ctx.fillText(`面积 = 位移 x = ${curDisp.toFixed(1)}m`, midPos.x, midPos.y);
+                }
+            } else if (mode === 'xt') {
+                // 绘制当前点的切线 (斜率即瞬时速度)
+                const curX = calcDisplacement(state.v0, state.a, curT);
+                const curV = calcVelocity(state.v0, state.a, curT);
+                const curPos = toScreen(curT, curX);
+
+                const dt = 1.0;
+                const p1 = toScreen(curT - dt, curX - curV * dt);
+                const p2 = toScreen(curT + dt, curX + curV * dt);
+
+                ctx.strokeStyle = '#f59e0b';
+                ctx.lineWidth = 1.8;
+                ctx.setLineDash([4, 4]);
+                ctx.beginPath();
+                ctx.moveTo(p1.x, p1.y);
+                ctx.lineTo(p2.x, p2.y);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                ctx.font = '10px sans-serif';
+                ctx.fillStyle = '#f59e0b';
+                ctx.textAlign = 'left';
+                ctx.fillText(`切线斜率 = v = ${curV.toFixed(1)} m/s`, curPos.x + 8, curPos.y - 8);
+            }
+
+            // 3. 绘制完整曲线
+            ctx.beginPath();
+            ctx.lineWidth = 3;
+            const strokeColors = { vt: '#38bdf8', xt: '#10b981', at: '#f59e0b', v2x: '#c084fc' };
+            ctx.strokeStyle = strokeColors[mode];
+
+            curveData.forEach((pt, idx) => {
+                const pos = toScreen(pt.t, pt.val);
+                if (idx === 0) ctx.moveTo(pos.x, pos.y);
+                else ctx.lineTo(pos.x, pos.y);
+            });
+            ctx.stroke();
+
+            // 4. 当前时刻点与十字线高亮
+            let curVal = 0;
+            if (mode === 'vt') curVal = calcVelocity(state.v0, state.a, curT);
+            else if (mode === 'xt') curVal = calcDisplacement(state.v0, state.a, curT);
+            else if (mode === 'at') curVal = state.a;
+            else if (mode === 'v2x') {
+                const cv = calcVelocity(state.v0, state.a, curT);
+                curVal = cv * cv;
+            }
+
+            const activePos = toScreen(curT, curVal);
+
+            // 十字虚线
+            ctx.strokeStyle = 'rgba(241, 245, 249, 0.4)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([3, 3]);
+            ctx.beginPath();
+            ctx.moveTo(activePos.x, padT);
+            ctx.lineTo(activePos.x, padT + plotH);
+            ctx.moveTo(padL, activePos.y);
+            ctx.lineTo(padL + plotW, activePos.y);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // 外发光实心点
+            ctx.beginPath();
+            ctx.arc(activePos.x, activePos.y, 6, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.fill();
+            ctx.strokeStyle = strokeColors[mode];
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+
+            // 坐标气泡
+            ctx.font = 'bold 11px monospace';
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = activePos.x > width - 100 ? 'right' : 'left';
+            ctx.fillText(`(${curT.toFixed(2)}s, ${curVal.toFixed(2)})`, activePos.x + (activePos.x > width - 100 ? -12 : 12), activePos.y - 10);
+        }
+
+        // ==========================================
+        // MODULE 2: “知三求二” 交互求解器核心算法
+        // ==========================================
+        function handleSolverCheck() {
+            const keys = ['v0', 'v', 'a', 't', 'x'];
+            const checked = keys.filter(k => document.getElementById(`check-${k}`).checked);
+
+            document.getElementById('solver-selected-count').textContent = checked.length;
+
+            keys.forEach(k => {
+                const isChecked = document.getElementById(`check-${k}`).checked;
+                const inputEl = document.getElementById(`input-${k}`);
+                const rowEl = document.getElementById(`row-${k}`);
+
+                if (isChecked) {
+                    inputEl.disabled = false;
+                    inputEl.classList.remove('bg-slate-800/50', 'border-slate-700/50');
+                    inputEl.classList.add('bg-slate-800', 'border-slate-700');
+                    rowEl.classList.remove('opacity-60');
+                } else {
+                    inputEl.disabled = true;
+                    inputEl.classList.add('bg-slate-800/50', 'border-slate-700/50');
+                    inputEl.classList.remove('bg-slate-800', 'border-slate-700');
+                    rowEl.classList.add('opacity-60');
+                }
+            });
+
+            const btnCalc = document.getElementById('btn-calc');
+            if (checked.length === 3) {
+                btnCalc.disabled = false;
+                btnCalc.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                btnCalc.disabled = true;
+                btnCalc.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        let lastSolverResult = null;
+
+        function calculateSolver() {
+            const keys = ['v0', 'v', 'a', 't', 'x'];
+            const checked = keys.filter(k => document.getElementById(`check-${k}`).checked);
+            if (checked.length !== 3) {
+                alert('请恰好勾选 3 个已知物理量！');
+                return;
+            }
+
+            const vals = {};
+            checked.forEach(k => {
+                vals[k] = parseFloat(document.getElementById(`input-${k}`).value) || 0;
+            });
+
+            const comboKey = checked.sort().join('_');
+            let res = {};
+            let stepsHtml = '';
+
+            document.getElementById('solver-case-tag').textContent = `已匹配模型: 已知 ${checked.join(', ')}`;
+
+            // 10 种组合全分支求解
+            if (comboKey === 'a_v0_v') {
+                // 已知 v0, v, a -> 求 t, x
+                const { v0, v, a } = vals;
+                if (a === 0) {
+                    if (v !== v0) {
+                        stepsHtml = `<div class="text-rose-400">矛盾：加速度 a = 0 时初速度与末速度必须相等！</div>`;
+                        renderSolverOutput(stepsHtml);
+                        return;
+                    }
+                    stepsHtml = `<div>加速度为0，为匀速运动，时间 t 与位移 x 需进一步给定其中之一。</div>`;
+                    renderSolverOutput(stepsHtml);
+                    return;
+                }
+                const t = (v - v0) / a;
+                const x = (v * v - v0 * v0) / (2 * a);
+                res = { v0, v, a, t, x };
+                stepsHtml = `
+                    <div class="space-y-3">
+                        <div>
+                            <div class="font-bold text-sky-400 mb-1">步骤 1：求运动时间 $t$</div>
+                            <p>选用速度公式：$$v = v_0 + at \\implies t = \\frac{v - v_0}{a}$$</p>
+                            <p class="font-mono text-slate-300">代入数据：$t = \\frac{${v} - (${v0})}{${a}} = \\mathbf{${t.toFixed(3)}\\text{ s}}$</p>
+                        </div>
+                        <div>
+                            <div class="font-bold text-emerald-400 mb-1">步骤 2：求位移 $x$</div>
+                            <p>选用速度-位移公式：$$v^2 - v_0^2 = 2ax \\implies x = \\frac{v^2 - v_0^2}{2a}$$</p>
+                            <p class="font-mono text-slate-300">代入数据：$x = \\frac{${v}^2 - (${v0})^2}{2 \\times ${a}} = \\mathbf{${x.toFixed(3)}\\text{ m}}$</p>
+                        </div>
+                    </div>`;
+            } else if (comboKey === 'a_t_v0') {
+                // 已知 v0, a, t -> 求 v, x
+                const { v0, a, t } = vals;
+                const v = v0 + a * t;
+                const x = v0 * t + 0.5 * a * t * t;
+                res = { v0, v, a, t, x };
+                stepsHtml = `
+                    <div class="space-y-3">
+                        <div>
+                            <div class="font-bold text-sky-400 mb-1">步骤 1：求末速度 $v$</div>
+                            <p>选用速度公式：$$v = v_0 + at$$</p>
+                            <p class="font-mono text-slate-300">代入数据：$v = ${v0} + (${a}) \\times ${t} = \\mathbf{${v.toFixed(3)}\\text{ m/s}}$</p>
+                        </div>
+                        <div>
+                            <div class="font-bold text-emerald-400 mb-1">步骤 2：求位移 $x$</div>
+                            <p>选用位移公式：$$x = v_0 t + \\frac{1}{2}at^2$$</p>
+                            <p class="font-mono text-slate-300">代入数据：$x = ${v0} \\times ${t} + \\frac{1}{2} \\times (${a}) \\times ${t}^2 = \\mathbf{${x.toFixed(3)}\\text{ m}}$</p>
+                        </div>
+                    </div>`;
+            } else if (comboKey === 'a_v0_x') {
+                // 已知 v0, a, x -> 求 v, t
+                const { v0, a, x } = vals;
+                const vSq = v0 * v0 + 2 * a * x;
+                if (vSq < 0) {
+                    stepsHtml = `<div class="text-rose-400">无物理实数解：$v^2 = v_0^2 + 2ax = ${vSq.toFixed(2)} < 0$。该位移无法达到！</div>`;
+                    renderSolverOutput(stepsHtml);
+                    return;
+                }
+                const v = Math.sqrt(vSq); // 先取正
+                const t = a !== 0 ? (v - v0) / a : x / v0;
+                res = { v0, v, a, t, x };
+                stepsHtml = `
+                    <div class="space-y-3">
+                        <div>
+                            <div class="font-bold text-sky-400 mb-1">步骤 1：求末速度 $v$</div>
+                            <p>选用速度-位移公式：$$v = \\pm\\sqrt{v_0^2 + 2ax}$$</p>
+                            <p class="font-mono text-slate-300">代入数据：$v = \\sqrt{${v0}^2 + 2 \\times (${a}) \\times ${x}} = \\mathbf{${v.toFixed(3)}\\text{ m/s}}$ (取同向正根)</p>
+                        </div>
+                        <div>
+                            <div class="font-bold text-emerald-400 mb-1">步骤 2：求时间 $t$</div>
+                            <p>选用速度公式：$$t = \\frac{v - v_0}{a}$$</p>
+                            <p class="font-mono text-slate-300">代入数据：$t = \\mathbf{${t.toFixed(3)}\\text{ s}}$</p>
+                        </div>
+                    </div>`;
+            } else if (comboKey === 't_v0_x') {
+                // 已知 v0, t, x -> 求 a, v
+                const { v0, t, x } = vals;
+                if (t === 0) {
+                    stepsHtml = `<div class="text-rose-400">时间 t 不能为 0！</div>`;
+                    renderSolverOutput(stepsHtml);
+                    return;
+                }
+                const a = (2 * (x - v0 * t)) / (t * t);
+                const v = v0 + a * t;
+                res = { v0, v, a, t, x };
+                stepsHtml = `
+                    <div class="space-y-3">
+                        <div>
+                            <div class="font-bold text-amber-400 mb-1">步骤 1：求加速度 $a$</div>
+                            <p>由位移公式：$$x = v_0 t + \\frac{1}{2}at^2 \\implies a = \\frac{2(x - v_0 t)}{t^2}$$</p>
+                            <p class="font-mono text-slate-300">代入数据：$a = \\frac{2(${x} - ${v0} \\times ${t})}{${t}^2} = \\mathbf{${a.toFixed(3)}\\text{ m/s²}}$</p>
+                        </div>
+                        <div>
+                            <div class="font-bold text-sky-400 mb-1">步骤 2：求末速度 $v$</div>
+                            <p>选用平均速度公式变形：$$x = \\frac{v_0 + v}{2}t \\implies v = \\frac{2x}{t} - v_0$$</p>
+                            <p class="font-mono text-slate-300">代入数据：$v = \\frac{2 \\times ${x}}{${t}} - ${v0} = \\mathbf{${v.toFixed(3)}\\text{ m/s}}$</p>
+                        </div>
+                    </div>`;
+            } else if (comboKey === 't_v0_v') {
+                // 已知 v0, v, t -> 求 a, x
+                const { v0, v, t } = vals;
+                if (t === 0) {
+                    stepsHtml = `<div class="text-rose-400">时间 t 不能为 0！</div>`;
+                    renderSolverOutput(stepsHtml);
+                    return;
+                }
+                const a = (v - v0) / t;
+                const x = 0.5 * (v0 + v) * t;
+                res = { v0, v, a, t, x };
+                stepsHtml = `
+                    <div class="space-y-3">
+                        <div>
+                            <div class="font-bold text-amber-400 mb-1">步骤 1：求加速度 $a$</div>
+                            <p>选用加速度定义式：$$a = \\frac{v - v_0}{t}$$</p>
+                            <p class="font-mono text-slate-300">代入数据：$a = \\frac{${v} - (${v0})}{${t}} = \\mathbf{${a.toFixed(3)}\\text{ m/s²}}$</p>
+                        </div>
+                        <div>
+                            <div class="font-bold text-emerald-400 mb-1">步骤 2：求位移 $x$</div>
+                            <p>选用平均速度公式：$$x = \\frac{v_0 + v}{2}t$$</p>
+                            <p class="font-mono text-slate-300">代入数据：$x = \\frac{${v0} + (${v})}{2} \\times ${t} = \\mathbf{${x.toFixed(3)}\\text{ m}}$</p>
+                        </div>
+                    </div>`;
+            } else if (comboKey === 'v0_v_x') {
+                // 已知 v0, v, x -> 求 a, t
+                const { v0, v, x } = vals;
+                if (x === 0) {
+                    stepsHtml = `<div class="text-rose-400">位移 x 为 0，物体回到原点或静止。</div>`;
+                    renderSolverOutput(stepsHtml);
+                    return;
+                }
+                const a = (v * v - v0 * v0) / (2 * x);
+                const t = (2 * x) / (v0 + v);
+                res = { v0, v, a, t, x };
+                stepsHtml = `
+                    <div class="space-y-3">
+                        <div>
+                            <div class="font-bold text-amber-400 mb-1">步骤 1：求加速度 $a$</div>
+                            <p>选用速度-位移公式：$$a = \\frac{v^2 - v_0^2}{2x}$$</p>
+                            <p class="font-mono text-slate-300">代入数据：$a = \\frac{${v}^2 - (${v0})^2}{2 \\times ${x}} = \\mathbf{${a.toFixed(3)}\\text{ m/s²}}$</p>
+                        </div>
+                        <div>
+                            <div class="font-bold text-purple-400 mb-1">步骤 2：求时间 $t$</div>
+                            <p>选用平均速度位移公式：$$t = \\frac{2x}{v_0 + v}$$</p>
+                            <p class="font-mono text-slate-300">代入数据：$t = \\frac{2 \\times ${x}}{${v0} + (${v})} = \\mathbf{${t.toFixed(3)}\\text{ s}}$</p>
+                        </div>
+                    </div>`;
+            } else if (comboKey === 'a_t_v') {
+                // 已知 v, a, t -> 求 v0, x
+                const { v, a, t } = vals;
+                const v0 = v - a * t;
+                const x = v * t - 0.5 * a * t * t;
+                res = { v0, v, a, t, x };
+                stepsHtml = `
+                    <div class="space-y-3">
+                        <div>
+                            <div class="font-bold text-sky-400 mb-1">步骤 1：求初速度 $v_0$</div>
+                            <p>由速度公式逆推：$$v_0 = v - at$$</p>
+                            <p class="font-mono text-slate-300">代入数据：$v_0 = ${v} - (${a}) \\times ${t} = \\mathbf{${v0.toFixed(3)}\\text{ m/s}}$</p>
+                        </div>
+                        <div>
+                            <div class="font-bold text-emerald-400 mb-1">步骤 2：求位移 $x$</div>
+                            <p>选用逆向位移公式：$$x = vt - \\frac{1}{2}at^2$$</p>
+                            <p class="font-mono text-slate-300">代入数据：$x = ${v} \\times ${t} - \\frac{1}{2} \\times (${a}) \\times ${t}^2 = \\mathbf{${x.toFixed(3)}\\text{ m}}$</p>
+                        </div>
+                    </div>`;
+            } else if (comboKey === 'a_v_x') {
+                // 已知 v, a, x -> 求 v0, t
+                const { v, a, x } = vals;
+                const v0Sq = v * v - 2 * a * x;
+                if (v0Sq < 0) {
+                    stepsHtml = `<div class="text-rose-400">无物理实数解：$v_0^2 = v^2 - 2ax = ${v0Sq.toFixed(2)} < 0$。</div>`;
+                    renderSolverOutput(stepsHtml);
+                    return;
+                }
+                const v0 = Math.sqrt(v0Sq);
+                const t = (v - v0) / a;
+                res = { v0, v, a, t, x };
+                stepsHtml = `
+                    <div class="space-y-3">
+                        <div>
+                            <div class="font-bold text-sky-400 mb-1">步骤 1：求初速度 $v_0$</div>
+                            <p>由速度位移公式：$$v_0 = \\sqrt{v^2 - 2ax}$$</p>
+                            <p class="font-mono text-slate-300">代入数据：$v_0 = \\sqrt{${v}^2 - 2 \\times (${a}) \\times ${x}} = \\mathbf{${v0.toFixed(3)}\\text{ m/s}}$</p>
+                        </div>
+                        <div>
+                            <div class="font-bold text-purple-400 mb-1">步骤 2：求时间 $t$</div>
+                            <p>选用速度公式：$$t = \\frac{v - v_0}{a} = \\mathbf{${t.toFixed(3)}\\text{ s}}$$</p>
+                        </div>
+                    </div>`;
+            } else if (comboKey === 't_v_x') {
+                // 已知 v, t, x -> 求 v0, a
+                const { v, t, x } = vals;
+                const v0 = (2 * x) / t - v;
+                const a = (v - v0) / t;
+                res = { v0, v, a, t, x };
+                stepsHtml = `
+                    <div class="space-y-3">
+                        <div>
+                            <div class="font-bold text-sky-400 mb-1">步骤 1：求初速度 $v_0$</div>
+                            <p>由平均速度位移公式：$$x = \\frac{v_0 + v}{2}t \\implies v_0 = \\frac{2x}{t} - v$$</p>
+                            <p class="font-mono text-slate-300">代入数据：$v_0 = \\frac{2 \\times ${x}}{${t}} - (${v}) = \\mathbf{${v0.toFixed(3)}\\text{ m/s}}$</p>
+                        </div>
+                        <div>
+                            <div class="font-bold text-amber-400 mb-1">步骤 2：求加速度 $a$</div>
+                            <p>由速度定义式：$$a = \\frac{v - v_0}{t} = \\mathbf{${a.toFixed(3)}\\text{ m/s²}}$$</p>
+                        </div>
+                    </div>`;
+            } else if (comboKey === 'a_t_x') {
+                // 已知 a, t, x -> 求 v0, v
+                const { a, t, x } = vals;
+                const v0 = (x - 0.5 * a * t * t) / t;
+                const v = v0 + a * t;
+                res = { v0, v, a, t, x };
+                stepsHtml = `
+                    <div class="space-y-3">
+                        <div>
+                            <div class="font-bold text-sky-400 mb-1">步骤 1：求初速度 $v_0$</div>
+                            <p>由位移公式：$$v_0 = \\frac{x - \\frac{1}{2}at^2}{t}$$</p>
+                            <p class="font-mono text-slate-300">代入数据：$v_0 = \\frac{${x} - 0.5 \\times (${a}) \\times ${t}^2}{${t}} = \\mathbf{${v0.toFixed(3)}\\text{ m/s}}$</p>
+                        </div>
+                        <div>
+                            <div class="font-bold text-sky-400 mb-1">步骤 2：求末速度 $v$</div>
+                            <p>由速度公式：$$v = v_0 + at = \\mathbf{${v.toFixed(3)}\\text{ m/s}}$$</p>
+                        </div>
+                    </div>`;
+            }
+
+            lastSolverResult = res;
+            renderSolverOutput(stepsHtml, res);
+        }
+
+        function renderSolverOutput(stepsHtml, res) {
+            const outEl = document.getElementById('solver-output-content');
+            let resCards = '';
+            if (res) {
+                resCards = `
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 p-3 bg-slate-900 rounded-xl border border-slate-800 text-center mb-4">
+                        <div class="p-1"><span class="text-[10px] text-slate-500 block">初速 v₀</span><span class="font-mono text-sky-400 font-bold text-xs">${res.v0.toFixed(2)} m/s</span></div>
+                        <div class="p-1"><span class="text-[10px] text-slate-500 block">末速 v</span><span class="font-mono text-sky-400 font-bold text-xs">${res.v.toFixed(2)} m/s</span></div>
+                        <div class="p-1"><span class="text-[10px] text-slate-500 block">加速度 a</span><span class="font-mono text-amber-400 font-bold text-xs">${res.a.toFixed(2)} m/s²</span></div>
+                        <div class="p-1"><span class="text-[10px] text-slate-500 block">时间 t</span><span class="font-mono text-purple-400 font-bold text-xs">${res.t.toFixed(2)} s</span></div>
+                        <div class="p-1"><span class="text-[10px] text-slate-500 block">位移 x</span><span class="font-mono text-emerald-400 font-bold text-xs">${res.x.toFixed(2)} m</span></div>
+                    </div>
+                `;
+                document.getElementById('solver-apply-btn').classList.remove('hidden');
+            } else {
+                document.getElementById('solver-apply-btn').classList.add('hidden');
+            }
+            outEl.innerHTML = resCards + stepsHtml;
+            renderMathInElement(outEl, { throwOnError: false });
+        }
+
+        function resetSolver() {
+            ['v0', 'v', 'a'].forEach(k => document.getElementById(`check-${k}`).checked = true);
+            ['t', 'x'].forEach(k => document.getElementById(`check-${k}`).checked = false);
+            document.getElementById('input-v0').value = 5;
+            document.getElementById('input-v').value = 15;
+            document.getElementById('input-a').value = 2;
+            document.getElementById('input-t').value = 5;
+            document.getElementById('input-x').value = 50;
+            handleSolverCheck();
+            calculateSolver();
+        }
+
+        function applySolverToSandbox() {
+            if (!lastSolverResult) return;
+            const res = lastSolverResult;
+            const tMax = Math.max(4, Math.ceil(res.t * 1.25));
+            loadScenario(res.v0, res.a, tMax);
+            switchTab('sandbox');
+        }
+
+        // ==========================================
+        // MODULE 3: 三大性质深度交互实现
+        // ==========================================
+        function updateMidpointDemo() {
+            const v0 = parseFloat(document.getElementById('prop-slider-v0').value);
+            const v = parseFloat(document.getElementById('prop-slider-v').value);
+            document.getElementById('prop-val-v0').textContent = v0 + ' m/s';
+            document.getElementById('prop-val-v').textContent = v + ' m/s';
+
+            const vt2 = (v0 + v) / 2;
+            const vx2 = Math.sqrt((v0 * v0 + v * v) / 2);
+            const diff = vx2 - vt2;
+
+            document.getElementById('val-vt2').innerHTML = `${vt2.toFixed(2)} <span class="text-xs">m/s</span>`;
+            document.getElementById('val-vx2').innerHTML = `${vx2.toFixed(2)} <span class="text-xs">m/s</span>`;
+            document.getElementById('val-vdiff').textContent = diff.toFixed(2);
+
+            drawMidpointCanvas(v0, v, vt2, vx2);
+        }
+
+        function drawMidpointCanvas(v0, v, vt2, vx2) {
+            const canvas = document.getElementById('midpointCanvas');
+            const { width, height } = resizeCanvas(canvas);
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, width, height);
+
+            const padX = 40;
+            const lineY = height * 0.55;
+            const trackW = width - padX * 2;
+
+            // 跑道线
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(padX, lineY);
+            ctx.lineTo(padX + trackW, lineY);
+            ctx.stroke();
+
+            // 起点与终点
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '10px monospace';
+            ctx.textAlign = 'center';
+
+            ctx.beginPath();
+            ctx.arc(padX, lineY, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillText(`起点 (v₀=${v0})`, padX, lineY + 18);
+
+            ctx.beginPath();
+            ctx.arc(padX + trackW, lineY, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillText(`终点 (v=${v})`, padX + trackW, lineY + 18);
+
+            // 时间中点与位移中点位置
+            // 若匀加速 (v > v0)，时间中点在前半程 (x_t2 / x_total < 0.5)
+            // x(t/2) / x_total = (v0*T/2 + 0.5*a*(T/2)^2) / (v0*T + 0.5*a*T^2)
+            let timeMidRatio = 0.5;
+            if (v0 + v > 0) {
+                timeMidRatio = (3 * v0 + v) / (4 * (v0 + v));
+            }
+            const timeMidX = padX + timeMidRatio * trackW;
+            const dispMidX = padX + 0.5 * trackW; // 位移中点严格在正中 50%
+
+            // 绘制时间中点标记 (蓝色)
+            ctx.fillStyle = '#38bdf8';
+            ctx.beginPath();
+            ctx.arc(timeMidX, lineY, 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillText(`时间中点`, timeMidX, lineY - 24);
+            ctx.fillText(`v_t/2=${vt2.toFixed(1)}`, timeMidX, lineY - 12);
+
+            // 绘制位移中点标记 (橙黄色)
+            ctx.fillStyle = '#f59e0b';
+            ctx.beginPath();
+            ctx.arc(dispMidX, lineY, 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillText(`位移中点`, dispMidX, lineY + 16);
+            ctx.fillText(`v_x/2=${vx2.toFixed(1)}`, dispMidX, lineY + 28);
+        }
+
+        // 纸带打点模拟与逐差法
+        function regenerateTape() {
+            const canvas = document.getElementById('tapeCanvas');
+            const { width, height } = resizeCanvas(canvas);
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, width, height);
+
+            const T = 0.1; // 计数点间隔
+            const a = 2.0; // 加速度 2.0 m/s^2
+            const v0 = 0.3; // 纸带初速度 0.3 m/s
+
+            // 6段位移
+            const intervals = [];
+            for (let i = 1; i <= 6; i++) {
+                const tPrev = (i - 1) * T;
+                const tCurr = i * T;
+                const xi = v0 * T + 0.5 * a * (tCurr * tCurr - tPrev * tPrev);
+                intervals.push(xi * 100); // 换算为 cm
+            }
+
+            // 绘制米黄色纸带
+            ctx.fillStyle = '#fef3c7';
+            ctx.fillRect(0, 10, width, height - 20);
+            ctx.strokeStyle = '#d97706';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(0, 10, width, height - 20);
+
+            // 绘制小黑点与标记
+            let curPixelX = 30;
+            const totalCm = intervals.reduce((acc, c) => acc + c, 0);
+            const scale = (width - 70) / totalCm;
+
+            ctx.fillStyle = '#1e293b';
+            ctx.textAlign = 'center';
+            ctx.font = '10px monospace';
+
+            // 0号点
+            ctx.beginPath();
+            ctx.arc(curPixelX, height / 2, 3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillText('0', curPixelX, height / 2 + 18);
+
+            for (let i = 0; i < 6; i++) {
+                const segW = intervals[i] * scale;
+                const nextX = curPixelX + segW;
+
+                // 标点
+                ctx.beginPath();
+                ctx.arc(nextX, height / 2, 3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillText((i + 1).toString(), nextX, height / 2 + 18);
+
+                // 区间跨度标注
+                ctx.strokeStyle = '#92400e';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(curPixelX + 2, height / 2 - 12);
+                ctx.lineTo(nextX - 2, height / 2 - 12);
+                ctx.stroke();
+
+                ctx.fillStyle = '#92400e';
+                ctx.fillText(`x${i+1}=${intervals[i].toFixed(2)}cm`, (curPixelX + nextX) / 2, height / 2 - 16);
+
+                curPixelX = nextX;
+            }
+
+            // 逐差法计算 a
+            const sumAfter = intervals[3] + intervals[4] + intervals[5]; // x4+x5+x6 (cm)
+            const sumBefore = intervals[0] + intervals[1] + intervals[2]; // x1+x2+x3 (cm)
+            const calcA_cm = (sumAfter - sumBefore) / (9 * T * T);
+            const calcA_m = calcA_cm / 100;
+
+            const tableBody = document.getElementById('tape-table-body');
+            tableBody.innerHTML = `
+                <tr>
+                    <td class="p-2.5 font-bold text-white">位移大小</td>
+                    <td class="p-2.5">${intervals[0].toFixed(2)} cm</td>
+                    <td class="p-2.5">${intervals[1].toFixed(2)} cm</td>
+                    <td class="p-2.5">${intervals[2].toFixed(2)} cm</td>
+                    <td class="p-2.5">${intervals[3].toFixed(2)} cm</td>
+                    <td class="p-2.5">${intervals[4].toFixed(2)} cm</td>
+                    <td class="p-2.5">${intervals[5].toFixed(2)} cm</td>
+                    <td class="p-2.5 font-bold text-emerald-400 font-mono">${calcA_m.toFixed(2)} m/s² (完美吻合)</td>
+                </tr>
+            `;
+        }
+
+        // 初速为0比例王国几何积木 Canvas
+        function drawRatioCanvas() {
+            const canvas = document.getElementById('ratioCanvas');
+            const { width, height } = resizeCanvas(canvas);
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, width, height);
+
+            const padL = 40, padR = 20, padT = 20, padB = 35;
+            const plotW = width - padL - padR;
+            const plotH = height - padT - padB;
+
+            // 4个等时区
+            const colors = ['#38bdf8', '#10b981', '#f59e0b', '#ec4899'];
+            const n = 4;
+            const stepW = plotW / n;
+
+            // 绘制坐标轴
+            ctx.strokeStyle = '#475569';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(padL, padT + plotH);
+            ctx.lineTo(padL + plotW + 10, padT + plotH);
+            ctx.moveTo(padL, padT + plotH);
+            ctx.lineTo(padL, padT - 5);
+            ctx.stroke();
+
+            // 绘制斜线 v = at
+            ctx.strokeStyle = '#94a3b8';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(padL, padT + plotH);
+            ctx.lineTo(padL + plotW, padT);
+            ctx.stroke();
+
+            for (let i = 1; i <= n; i++) {
+                const xLeft = padL + (i - 1) * stepW;
+                const xRight = padL + i * stepW;
+                const yLeft = padT + plotH - ((i - 1) / n) * plotH;
+                const yRight = padT + plotH - (i / n) * plotH;
+
+                // 填充梯形/三角形
+                ctx.beginPath();
+                ctx.moveTo(xLeft, padT + plotH);
+                ctx.lineTo(xLeft, yLeft);
+                ctx.lineTo(xRight, yRight);
+                ctx.lineTo(xRight, padT + plotH);
+                ctx.closePath();
+
+                ctx.fillStyle = colors[i - 1] + '40';
+                ctx.fill();
+                ctx.strokeStyle = colors[i - 1];
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+
+                // 标注奇数比 (1, 3, 5, 7)
+                const oddNum = 2 * i - 1;
+                ctx.font = 'bold 12px sans-serif';
+                ctx.fillStyle = colors[i - 1];
+                ctx.textAlign = 'center';
+                ctx.fillText(`“${oddNum}”`, (xLeft + xRight) / 2, padT + plotH - ((i - 0.4) / n) * plotH * 0.7);
+
+                // 标注时间刻度
+                ctx.font = '10px monospace';
+                ctx.fillStyle = '#64748b';
+                ctx.fillText(`${i}T`, xRight, padT + plotH + 15);
+            }
+
+            ctx.font = '10px monospace';
+            ctx.fillText('0', padL, padT + plotH + 15);
+        }
+
+        // ==========================================
+        // MODULE 4: 高考陷阱与经典模型算法
+        // ==========================================
+        function calcBrakeDemo() {
+            const v0 = parseFloat(document.getElementById('brake-v0').value) || 20;
+            const a = Math.abs(parseFloat(document.getElementById('brake-a').value)) || 4;
+            const t = parseFloat(document.getElementById('brake-t').value) || 6;
+
+            const tStop = v0 / a;
+            const actualX = (v0 * v0) / (2 * a);
+            const naiveX = v0 * t - 0.5 * a * t * t;
+            const naiveV = v0 - a * t;
+
+            const isTrapped = (t > tStop);
+
+            const content = document.getElementById('brake-result-content');
+            let html = '';
+
+            if (isTrapped) {
+                html = `
+                    <div class="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl mb-4">
+                        <div class="flex items-center gap-2 text-rose-400 font-bold text-sm mb-1">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            踩中“死时间”陷阱！
+                        </div>
+                        <p class="text-xs text-rose-200">
+                            汽车停止时间为 <b class="text-white font-mono">${tStop.toFixed(2)} s</b>，而题目要求计算 <b class="text-white font-mono">${t.toFixed(2)} s</b> 时的位移！
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                        <div class="p-3.5 bg-slate-900 rounded-xl border border-rose-500/40">
+                            <div class="font-bold text-rose-400 mb-1.5 flex items-center gap-1">❌ 盲目套公式错误结果：</div>
+                            <div class="font-mono text-slate-300 space-y-1">
+                                <div>$x = v_0 t - \\frac{1}{2}at^2$</div>
+                                <div>$= ${v0}\\times ${t} - 0.5\\times ${a}\\times ${t}^2 = \\mathbf{${naiveX.toFixed(1)}\\text{ m}}$</div>
+                                <div>$v = v_0 - at = \\mathbf{${naiveV.toFixed(1)}\\text{ m/s}}$</div>
+                            </div>
+                            <p class="text-[11px] text-rose-400/80 mt-2">荒谬之处：算出的速度为负，意味着汽车停下后居然自动挂倒挡倒车！</p>
+                        </div>
+
+                        <div class="p-3.5 bg-slate-900 rounded-xl border border-emerald-500/40">
+                            <div class="font-bold text-emerald-400 mb-1.5 flex items-center gap-1">✅ 物理实际正确解法：</div>
+                            <div class="font-mono text-slate-300 space-y-1">
+                                <div>判定停下时间：$t_{stop} = \\frac{v_0}{a} = \\mathbf{${tStop.toFixed(2)}\\text{ s}} < ${t}\\text{s}$</div>
+                                <div>实际停下后位移保持不变：</div>
+                                <div>$x = \\frac{v_0^2}{2a} = \\frac{${v0}^2}{2\\times ${a}} = \\mathbf{${actualX.toFixed(1)}\\text{ m}}$</div>
+                                <div>实际速度：$v = \\mathbf{0\\text{ m/s}}$</div>
+                            </div>
+                            <p class="text-[11px] text-emerald-400/80 mt-2">结论：${t}s 时的位移等于停下时的位移 ${actualX.toFixed(1)}m。</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                html = `
+                    <div class="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl mb-4">
+                        <div class="flex items-center gap-2 text-emerald-400 font-bold text-sm mb-1">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            安全区间：汽车尚未停下！
+                        </div>
+                        <p class="text-xs text-emerald-200">
+                            停止时间为 <b class="text-white font-mono">${tStop.toFixed(2)} s</b>，题目时间 <b class="text-white font-mono">${t.toFixed(2)} s</b> 在刹车过程中，可直接代入公式计算。
+                        </p>
+                    </div>
+                    <div class="p-4 bg-slate-900 rounded-xl border border-slate-800 text-xs font-mono space-y-1 text-slate-300">
+                        <div>位移：$x = ${v0} \\times ${t} - \\frac{1}{2} \\times ${a} \\times ${t}^2 = \\mathbf{${naiveX.toFixed(2)}\\text{ m}}$</div>
+                        <div>当前瞬时速度：$v = ${v0} - ${a} \\times ${t} = \\mathbf{${naiveV.toFixed(2)}\\text{ m/s}}$</div>
+                    </div>
+                `;
+            }
+
+            content.innerHTML = html;
+            renderMathInElement(content, { throwOnError: false });
+        }
+
+        // ==========================================
+        // 窗口响应与初始化
+        // ==========================================
+        let resizeTimer = null;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                renderAll();
+                if (!document.getElementById('module-properties').classList.contains('hidden')) {
+                    updateMidpointDemo();
+                    regenerateTape();
+                    drawRatioCanvas();
+                }
+            }, 100);
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initControls();
+            updateInsights();
+            updateGraphExplainer();
+            handleSolverCheck();
+            calculateSolver();
+            renderAll();
+
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false}
+                ],
+                throwOnError: false
+            });
+        });
+    </script>
+</body>
+</html>

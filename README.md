@@ -52,10 +52,8 @@
 
 后续可在此仓库继续添加更多页面、博客文章目录或子项目链接。
 
->>>>>>> ed92f98 (Add blog and project landing page)
->>>>>>>
->>>>>>
->>>>>
->>>>
->>>
->>
+## 精选可视化交互实验室
+
+- [物理·匀变速直线运动全景实验室](projects/uniform-linear-motion.html)：高中物理匀变速直线运动的交互式仿真沙盒、运动学图像联动（v-t、x-t、a-t、v²-x）、五大基本公式与“知三求二”演算器、三大核心性质（中点速度、纸带逐差法、比例王国）及高考典型陷阱模型。
+- [三角函数极值区间演示](projects/dailyproblem26052601.html)
+- [Power Function 幂函数模型](projects/powerfunction.html)
