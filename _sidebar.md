@@ -1,7 +1,7 @@
 * [🏠 网站首页 / 封面](/)
 * [📑 博客目录与概览](README.md)
 
-* **💻 可视化交互项目**
+* **💻 可视化教学交互页面**
   * <a href="projects/uniform-linear-motion.html" target="_blank" rel="noopener">物理·匀变速直线运动全景实验室 ↗</a>
   * <a href="projects/powerfunction.html" target="_blank" rel="noopener">Power Function 模型 ↗</a>
   * <a href="projects/trigonometricfunction/dist/index.html" target="_blank" rel="noopener">三角函数可视化 ↗</a>
