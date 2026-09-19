@@ -671,21 +671,60 @@
                         <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">性质二 · 实验与推论</span>
                         <h2 class="text-lg sm:text-xl font-bold text-white mt-1">打点计时器纸带与逐差法 $\Delta x = aT^2$</h2>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="regenerateTape()" class="text-xs px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition flex items-center gap-1">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                            重新打点模拟
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button id="btn-tape-sim" onclick="startTapeAnimation()" class="text-xs px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-medium transition flex items-center gap-1.5 shadow-lg shadow-emerald-900/30">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <span>重新打点模拟</span>
                         </button>
+                        <button onclick="randomizeTapeExperiment()" class="text-xs px-3 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 active:scale-95 text-slate-200 transition flex items-center gap-1.5 border border-slate-600">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                            <span>随机生成实验</span>
+                        </button>
+                        <button onclick="syncTapeFromSandbox()" class="text-xs px-3 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 active:scale-95 text-slate-200 transition flex items-center gap-1.5 border border-slate-600" title="同步物理沙盒当前的初速度与加速度">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            <span>同步沙盘参数</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 纸带实验参数交互控制板 -->
+                <div class="bg-slate-900/90 rounded-xl p-4 border border-slate-800 mb-4 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                    <div>
+                        <div class="flex justify-between items-center text-slate-300 mb-1.5">
+                            <span>设定加速度 $a$:</span>
+                            <span class="font-mono text-emerald-400 font-bold" id="tape-val-a">2.00 m/s²</span>
+                        </div>
+                        <input type="range" id="tape-slider-a" min="1.0" max="5.0" step="0.2" value="2.0" oninput="onTapeParamChange()" class="w-full h-1.5 bg-slate-800 rounded slider-thumb-modern cursor-pointer">
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center text-slate-300 mb-1.5">
+                            <span>初速度 $v_0$:</span>
+                            <span class="font-mono text-sky-400 font-bold" id="tape-val-v0">0.30 m/s</span>
+                        </div>
+                        <input type="range" id="tape-slider-v0" min="0.1" max="1.0" step="0.05" value="0.3" oninput="onTapeParamChange()" class="w-full h-1.5 bg-slate-800 rounded slider-thumb-modern cursor-pointer">
+                    </div>
+                    <div class="flex items-center justify-between sm:justify-center gap-3 pt-2 sm:pt-0">
+                        <label class="flex items-center gap-2 text-slate-300 cursor-pointer select-none">
+                            <input type="checkbox" id="tape-chk-noise" onchange="onTapeParamChange()" class="rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-emerald-400">
+                            <span>模拟真实测量误差 (±0.02cm)</span>
+                        </label>
                     </div>
                 </div>
 
                 <!-- 纸带动画与刻度 Canvas -->
                 <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 mb-5 overflow-hidden">
-                    <div class="flex justify-between items-center text-xs text-slate-400 mb-2">
-                        <span>虚拟运动纸带 (打点计时器频率: 50Hz, 计数点周期: <b class="text-white font-mono">T = 0.10 s</b>)</span>
-                        <span class="font-mono text-emerald-400" id="tape-params-display">a = 2.0 m/s², x0 = 0</span>
+                    <div class="flex flex-wrap justify-between items-center text-xs text-slate-400 mb-2 gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                            <span>虚拟运动纸带 (电火花/电磁打点计时器: 50Hz, 每5个点取1个计数点: <b class="text-white font-mono">T = 0.10 s</b>)</span>
+                        </div>
+                        <span class="font-mono text-emerald-400" id="tape-params-display">a = 2.00 m/s², v₀ = 0.30 m/s</span>
                     </div>
-                    <canvas id="tapeCanvas" class="w-full h-28 bg-amber-50 rounded-lg border border-amber-200 block shadow-inner"></canvas>
+                    <canvas id="tapeCanvas" class="w-full h-36 bg-amber-50 rounded-lg border border-amber-200 block shadow-inner"></canvas>
+                    <div class="flex justify-between items-center text-[10px] text-slate-500 mt-2 px-1 font-mono">
+                        <span>⬅️ 接小车牵引方向 (纸带向左加速拉出)</span>
+                        <span>振针高频敲击处 (右侧打点计时器) 📍</span>
+                    </div>
                 </div>
 
                 <!-- 逐差法核心计算解析 -->
@@ -727,25 +766,31 @@
                     </div>
                 </div>
 
-                <!-- 纸带实时数据表 -->
-                <div class="mt-4 overflow-x-auto">
-                    <table class="w-full text-xs text-left text-slate-300 font-mono">
-                        <thead class="bg-slate-900 text-slate-400 uppercase">
+                <!-- 纸带多维数据分析表 -->
+                <div class="mt-4 overflow-x-auto rounded-xl border border-slate-800">
+                    <table class="w-full text-xs text-center text-slate-300 font-mono">
+                        <thead class="bg-slate-900 text-slate-400 uppercase text-[11px]">
                             <tr>
-                                <th class="p-2.5">区间</th>
-                                <th class="p-2.5">x₁</th>
-                                <th class="p-2.5">x₂</th>
-                                <th class="p-2.5">x₃</th>
-                                <th class="p-2.5">x₄</th>
-                                <th class="p-2.5">x₅</th>
-                                <th class="p-2.5">x₆</th>
-                                <th class="p-2.5 text-emerald-400">逐差计算 a</th>
+                                <th class="p-2.5 text-left pl-3.5">测量与分析项</th>
+                                <th class="p-2.5">0 点</th>
+                                <th class="p-2.5">1 点</th>
+                                <th class="p-2.5">2 点</th>
+                                <th class="p-2.5">3 点</th>
+                                <th class="p-2.5">4 点</th>
+                                <th class="p-2.5">5 点</th>
+                                <th class="p-2.5">6 点</th>
+                                <th class="p-2.5 text-emerald-400">分析结论</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-800 bg-slate-950/60" id="tape-table-body">
+                        <tbody class="divide-y divide-slate-800/80 bg-slate-950/70" id="tape-table-body">
                             <!-- 动态计算行 -->
                         </tbody>
                     </table>
+                </div>
+
+                <!-- 逐差法分步精解推演面板 -->
+                <div id="tape-diff-explanation" class="mt-4 p-4 rounded-xl bg-slate-900/90 border border-slate-800 text-xs leading-relaxed">
+                    <!-- 动态生成逐差公式分步代入 -->
                 </div>
             </div>
 
@@ -1251,14 +1296,24 @@
         function resizeCanvas(canvas) {
             const dpr = window.devicePixelRatio || 1;
             const rect = canvas.getBoundingClientRect();
-            if (canvas.width !== rect.width * dpr || canvas.height !== rect.height * dpr) {
-                canvas.width = rect.width * dpr;
-                canvas.height = rect.height * dpr;
+            let w = rect.width;
+            let h = rect.height;
+            if (!w || w < 100) {
+                w = canvas.clientWidth || (canvas.parentElement ? canvas.parentElement.clientWidth : 0) || window.innerWidth || 800;
+                if (w < 100) w = 800;
+            }
+            if (!h || h < 40) {
+                h = canvas.clientHeight || (canvas.parentElement ? canvas.parentElement.clientHeight : 0) || 144;
+                if (h < 40) h = 144;
+            }
+            if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
+                canvas.width = Math.round(w * dpr);
+                canvas.height = Math.round(h * dpr);
             }
             const ctx = canvas.getContext('2d');
             ctx.resetTransform();
             ctx.scale(dpr, dpr);
-            return { width: rect.width, height: rect.height };
+            return { width: w, height: h };
         }
 
         function renderAll() {
@@ -2132,84 +2187,497 @@
             ctx.fillText(`v_x/2=${vx2.toFixed(1)}`, dispMidX, lineY + 28);
         }
 
-        // 纸带打点模拟与逐差法
-        function regenerateTape() {
+        // ==========================================
+        // 纸带打点模拟与逐差法核心引擎
+        // ==========================================
+        const tapeModel = {
+            a: 2.0,            // 加速度 m/s^2
+            v0: 0.3,           // 初速度 m/s
+            T: 0.1,            // 计数点周期 s (50Hz / 5)
+            hasNoise: false,   // 是否模拟实验测量微差
+            isAnimating: false,
+            animFrameId: null,
+            // 物理测量数据缓存
+            coords: [],        // 计数点读数坐标 d0..d6 (cm)
+            intervals: [],     // 各区间位移 x1..x6 (cm)
+            deltas: [],        // 相邻位移差 x2-x1.. (cm)
+            velocities: [],    // 各计数点瞬时速度 v1..v5 (m/s)
+            a1: 0,
+            a2: 0,
+            a3: 0,
+            avgA: 0
+        };
+
+        // 计算纸带物理数据
+        function calculateTapeData() {
+            tapeModel.coords = [0.0];
+            const T = tapeModel.T;
+            const a = tapeModel.a;
+            const v0 = tapeModel.v0;
+
+            for (let i = 1; i <= 6; i++) {
+                const t = i * T;
+                let d = (v0 * t + 0.5 * a * t * t) * 100; // cm
+                if (tapeModel.hasNoise) {
+                    // 模拟真实毫米刻度尺估读与轻微手拉扰动误差 (±0.02cm)
+                    const noise = (Math.random() - 0.5) * 0.04;
+                    d += noise;
+                }
+                tapeModel.coords.push(Number(d.toFixed(2)));
+            }
+
+            tapeModel.intervals = [];
+            for (let i = 1; i <= 6; i++) {
+                const xi = tapeModel.coords[i] - tapeModel.coords[i - 1];
+                tapeModel.intervals.push(Number(xi.toFixed(2)));
+            }
+
+            tapeModel.deltas = [];
+            for (let i = 1; i < tapeModel.intervals.length; i++) {
+                const dxi = tapeModel.intervals[i] - tapeModel.intervals[i - 1];
+                tapeModel.deltas.push(Number(dxi.toFixed(2)));
+            }
+
+            // 瞬时速度: vn = (xn + xn+1) / (2T) (m/s)
+            tapeModel.velocities = [];
+            for (let i = 0; i < 5; i++) {
+                const vn = (tapeModel.intervals[i] + tapeModel.intervals[i + 1]) / (2 * T) / 100;
+                tapeModel.velocities.push(Number(vn.toFixed(3)));
+            }
+
+            // 逐差法三组分量: ai = (x_{i+3} - x_i) / (3T^2)
+            tapeModel.a1 = (tapeModel.intervals[3] - tapeModel.intervals[0]) / (3 * T * T) / 100;
+            tapeModel.a2 = (tapeModel.intervals[4] - tapeModel.intervals[1]) / (3 * T * T) / 100;
+            tapeModel.a3 = (tapeModel.intervals[5] - tapeModel.intervals[2]) / (3 * T * T) / 100;
+            tapeModel.avgA = (tapeModel.a1 + tapeModel.a2 + tapeModel.a3) / 3;
+
+            // 同步顶部参数标签
+            const displayEl = document.getElementById('tape-params-display');
+            if (displayEl) {
+                displayEl.textContent = `a = ${tapeModel.a.toFixed(2)} m/s², v₀ = ${tapeModel.v0.toFixed(2)} m/s` + (tapeModel.hasNoise ? ' (含微小测量误差)' : ' (理论值)');
+            }
+        }
+
+        // 绘制纸带与毫米刻度尺 Canvas
+        function drawTapeCanvas(revealedDots = 7, needleEffect = null) {
             const canvas = document.getElementById('tapeCanvas');
+            if (!canvas) return;
             const { width, height } = resizeCanvas(canvas);
             const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, width, height);
+            const safeW = Math.max(width, 320);
+            const safeH = Math.max(height, 130);
+            ctx.clearRect(0, 0, safeW, safeH);
 
-            const T = 0.1;
-            const a = 2.0;
-            const v0 = 0.3;
+            const totalDistCm = tapeModel.coords[6] || 54.0;
+            const startX = 40;
+            const endX = safeW - 40;
+            const scale = (endX - startX) / Math.max(totalDistCm, 10);
 
-            const intervals = [];
-            for (let i = 1; i <= 6; i++) {
-                const tPrev = (i - 1) * T;
-                const tCurr = i * T;
-                const xi = v0 * T + 0.5 * a * (tCurr * tCurr - tPrev * tPrev);
-                intervals.push(xi * 100);
-            }
+            const tapeTop = 10;
+            const tapeH = 68;
+            const rulerTop = tapeTop + tapeH + 6;
+            const rulerH = safeH - rulerTop - 8;
 
+            const getDotX = (cm) => startX + cm * scale;
+
+            // 1. 绘制米黄色复古运动纸带
             ctx.fillStyle = '#fef3c7';
-            ctx.fillRect(0, 10, width, height - 20);
+            ctx.fillRect(10, tapeTop, safeW - 20, tapeH);
             ctx.strokeStyle = '#d97706';
             ctx.lineWidth = 1;
-            ctx.strokeRect(0, 10, width, height - 20);
+            ctx.strokeRect(10, tapeTop, safeW - 20, tapeH);
 
-            let curPixelX = 30;
-            const totalCm = intervals.reduce((acc, c) => acc + c, 0);
-            const scale = (width - 70) / totalCm;
-
-            ctx.fillStyle = '#1e293b';
-            ctx.textAlign = 'center';
-            ctx.font = '10px monospace';
-
+            // 纸带中心虚线
+            ctx.strokeStyle = '#fde68a';
+            ctx.setLineDash([4, 4]);
             ctx.beginPath();
-            ctx.arc(curPixelX, height / 2, 3, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillText('0', curPixelX, height / 2 + 18);
+            ctx.moveTo(10, tapeTop + tapeH / 2);
+            ctx.lineTo(safeW - 10, tapeTop + tapeH / 2);
+            ctx.stroke();
+            ctx.setLineDash([]);
 
-            for (let i = 0; i < 6; i++) {
-                const segW = intervals[i] * scale;
-                const nextX = curPixelX + segW;
+            // 2. 绘制纸带下方真实毫米刻度尺
+            ctx.fillStyle = '#1e293b';
+            ctx.fillRect(startX - 15, rulerTop, endX - startX + 30, rulerH);
+            ctx.strokeStyle = '#475569';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(startX - 15, rulerTop, endX - startX + 30, rulerH);
 
-                ctx.beginPath();
-                ctx.arc(nextX, height / 2, 3, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillText((i + 1).toString(), nextX, height / 2 + 18);
+            // 刻度尺主副刻度绘制
+            const maxRulerCm = Math.ceil(totalDistCm) + 1;
+            ctx.textAlign = 'center';
+            ctx.font = '9px monospace';
 
-                ctx.strokeStyle = '#92400e';
+            for (let c = 0; c <= maxRulerCm; c++) {
+                const rx = getDotX(c);
+                if (rx > endX + 15) break;
+
+                // 厘米大刻度
+                ctx.strokeStyle = '#cbd5e1';
                 ctx.lineWidth = 1;
                 ctx.beginPath();
-                ctx.moveTo(curPixelX + 2, height / 2 - 12);
-                ctx.lineTo(nextX - 2, height / 2 - 12);
+                ctx.moveTo(rx, rulerTop);
+                ctx.lineTo(rx, rulerTop + 11);
                 ctx.stroke();
 
-                ctx.fillStyle = '#92400e';
-                ctx.fillText(`x${i+1}=${intervals[i].toFixed(2)}cm`, (curPixelX + nextX) / 2, height / 2 - 16);
+                // 厘米数值 (逢 5 或逢偶数标数字，避免过于密集)
+                const step = totalDistCm > 60 ? (c % 5 === 0) : (c % 2 === 0);
+                if (step || c === 0) {
+                    ctx.fillStyle = '#94a3b8';
+                    ctx.fillText(c.toString(), rx, rulerTop + 23);
+                }
 
-                curPixelX = nextX;
+                // 毫米小刻度
+                ctx.strokeStyle = '#64748b';
+                ctx.lineWidth = 0.5;
+                for (let m = 1; m < 10; m++) {
+                    const mx = getDotX(c + m * 0.1);
+                    if (mx > endX + 15) break;
+                    const tickH = (m === 5) ? 7 : 4;
+                    ctx.beginPath();
+                    ctx.moveTo(mx, rulerTop);
+                    ctx.lineTo(mx, rulerTop + tickH);
+                    ctx.stroke();
+                }
             }
 
-            const sumAfter = intervals[3] + intervals[4] + intervals[5];
-            const sumBefore = intervals[0] + intervals[1] + intervals[2];
-            const calcA_cm = (sumAfter - sumBefore) / (9 * T * T);
-            const calcA_m = calcA_cm / 100;
+            // 刻度尺单位标注
+            ctx.fillStyle = '#38bdf8';
+            ctx.textAlign = 'right';
+            ctx.fillText('cm (毫米刻度尺)', endX + 10, rulerTop + 23);
 
-            const tableBody = document.getElementById('tape-table-body');
-            tableBody.innerHTML = `
+            // 3. 绘制计数点与50Hz高频微打点
+            const currentDotY = tapeTop + tapeH / 2;
+
+            for (let i = 0; i <= 6; i++) {
+                if (i > revealedDots) break;
+                const dotX = getDotX(tapeModel.coords[i]);
+
+                // 绘制计数点之间的 4 个 50Hz 微打点 (体现 50Hz 与 T=0.10s 真实关系)
+                if (i > 0 && i <= revealedDots) {
+                    const prevX = getDotX(tapeModel.coords[i - 1]);
+                    for (let m = 1; m <= 4; m++) {
+                        const microCm = tapeModel.coords[i - 1] + (tapeModel.coords[i] - tapeModel.coords[i - 1]) * (m / 5);
+                        const microX = getDotX(microCm);
+                        ctx.fillStyle = '#78716c';
+                        ctx.beginPath();
+                        ctx.arc(microX, currentDotY, 1.3, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+
+                // 绘制计数点实心圆点 (带打孔墨迹感)
+                ctx.fillStyle = '#0f172a';
+                ctx.beginPath();
+                ctx.arc(dotX, currentDotY, 3.8, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(dotX, currentDotY, 1.2, 0, Math.PI * 2);
+                ctx.fill();
+
+                // 计数点上方数字标号
+                ctx.fillStyle = '#1e293b';
+                ctx.font = 'bold 11px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(i.toString(), dotX, currentDotY - 14);
+
+                // 从计数点垂直向下对齐到刻度尺的引导虚线
+                ctx.strokeStyle = '#0284c7';
+                ctx.setLineDash([2, 2]);
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(dotX, currentDotY + 4);
+                ctx.lineTo(dotX, rulerTop);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            // 4. 全部打完时，绘制各段位移标注线与数值
+            if (revealedDots >= 6) {
+                for (let i = 0; i < 6; i++) {
+                    const xL = getDotX(tapeModel.coords[i]);
+                    const xR = getDotX(tapeModel.coords[i + 1]);
+                    const midX = (xL + xR) / 2;
+
+                    // 移动端/窄屏时错落标注防重叠
+                    const isOdd = (i % 2 === 0);
+                    const bracketY = isOdd ? (currentDotY + 12) : (currentDotY + 18);
+
+                    ctx.strokeStyle = '#b45309';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(xL + 2, bracketY);
+                    ctx.lineTo(xR - 2, bracketY);
+                    ctx.stroke();
+
+                    // 左右小端点
+                    ctx.beginPath();
+                    ctx.moveTo(xL + 2, bracketY - 2);
+                    ctx.lineTo(xL + 2, bracketY + 2);
+                    ctx.moveTo(xR - 2, bracketY - 2);
+                    ctx.lineTo(xR - 2, bracketY + 2);
+                    ctx.stroke();
+
+                    // 数值标签
+                    ctx.fillStyle = '#78350f';
+                    ctx.font = '10px monospace';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`x${i + 1}=${tapeModel.intervals[i].toFixed(2)}`, midX, bracketY - 4);
+                }
+            }
+
+            // 5. 振针高频敲击动效 (如果正在播放动画)
+            if (needleEffect && needleEffect.active) {
+                const targetX = getDotX(needleEffect.cm);
+
+                // 振针机体
+                ctx.fillStyle = '#ef4444';
+                ctx.fillRect(targetX - 2, tapeTop - 6, 4, 14);
+
+                // 振针敲击火花冲击波
+                ctx.strokeStyle = 'rgba(239, 68, 68, 0.8)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(targetX, currentDotY, needleEffect.ringR || 8, 0, Math.PI * 2);
+                ctx.stroke();
+
+                ctx.fillStyle = '#f59e0b';
+                ctx.beginPath();
+                ctx.arc(targetX, currentDotY, 4, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // 渲染数据分析表格
+        function renderTapeTable() {
+            const tbody = document.getElementById('tape-table-body');
+            if (!tbody) return;
+
+            const c = tapeModel.coords;
+            const x = tapeModel.intervals;
+            const dx = tapeModel.deltas;
+            const v = tapeModel.velocities;
+
+            const avgDelta = (dx.reduce((a, b) => a + b, 0) / dx.length).toFixed(2);
+            const theoryDelta = (tapeModel.a * tapeModel.T * tapeModel.T * 100).toFixed(2);
+
+            tbody.innerHTML = `
                 <tr>
-                    <td class="p-2.5 font-bold text-white">位移大小</td>
-                    <td class="p-2.5">${intervals[0].toFixed(2)} cm</td>
-                    <td class="p-2.5">${intervals[1].toFixed(2)} cm</td>
-                    <td class="p-2.5">${intervals[2].toFixed(2)} cm</td>
-                    <td class="p-2.5">${intervals[3].toFixed(2)} cm</td>
-                    <td class="p-2.5">${intervals[4].toFixed(2)} cm</td>
-                    <td class="p-2.5">${intervals[5].toFixed(2)} cm</td>
-                    <td class="p-2.5 font-bold text-emerald-400 font-mono">${calcA_m.toFixed(2)} m/s² (完美吻合)</td>
+                    <td class="p-2.5 font-bold text-white text-left pl-3.5">刻度读数 d (cm)</td>
+                    <td class="p-2.5">${c[0].toFixed(2)}</td>
+                    <td class="p-2.5">${c[1].toFixed(2)}</td>
+                    <td class="p-2.5">${c[2].toFixed(2)}</td>
+                    <td class="p-2.5">${c[3].toFixed(2)}</td>
+                    <td class="p-2.5">${c[4].toFixed(2)}</td>
+                    <td class="p-2.5">${c[5].toFixed(2)}</td>
+                    <td class="p-2.5">${c[6].toFixed(2)}</td>
+                    <td class="p-2.5 text-slate-400 font-mono">总长: ${c[6].toFixed(2)} cm</td>
+                </tr>
+                <tr>
+                    <td class="p-2.5 font-bold text-amber-300 text-left pl-3.5">各段位移 x (cm)</td>
+                    <td class="p-2.5 text-slate-500">-</td>
+                    <td class="p-2.5 text-amber-400 font-bold">${x[0].toFixed(2)}</td>
+                    <td class="p-2.5 text-amber-400 font-bold">${x[1].toFixed(2)}</td>
+                    <td class="p-2.5 text-amber-400 font-bold">${x[2].toFixed(2)}</td>
+                    <td class="p-2.5 text-amber-400 font-bold">${x[3].toFixed(2)}</td>
+                    <td class="p-2.5 text-amber-400 font-bold">${x[4].toFixed(2)}</td>
+                    <td class="p-2.5 text-amber-400 font-bold">${x[5].toFixed(2)}</td>
+                    <td class="p-2.5 text-emerald-400 font-mono font-bold">a = ${tapeModel.avgA.toFixed(2)} m/s²</td>
+                </tr>
+                <tr>
+                    <td class="p-2.5 font-bold text-sky-300 text-left pl-3.5">相邻位移差 Δx (cm)</td>
+                    <td class="p-2.5 text-slate-500">-</td>
+                    <td class="p-2.5 text-slate-500">-</td>
+                    <td class="p-2.5 text-sky-400 font-mono">${dx[0].toFixed(2)}</td>
+                    <td class="p-2.5 text-sky-400 font-mono">${dx[1].toFixed(2)}</td>
+                    <td class="p-2.5 text-sky-400 font-mono">${dx[2].toFixed(2)}</td>
+                    <td class="p-2.5 text-sky-400 font-mono">${dx[3].toFixed(2)}</td>
+                    <td class="p-2.5 text-sky-400 font-mono">${dx[4].toFixed(2)}</td>
+                    <td class="p-2.5 text-sky-400 font-mono">均值 ≈ ${avgDelta} cm (理论: ${theoryDelta})</td>
+                </tr>
+                <tr>
+                    <td class="p-2.5 font-bold text-emerald-300 text-left pl-3.5">瞬时速度 vₙ (m/s)</td>
+                    <td class="p-2.5 text-slate-500">-</td>
+                    <td class="p-2.5 text-emerald-400 font-mono">${v[0].toFixed(2)}</td>
+                    <td class="p-2.5 text-emerald-400 font-mono">${v[1].toFixed(2)}</td>
+                    <td class="p-2.5 text-emerald-400 font-mono">${v[2].toFixed(2)}</td>
+                    <td class="p-2.5 text-emerald-400 font-mono">${v[3].toFixed(2)}</td>
+                    <td class="p-2.5 text-emerald-400 font-mono">${v[4].toFixed(2)}</td>
+                    <td class="p-2.5 text-slate-500">-</td>
+                    <td class="p-2.5 text-emerald-400 font-mono">等差递增 Δv = ${(tapeModel.avgA * tapeModel.T).toFixed(2)} m/s</td>
                 </tr>
             `;
+        }
+
+        // 渲染逐差法分步推导解析
+        function renderTapeExplanation() {
+            const el = document.getElementById('tape-diff-explanation');
+            if (!el) return;
+
+            const a1 = tapeModel.a1.toFixed(2);
+            const a2 = tapeModel.a2.toFixed(2);
+            const a3 = tapeModel.a3.toFixed(2);
+            const avgA = tapeModel.avgA.toFixed(2);
+            const targetA = tapeModel.a.toFixed(2);
+            const diffPct = (Math.abs(tapeModel.avgA - tapeModel.a) / tapeModel.a * 100).toFixed(1);
+
+            el.innerHTML = `
+                <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2 mb-2">
+                    <span class="font-bold text-white text-xs flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span> 
+                        六段逐差法实测数据代入计算推导
+                    </span>
+                    <span class="text-[11px] text-slate-400 font-mono">
+                        理论设定值: <b class="text-white">${targetA} m/s²</b> | 逐差实测值: <b class="text-emerald-400">${avgA} m/s²</b> (吻合度: ${(100 - diffPct).toFixed(1)}%)
+                    </span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-slate-300 font-mono text-[11px]">
+                    <div class="p-2.5 bg-slate-950/60 rounded border border-slate-800">
+                        <div class="text-sky-400 font-bold mb-1">第一组逐差 (后4 - 前1)</div>
+                        <div>$$a_1 = \\frac{x_4 - x_1}{3T^2} = \\frac{${tapeModel.intervals[3].toFixed(2)} - ${tapeModel.intervals[0].toFixed(2)}}{0.03} = ${a1} \\text{ m/s}^2$$</div>
+                    </div>
+                    <div class="p-2.5 bg-slate-950/60 rounded border border-slate-800">
+                        <div class="text-emerald-400 font-bold mb-1">第二组逐差 (后5 - 前2)</div>
+                        <div>$$a_2 = \\frac{x_5 - x_2}{3T^2} = \\frac{${tapeModel.intervals[4].toFixed(2)} - ${tapeModel.intervals[1].toFixed(2)}}{0.03} = ${a2} \\text{ m/s}^2$$</div>
+                    </div>
+                    <div class="p-2.5 bg-slate-950/60 rounded border border-slate-800">
+                        <div class="text-amber-400 font-bold mb-1">第三组逐差 (后6 - 前3)</div>
+                        <div>$$a_3 = \\frac{x_6 - x_3}{3T^2} = \\frac{${tapeModel.intervals[5].toFixed(2)} - ${tapeModel.intervals[2].toFixed(2)}}{0.03} = ${a3} \\text{ m/s}^2$$</div>
+                    </div>
+                </div>
+                <div class="mt-2 text-slate-400 text-[11px]">
+                    <b>求算术平均值：</b>$$a = \\frac{a_1 + a_2 + a_3}{3} = \\frac{(x_4+x_5+x_6) - (x_1+x_2+x_3)}{9T^2} = ${avgA} \\text{ m/s}^2$$
+                    <span class="text-emerald-400/90">【教学点睛】逐差法通过跨时段作差，将纸带所有测量数据全部纳入计算，奇迹般抵消了中间计数点的测量偶然误差！</span>
+                </div>
+            `;
+
+            triggerMathRender(el);
+        }
+
+        // 启动高逼真度打点模拟动画
+        function startTapeAnimation() {
+            if (tapeModel.isAnimating) return;
+            tapeModel.isAnimating = true;
+
+            const btn = document.getElementById('btn-tape-sim');
+            if (btn) {
+                btn.disabled = true;
+                btn.classList.add('opacity-75');
+                btn.innerHTML = `<svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> <span>正在打点中...</span>`;
+            }
+
+            calculateTapeData();
+
+            let currentDotIndex = 0;
+            const startTime = performance.now();
+            const totalDuration = 1100; // 动画时长约 1.1s
+
+            function frame(now) {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / totalDuration, 1.0);
+
+                // 根据进度确定当前打到的点
+                currentDotIndex = Math.min(Math.floor(progress * 7), 6);
+                const currentCm = tapeModel.coords[currentDotIndex];
+                const needleVibrate = Math.sin(now * 0.08) * 3;
+
+                drawTapeCanvas(currentDotIndex, {
+                    active: progress < 1.0,
+                    cm: currentCm,
+                    ringR: 6 + (now % 200) * 0.04
+                });
+
+                if (progress < 1.0) {
+                    tapeModel.animFrameId = requestAnimationFrame(frame);
+                } else {
+                    tapeModel.isAnimating = false;
+                    drawTapeCanvas(7, { active: false });
+                    renderTapeTable();
+                    renderTapeExplanation();
+
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.classList.remove('opacity-75');
+                        btn.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> <span>重新打点模拟</span>`;
+                    }
+                }
+            }
+
+            tapeModel.animFrameId = requestAnimationFrame(frame);
+        }
+
+        // 随机生成全新纸带实验
+        function randomizeTapeExperiment() {
+            // 随机生成加速度 1.2 ~ 4.2
+            const randomA = Number((1.2 + Math.random() * 3.0).toFixed(1));
+            // 随机初速度 0.15 ~ 0.50
+            const randomV0 = Number((0.15 + Math.random() * 0.35).toFixed(2));
+
+            tapeModel.a = randomA;
+            tapeModel.v0 = randomV0;
+
+            const sliderA = document.getElementById('tape-slider-a');
+            const sliderV0 = document.getElementById('tape-slider-v0');
+            const valA = document.getElementById('tape-val-a');
+            const valV0 = document.getElementById('tape-val-v0');
+
+            if (sliderA) sliderA.value = randomA;
+            if (sliderV0) sliderV0.value = randomV0;
+            if (valA) valA.textContent = `${randomA.toFixed(2)} m/s²`;
+            if (valV0) valV0.textContent = `${randomV0.toFixed(2)} m/s`;
+
+            startTapeAnimation();
+        }
+
+        // 从主沙盒控制台同步参数
+        function syncTapeFromSandbox() {
+            tapeModel.a = Math.max(Math.abs(state.a), 1.0);
+            tapeModel.v0 = Math.max(Math.abs(state.v0), 0.1);
+
+            const sliderA = document.getElementById('tape-slider-a');
+            const sliderV0 = document.getElementById('tape-slider-v0');
+            const valA = document.getElementById('tape-val-a');
+            const valV0 = document.getElementById('tape-val-v0');
+
+            if (sliderA) sliderA.value = tapeModel.a;
+            if (sliderV0) sliderV0.value = tapeModel.v0;
+            if (valA) valA.textContent = `${tapeModel.a.toFixed(2)} m/s²`;
+            if (valV0) valV0.textContent = `${tapeModel.v0.toFixed(2)} m/s`;
+
+            startTapeAnimation();
+        }
+
+        // 滑动条调节响应
+        function onTapeParamChange() {
+            const sliderA = document.getElementById('tape-slider-a');
+            const sliderV0 = document.getElementById('tape-slider-v0');
+            const chkNoise = document.getElementById('tape-chk-noise');
+            const valA = document.getElementById('tape-val-a');
+            const valV0 = document.getElementById('tape-val-v0');
+
+            if (sliderA) tapeModel.a = parseFloat(sliderA.value);
+            if (sliderV0) tapeModel.v0 = parseFloat(sliderV0.value);
+            if (chkNoise) tapeModel.hasNoise = chkNoise.checked;
+
+            if (valA) valA.textContent = `${tapeModel.a.toFixed(2)} m/s²`;
+            if (valV0) valV0.textContent = `${tapeModel.v0.toFixed(2)} m/s`;
+
+            // 即时静态重绘 (无须重新跑全程动画)
+            regenerateTape(false);
+        }
+
+        // 供外部调用（标签切换、视口缩放等）
+        function regenerateTape(animate = false) {
+            if (animate) {
+                startTapeAnimation();
+            } else {
+                calculateTapeData();
+                drawTapeCanvas(7, { active: false });
+                renderTapeTable();
+                renderTapeExplanation();
+            }
         }
 
         // 初速为0比例王国几何积木 Canvas
