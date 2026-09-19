@@ -24,17 +24,28 @@ updated: 2026-09-19
 
 ---
 
-## 📝 最新技术博客
+## 📝 精选技术博客专栏
 
+### 🗄️ 数据库与后端架构
+- 🐘 **[PostgreSQL 核心概念深度解析与系统化学习路径指南](blog/postgresql-guide.md)**  
+  从多进程模型、8KB 数据页解剖、MVCC 堆表更新机制与 Autovacuum 运维，到 B-Tree/GIN/BRIN 索引原理、WAL 预写日志与四阶段系统进阶全景路线图。
+
+### 🤖 人工智能与协议架构
+- 🔌 **[什么是 MCP：架构原理与常见告警排查指南](blog/mcp.md)**  
+  深入浅出解析 Model Context Protocol 协议、服务适配器以及 Vercel/Stripe/Supabase 常见启动与超时排查。
+
+### 🎨 Web 开发与前端工程
 - 📊 **[Web Markdown 与 Docsify 中 Mermaid 图表渲染深度避坑指南](blog/docsify-mermaid-guide.md)**  
   从 Marked 编译管道、Mermaid 10 断崖升级、HTML 实体字符转义，到 SPA 路由重绘生命周期与自适应容器工程化全套解法。
 - 📐 **[Web 现代数学公式渲染避坑全指南](blog/math-rendering-guide.md)**  
   从排版原理、KaTeX vs MathJax 深度选型对比，到定界符失效、隐藏 Tab 几何尺寸为零、SPA 异步渲染时序脱节、JS 反斜杠转义黑洞等五大深坑与完整解法。
-- 🤖 **[什么是 MCP：架构原理与常见告警排查指南](blog/mcp.md)**  
-  深入浅出解析 Model Context Protocol 协议、服务适配器以及 Vercel/Stripe/Supabase 常见启动与超时排查。
-- 🛠️ **[2026 搭建博客指南](blog/setup.md)**  
+
+### 🛠️ 站务建设与工程实践
+- 🚀 **[2026 搭建博客指南](blog/setup.md)**  
   GitHub Pages + Docsify + 独立域名搭建全流程记录。
-- 🧪 **[LaTeX 公式演练与测试](blog/blog01.md)**  
+
+### 🧪 实验演练与测试
+- 🔬 **[LaTeX 公式演练与测试](blog/blog01.md)**  
   行内与块级数学公式排版实操演练。
 
 ---
