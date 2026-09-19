@@ -1,12 +1,12 @@
 ---
-title: PostgreSQL 核心概念深度解析与系统化学习路径指南
+title: PostgreSQL 核心概念深度解析与系统化学习路径
 date: 2026-09-19 15:00
 updated: 2026-09-19 15:00
 tags: [PostgreSQL, 数据库, 存储引擎, MVCC, 索引优化, 学习路线]
 author: Inkstar
 ---
 
-# PostgreSQL 核心概念深度解析与系统化学习路径指南
+# PostgreSQL 核心概念深度解析与系统化学习路径
 
 > **“世界上最先进的开源关系型数据库”**（The World's Most Advanced Open Source Relational Database）。
 > 从加州大学伯克利分校图灵奖得主 Michael Stonebraker 主导的 Postgres 研发，到今日支撑全球顶尖科技企业高并发事务、复杂分析与现代 AI 应用（如 `pgvector` 与 Supabase），PostgreSQL 凭借其严谨的 SQL 标准遵从度、卓越的 ACID 事务可靠性以及无与伦比的插件化可扩展性，已成为现代软件工程师和架构师的必修核心技能。

@@ -2,28 +2,34 @@
 * [📑 博客目录与概览](README.md)
 
 * **💻 可视化教学交互页面**
-  * <a href="projects/uniform-linear-motion.html" target="_blank" rel="noopener">物理·匀变速直线运动全景实验室 ↗</a>
+  * <a href="projects/uniform-linear-motion.html" target="_blank" rel="noopener">物理·匀变速直线运动实验室 ↗</a>
   * <a href="projects/powerfunction.html" target="_blank" rel="noopener">Power Function 模型 ↗</a>
   * <a href="projects/trigonometricfunction/dist/index.html" target="_blank" rel="noopener">三角函数可视化 ↗</a>
   * <a href="projects/dailyproblem26052601.html" target="_blank" rel="noopener">三角函数极值区间演示 ↗</a>
   * <a href="https://ai.studio/apps/f7a31f6a-3ca5-46c3-865f-15d919971c63" target="_blank" rel="noopener">AI Studio 题目动画 ↗</a>
 
-* **📐 高中知识与数理思维专栏**
-  * [集合与常用逻辑用语全景指南](blog/highschool-sets-and-logic-guide.md)
-  * [不等式原理与最值模型全景指南](blog/highschool-inequalities-guide.md)
-  * [幂指对函数图象与增长模型指南](blog/highschool-power-exp-log-functions-guide.md)
+* **📐 高中数学精讲专栏（沪教版体系）**
+  * **📘 必修第一册（高一上）**
+    * [集合与常用逻辑用语深度解析](blog/highschool-sets-and-logic-guide.md)
+    * [等式、不等式与基本不等式最值模型](blog/highschool-inequalities-guide.md)
+    * [函数概念、幂指对函数与增长模型](blog/highschool-power-exp-log-functions-guide.md)
+  * **📗 必修第二册（高一下）**
+    * [三角比、三角函数与解三角形建模](blog/highschool-trigonometry-guide.md)
+    * [平面向量、数量积与动态极值转化](blog/highschool-vectors-guide.md)
+  * **📙 选择性必修（高二 / 高三）**
+    * [数列通项求和、数学归纳法与递推创新](blog/highschool-sequences-induction-guide.md)
 
 * **📝 技术博客专栏**
   * **🗄️ 数据库与后端架构**
     * [PostgreSQL 核心概念与系统学习指南](blog/postgresql-guide.md)
   * **🤖 人工智能与前沿技术**
-    * [如何成为 AI Agent 开发者指南](blog/ai-agent-developer-guide.md)
-    * [人工智能基础概念与系统学习指南](blog/ai-fundamentals-guide.md)
-    * [向量数据库核心概念与系统学习指南](blog/vector-database-guide.md)
+    * [如何成为 AI Agent 开发者：核心架构与实战路径](blog/ai-agent-developer-guide.md)
+    * [人工智能基础核心概念与系统学习路径](blog/ai-fundamentals-guide.md)
+    * [向量数据库核心概念与系统学习路径](blog/vector-database-guide.md)
     * [MCP 架构与常见告警排查指南](blog/mcp.md)
   * **🎨 Web 开发与前端工程**
     * [Mermaid 图表渲染深度避坑指南](blog/docsify-mermaid-guide.md)
-    * [Web 数学公式渲染避坑全指南](blog/math-rendering-guide.md)
+    * [Web 数学公式渲染避坑深度指南](blog/math-rendering-guide.md)
   * **🛠️ 站务建设与工程实践**
     * [2026 搭建博客指南](blog/setup.md)
 

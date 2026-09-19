@@ -14,7 +14,7 @@ updated: 2026-09-19
 
 ## 🚀 可视化教学交互页面
 
-- 🚗 **[物理·匀变速直线运动全景实验室 ↗](projects/uniform-linear-motion.html ':target=_blank')**  
+- 🚗 **[物理·匀变速直线运动实验室 ↗](projects/uniform-linear-motion.html ':target=_blank')**  
   高中物理必修一核心考点可视化实验室：包含动力学仿真跑道、智能滑块小车矢量箭头、打点残影、四维图像联动（$v-t$、$x-t$、$a-t$、$v^2-x$）、五大核心公式图谱、“知三求二”智能推导演算器、三大性质（时间中点 vs 位移中点、纸带打点与逐差法、初速为0比例王国几何积木切片）以及高考刹车死时间陷阱、追及相遇临界模型。
 - 📈 **[Power Function 幂函数模型 ↗](projects/powerfunction.html ':target=_blank')**  
   交互式幂函数性质与图像动态演练。
@@ -24,37 +24,50 @@ updated: 2026-09-19
 
 ---
 
-## 📐 高中知识与数理思维专栏
+## 📐 高中数学精讲专栏（沪教版同步体系）
 
-- 📦 **[高中数学核心专题：集合与常用逻辑用语全景解析与思维跃迁指南](blog/highschool-sets-and-logic-guide.md)**  
-  从消除自然语言歧义的集合论痛点溯源、三大特性与互异性防坑，到交并补德·摩根律、充分必要条件“小推大”集合化降维映射与计算机布尔搜索实战。
-- ⚖️ **[高中数学核心专题：不等式原理、均值定理与最值模型全景解析指南](blog/highschool-inequalities-guide.md)**  
-  从非等式约束与最优化现实痛点、赵爽弦图面积无字证明，到均值定理“一正二定三相等”三大铁律、“1的代换”配凑绝技、工业包装材料最小化与 Python 科学计算最优化。
-- 🌋 **[高中数学核心专题：幂指对函数图象性质、换底转化与增长模型全景解析指南](blog/highschool-power-exp-log-functions-guide.md)**  
-  从宇宙极端尺度与人类对数神经感知、指数爆炸 vs 对数漫步终极增长大对决，到互为反函数几何对角镜像、换底公式推论神器与碳-14 考古年代测定仿真。
+严格依据**上海高中数学教材（沪教版）编排顺序**与**上海高考数学学情考法特点**，全系列采用 **`new_know`** 认知解构方法，涵盖“前置诊断、痛点溯源、核心机制、四阶段攻坚路线、Python 科学仿真与高考考法模型”六维闭环。
+
+### 📘 必修第一册（高一上：集合与逻辑、等式与不等式、函数性质与幂指对）
+- 📦 **[集合与常用逻辑用语深度解析](blog/highschool-sets-and-logic-guide.md)**  
+  从消除自然语言歧义的集合论痛点溯源、三大特性与互异性防坑，到交并补德·摩根律、充分必要条件“小推大”集合化降维映射与计算机布尔搜索实战。对应上海高考填空题基础拿分题型。
+- ⚖️ **[等式、不等式与基本不等式最值模型深度解析](blog/highschool-inequalities-guide.md)**  
+  从非等式约束与最优化现实痛点、赵爽弦图面积无字证明，到均值定理“一正二定三相等”三大铁律、“1的代换”配凑绝技、工业包装材料最小化与 Python 科学计算最优化。对应上海高考填空第 2/8 题及解答题约束转化。
+- 🌋 **[函数概念、幂指对函数性质与增长模型深度解析](blog/highschool-power-exp-log-functions-guide.md)**  
+  从宇宙极端尺度与人类对数神经感知、指数爆炸 vs 对数漫步终极增长大对决，到互为反函数几何对角镜像、换底公式推论神器与碳-14 考古年代测定仿真。对应上海高考选择第 14 题与综合建模。
+
+### 📗 必修第二册（高一下：三角比与三角函数、平面向量与复数）
+- 📐 **[三角比、三角函数与解三角形建模深度解析](blog/highschool-trigonometry-guide.md)**  
+  从直角三角比到单位圆任意角几何投影，正弦定理“外接圆直径”、余弦定理“勾股定理推广与数量积”、到上海高考真实“双杆影子测量模型”几何测距及 Python 数值仿真。对应上海高考填空第 5/11 题。
+- 🧭 **[平面向量、数量积与动态极值转化深度解析](blog/highschool-vectors-guide.md)**  
+  从物理“位移与力”到几何“有向线段”、代数“坐标行阵”的三位一体；基底分解与坐标运算、极化恒等式与动点几何投影转化、上海高考模长最值压轴题剖析，以及 3D 图形学光照着色 Python 仿真。对应上海高考填空第 12 题压轴。
+
+### 📙 选择性必修（高二 / 高三：数列与数学归纳法）
+- 🔢 **[数列通项求和、数学归纳法与递推创新深度解析](blog/highschool-sequences-induction-guide.md)**  
+  从离散世界的时间序列痛点、多米诺骨牌第一块与传递性哲学，到等差等比核心公式地图、累加累乘与错位相减求和法、上海数学教材特色单独成节的“数学归纳法规范四步”，以及银行房贷等额本息还款 Python 仿真。对应上海高考填空第 3 题及选择第 16 题创新结构。
 
 ---
 
 ## 📝 精选技术博客专栏
 
 ### 🗄️ 数据库与后端架构
-- 🐘 **[PostgreSQL 核心概念深度解析与系统化学习路径指南](blog/postgresql-guide.md)**  
-  从多进程模型、8KB 数据页解剖、MVCC 堆表更新机制与 Autovacuum 运维，到 B-Tree/GIN/BRIN 索引原理、WAL 预写日志与四阶段系统进阶全景路线图。
+- 🐘 **[PostgreSQL 核心概念深度解析与系统化学习路径](blog/postgresql-guide.md)**  
+  从多进程模型、8KB 数据页解剖、MVCC 堆表更新机制与 Autovacuum 运维，到 B-Tree/GIN/BRIN 索引原理、WAL 预写日志与四阶段系统进阶路线图。
 
 ### 🤖 人工智能与前沿技术
-- 🤖 **[如何成为一名卓越的 AI Agent 开发者：核心架构全景解析与系统化学习路径指南](blog/ai-agent-developer-guide.md)**  
+- 🤖 **[如何成为一名卓越的 AI Agent 开发者：核心架构与实战路径](blog/ai-agent-developer-guide.md)**  
   从 Chatbot 缸中之脑痛点溯源、Agent 底层四大黄金支柱（LLM + Planning + Memory + Tools），到主流框架选型（LangGraph / CrewAI / MCP）、四阶段进阶路线与零依赖手写 ReAct 循环实战。
-- 🤖 **[人工智能（AI）基础知识全景解析与系统化学习路径指南](blog/ai-fundamentals-guide.md)**  
-  从软件 1.0 向 2.0 思维跃迁、前向传播与梯度下降底层动力学，到 AI/ML/DL/LLM 同心圆图谱解构、四阶段系统进阶路线与 25 行纯 Python/NumPy 手写神经网络自闭环实战。
-- 🧠 **[向量数据库核心概念深度解析与系统化学习路径指南](blog/vector-database-guide.md)**  
-  从非结构化数据语义表征、欧氏/余弦相似度数学度量，到 HNSW 图与 IVF-PQ 检索算法、Qdrant/Milvus/pgvector 选型与生产级 RAG 混合检索调优全景指南。
+- 🤖 **[人工智能基础核心概念深度解析与系统化学习路径](blog/ai-fundamentals-guide.md)**  
+  从软件 1.0 向 2.0 思维跃迁、前向传播与梯度下降底层动力学，到 AI/ML/DL/LLM 同心圆模型解构、四阶段系统进阶路线与 25 行纯 Python/NumPy 手写神经网络自闭环实战。
+- 🧠 **[向量数据库核心概念深度解析与系统化学习路径](blog/vector-database-guide.md)**  
+  从非结构化数据语义表征、欧氏/余弦相似度数学度量，到 HNSW 图与 IVF-PQ 检索算法、Qdrant/Milvus/pgvector 选型与生产级 RAG 混合检索调优实战。
 - 🔌 **[什么是 MCP：架构原理与常见告警排查指南](blog/mcp.md)**  
   深入浅出解析 Model Context Protocol 协议、服务适配器以及 Vercel/Stripe/Supabase 常见启动与超时排查。
 
 ### 🎨 Web 开发与前端工程
 - 📊 **[Web Markdown 与 Docsify 中 Mermaid 图表渲染深度避坑指南](blog/docsify-mermaid-guide.md)**  
   从 Marked 编译管道、Mermaid 10 断崖升级、HTML 实体字符转义，到 SPA 路由重绘生命周期与自适应容器工程化全套解法。
-- 📐 **[Web 现代数学公式渲染避坑全指南](blog/math-rendering-guide.md)**  
+- 📐 **[Web 现代数学公式渲染避坑深度指南](blog/math-rendering-guide.md)**  
   从排版原理、KaTeX vs MathJax 深度选型对比，到定界符失效、隐藏 Tab 几何尺寸为零、SPA 异步渲染时序脱节、JS 反斜杠转义黑洞等五大深坑与完整解法。
 
 ### 🛠️ 站务建设与工程实践
@@ -80,5 +93,5 @@ updated: 2026-09-19
 ├── _sidebar.md     # 侧边栏导航配置
 ├── _coverpage.md   # 封面页展示
 ├── projects/       # 独立可视化应用
-└── blog/           # 技术博客文章
+└── blog/           # 知识专栏与技术博客
 ```
