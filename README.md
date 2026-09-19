@@ -26,6 +26,8 @@ updated: 2026-09-19
 
 ## 📝 最新技术博客
 
+- 📊 **[Web Markdown 与 Docsify 中 Mermaid 图表渲染深度避坑指南](blog/docsify-mermaid-guide.md)**  
+  从 Marked 编译管道、Mermaid 10 断崖升级、HTML 实体字符转义，到 SPA 路由重绘生命周期与自适应容器工程化全套解法。
 - 📐 **[Web 现代数学公式渲染避坑全指南](blog/math-rendering-guide.md)**  
   从排版原理、KaTeX vs MathJax 深度选型对比，到定界符失效、隐藏 Tab 几何尺寸为零、SPA 异步渲染时序脱节、JS 反斜杠转义黑洞等五大深坑与完整解法。
 - 🤖 **[什么是 MCP：架构原理与常见告警排查指南](blog/mcp.md)**  

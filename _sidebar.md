@@ -6,6 +6,7 @@
   * <a href="projects/dailyproblem26052601.html" target="_blank" rel="noopener">三角函数极值区间演示 ↗</a>
   * <a href="https://ai.studio/apps/f7a31f6a-3ca5-46c3-865f-15d919971c63" target="_blank" rel="noopener">AI Studio 题目动画 ↗</a>
 * **📝 技术博客**
+  * [Mermaid 图表渲染深度避坑指南](blog/docsify-mermaid-guide.md)
   * [Web 数学公式渲染避坑指南](blog/math-rendering-guide.md)
   * [2026 搭建博客指南](blog/setup.md)
   * [MCP 架构与常见告警指南](blog/mcp.md)

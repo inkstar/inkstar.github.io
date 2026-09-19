@@ -144,6 +144,25 @@
       padding: 8px 0;
       -webkit-overflow-scrolling: touch;
     }
+
+    /* Mermaid 流程图与架构图样式优化 */
+    .mermaid {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 20px 16px;
+      margin: 24px 0;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .mermaid svg {
+      max-width: 100% !important;
+      height: auto !important;
+    }
   </style>
 
   <!-- MathJax 3 配置 -->
@@ -180,6 +199,16 @@
       latex: {
         inlineMath: [['$', '$'], ['\\(', '\\)']],
         displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      markdown: {
+        renderer: {
+          code: function(code, lang) {
+            if (lang === "mermaid") {
+              return '<div class="mermaid">' + code + '</div>';
+            }
+            return this.origin.code.apply(this, arguments);
+          }
+        }
       },
       plugins: [
         function(hook, vm) {
@@ -271,8 +300,24 @@
             return content;
           });
 
-          // 2. 为所有页面注入全局底部统计
+          // 2. 兜底处理 Mermaid 容器并注入全局底部统计
           hook.afterEach(function(html, next) {
+            // 兜底处理可能由其它途径生成的 pre[data-lang="mermaid"]
+            if (html.indexOf('data-lang="mermaid"') !== -1) {
+              var tempDiv = document.createElement('div');
+              tempDiv.innerHTML = html;
+              var mermaidPres = tempDiv.querySelectorAll('pre[data-lang="mermaid"]');
+              if (mermaidPres.length > 0) {
+                mermaidPres.forEach(function(pre) {
+                  var mDiv = document.createElement('div');
+                  mDiv.className = 'mermaid';
+                  mDiv.textContent = pre.textContent.trim();
+                  pre.parentNode.replaceChild(mDiv, pre);
+                });
+                html = tempDiv.innerHTML;
+              }
+            }
+
             var cachedUv = localStorage.getItem('inkstar_site_uv') || '1,288';
             var cachedPv = localStorage.getItem('inkstar_site_pv') || '3,896';
             var footerHtml = [
@@ -295,7 +340,7 @@
             next(html + footerHtml);
           });
 
-          // 3. SPA 路由切换完成时重新拉取 Busuanzi 统计并重绘 MathJax
+          // 3. SPA 路由切换完成时重新拉取 Busuanzi 统计、重绘 MathJax 和 Mermaid
           hook.doneEach(function() {
             // 自主安全 JSONP 请求 Busuanzi，完全避开外部旧脚本中容易导致 hides() 的时序 bug
             function refreshBusuanzi() {
@@ -361,6 +406,37 @@
                 console.warn('MathJax typesetting error:', err);
               });
             }
+
+            // Mermaid 图表渲染
+            if (window.mermaid) {
+              try {
+                window.mermaid.initialize({
+                  startOnLoad: false,
+                  theme: 'neutral',
+                  themeVariables: {
+                    primaryColor: '#e0f2fe',
+                    primaryTextColor: '#0369a1',
+                    primaryBorderColor: '#38bdf8',
+                    lineColor: '#64748b',
+                    secondaryColor: '#f0fdf4',
+                    tertiaryColor: '#f8fafc'
+                  },
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                  securityLevel: 'loose'
+                });
+                var unrendered = document.querySelectorAll('.mermaid:not([data-processed="true"])');
+                if (unrendered.length > 0) {
+                  window.mermaid.run({
+                    nodes: unrendered,
+                    suppressErrors: true
+                  }).catch(function(err) {
+                    console.warn('Mermaid rendering error:', err);
+                  });
+                }
+              } catch (err) {
+                console.warn('Mermaid init error:', err);
+              }
+            }
           });
         }
       ]
@@ -375,5 +451,8 @@
   <!-- MathJax 3 与 docsify-latex 插件 -->
   <script src="//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify-latex@0"></script>
+
+  <!-- Mermaid 10 流程图排版引擎 -->
+  <script src="//cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 </body>
 </html>
