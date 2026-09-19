@@ -1,4 +1,5 @@
-* [🏠 主页](README.md)
+* [🏠 网站首页 / 封面](/)
+* [📑 博客目录与概览](README.md)
 
 * **💻 可视化交互项目**
   * <a href="projects/uniform-linear-motion.html" target="_blank" rel="noopener">物理·匀变速直线运动全景实验室 ↗</a>
