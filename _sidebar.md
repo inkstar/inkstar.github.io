@@ -8,6 +8,11 @@
   * <a href="projects/dailyproblem26052601.html" target="_blank" rel="noopener">三角函数极值区间演示 ↗</a>
   * <a href="https://ai.studio/apps/f7a31f6a-3ca5-46c3-865f-15d919971c63" target="_blank" rel="noopener">AI Studio 题目动画 ↗</a>
 
+* **📐 高中知识与数理思维专栏**
+  * [集合与常用逻辑用语全景指南](blog/highschool-sets-and-logic-guide.md)
+  * [不等式原理与最值模型全景指南](blog/highschool-inequalities-guide.md)
+  * [幂指对函数图象与增长模型指南](blog/highschool-power-exp-log-functions-guide.md)
+
 * **📝 技术博客专栏**
   * **🗄️ 数据库与后端架构**
     * [PostgreSQL 核心概念与系统学习指南](blog/postgresql-guide.md)
