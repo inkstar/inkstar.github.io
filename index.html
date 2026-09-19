@@ -145,25 +145,52 @@
       -webkit-overflow-scrolling: touch;
     }
 
-    /* Mermaid 流程图与架构图样式优化 */
+    /* Mermaid 现代图表容器与自适应渲染优化 (解决少节点图被拉伸为巨无霸的问题) */
     .mermaid {
       display: flex;
       justify-content: center;
       align-items: center;
-      background: #ffffff;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 16px 14px;
-      margin: 20px 0;
+      background: #fafbfc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 20px 16px;
+      margin: 24px 0;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
+      transition: all 0.2s ease;
+    }
+    .mermaid:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+      border-color: #cbd5e1;
     }
     .mermaid svg {
-      max-width: 100% !important;
-      max-height: 460px !important;
+      /* 严禁 max-width: 100% !important 粗暴拉伸，允许小图保持自身自然尺寸呈现原生字号 */
       height: auto !important;
       margin: 0 auto;
+      display: block;
+      max-height: 520px;
+    }
+    /* 节点与连线标签细节美化 */
+    .mermaid .node rect,
+    .mermaid .node circle,
+    .mermaid .node polygon {
+      stroke-width: 1.5px !important;
+      rx: 6px !important;
+      ry: 6px !important;
+    }
+    .mermaid .edgeLabel {
+      background-color: #ffffff !important;
+      padding: 2px 6px !important;
+      border-radius: 4px !important;
+      font-size: 0.8rem !important;
+      color: #64748b !important;
+    }
+    .mermaid .node .nodeLabel,
+    .mermaid .nodeLabel {
+      font-size: 0.88rem !important;
+      font-weight: 500 !important;
+      line-height: 1.4 !important;
     }
 
     /* 文章面包屑与返回首页导航 */
@@ -719,32 +746,76 @@
               });
             }
 
-            // Mermaid 图表渲染
+            // Mermaid 图表渲染与统一尺寸自适应归一化
             if (window.mermaid) {
               try {
                 window.mermaid.initialize({
                   startOnLoad: false,
                   theme: 'neutral',
+                  securityLevel: 'loose',
+                  flowchart: {
+                    useMaxWidth: false, // 禁用内部强制 100% 占满，由外层智能自适应接管
+                    htmlLabels: true,
+                    curve: 'basis',
+                    nodeSpacing: 42,
+                    rankSpacing: 38,
+                    padding: 12
+                  },
                   themeVariables: {
-                    primaryColor: '#e0f2fe',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif',
+                    fontSize: '13.5px',
+                    primaryColor: '#f0f9ff',
                     primaryTextColor: '#0369a1',
-                    primaryBorderColor: '#38bdf8',
+                    primaryBorderColor: '#7dd3fc',
                     lineColor: '#64748b',
                     secondaryColor: '#f0fdf4',
-                    tertiaryColor: '#f8fafc'
-                  },
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                  securityLevel: 'loose'
+                    secondaryTextColor: '#15803d',
+                    secondaryBorderColor: '#86efac',
+                    tertiaryColor: '#f8fafc',
+                    tertiaryTextColor: '#334155',
+                    tertiaryBorderColor: '#cbd5e1',
+                    clusterBkg: '#f8fafc',
+                    clusterBorder: '#e2e8f0',
+                    edgeLabelBackground: '#ffffff'
+                  }
                 });
+
+                // 核心归一化函数：根据 SVG 自身 viewBox 自然尺寸计算合理上限，防止少节点图被放大成巨无霸
+                var normalizeMermaidSvgSize = function() {
+                  var containers = document.querySelectorAll('.mermaid');
+                  containers.forEach(function(container) {
+                    var svg = container.querySelector('svg');
+                    if (!svg) return;
+                    var vb = svg.getAttribute('viewBox');
+                    if (vb) {
+                      var parts = vb.trim().split(/[\s,]+/).map(Number);
+                      if (parts.length === 4) {
+                        var naturalWidth = parts[2];
+                        if (naturalWidth && naturalWidth > 0) {
+                          // 限制最大宽度不能超过自身自然尺寸，以 1:1 原生比例呈现，保持与正文字号一致
+                          svg.style.maxWidth = Math.ceil(naturalWidth) + 'px';
+                          svg.style.width = '100%';
+                          svg.style.height = 'auto';
+                        }
+                      }
+                    }
+                  });
+                };
+
                 var unrendered = document.querySelectorAll('.mermaid:not([data-processed="true"])');
                 if (unrendered.length > 0) {
                   window.mermaid.run({
                     nodes: unrendered,
                     suppressErrors: true
+                  }).then(function() {
+                    normalizeMermaidSvgSize();
                   }).catch(function(err) {
                     console.warn('Mermaid rendering error:', err);
                   });
                 }
+                // 异步与二次重绘双重兜底
+                setTimeout(normalizeMermaidSvgSize, 120);
+                setTimeout(normalizeMermaidSvgSize, 400);
               } catch (err) {
                 console.warn('Mermaid init error:', err);
               }
