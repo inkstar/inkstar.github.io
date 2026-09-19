@@ -12,6 +12,7 @@
   * **🗄️ 数据库与后端架构**
     * [PostgreSQL 核心概念与系统学习指南](blog/postgresql-guide.md)
   * **🤖 人工智能与前沿技术**
+    * [人工智能基础概念与系统学习指南](blog/ai-fundamentals-guide.md)
     * [向量数据库核心概念与系统学习指南](blog/vector-database-guide.md)
     * [MCP 架构与常见告警排查指南](blog/mcp.md)
   * **🎨 Web 开发与前端工程**

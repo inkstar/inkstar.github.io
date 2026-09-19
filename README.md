@@ -31,6 +31,8 @@ updated: 2026-09-19
   从多进程模型、8KB 数据页解剖、MVCC 堆表更新机制与 Autovacuum 运维，到 B-Tree/GIN/BRIN 索引原理、WAL 预写日志与四阶段系统进阶全景路线图。
 
 ### 🤖 人工智能与前沿技术
+- 🤖 **[人工智能（AI）基础知识全景解析与系统化学习路径指南](blog/ai-fundamentals-guide.md)**  
+  从软件 1.0 向 2.0 思维跃迁、前向传播与梯度下降底层动力学，到 AI/ML/DL/LLM 同心圆图谱解构、四阶段系统进阶路线与 25 行纯 Python/NumPy 手写神经网络自闭环实战。
 - 🧠 **[向量数据库核心概念深度解析与系统化学习路径指南](blog/vector-database-guide.md)**  
   从非结构化数据语义表征、欧氏/余弦相似度数学度量，到 HNSW 图与 IVF-PQ 检索算法、Qdrant/Milvus/pgvector 选型与生产级 RAG 混合检索调优全景指南。
 - 🔌 **[什么是 MCP：架构原理与常见告警排查指南](blog/mcp.md)**  
