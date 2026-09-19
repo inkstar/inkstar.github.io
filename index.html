@@ -6,6 +6,9 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta name="description" content="Inkstar 的个人项目展示与技术博客">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
   <style>
@@ -125,6 +128,13 @@
       color: #9ca3af;
     }
 
+    /* 强制显示访问量容器，避免被任何脚本样式意外隐藏 */
+    #busuanzi_container_page_pv,
+    #busuanzi_container_site_pv,
+    #busuanzi_container_site_uv {
+      display: inline-flex !important;
+    }
+
     /* 公式容器移动端滚动优化 */
     mjx-container[display="true"],
     .MathJax_Display {
@@ -175,15 +185,14 @@
         function(hook, vm) {
           // 1. 在渲染前解析 frontmatter 并为博客文章注入文章元数据
           hook.beforeEach(function(content) {
-            var file = vm.route.file || '';
-            var isBlog = file.indexOf('blog/') === 0;
+            content = content.replace(/^\uFEFF/, '');
 
             // 提取 YAML Frontmatter
             var meta = {};
-            var frontMatterMatch = content.match(/^---\s*[\r\n]+([\s\S]*?)[\r\n]+---\s*[\r\n]+/);
+            var frontMatterMatch = content.match(/^---\s*[\r\n]+([\s\S]*?)[\r\n]+---\s*[\r\n]*/);
             if (frontMatterMatch) {
               var rawMeta = frontMatterMatch[1];
-              content = content.replace(frontMatterMatch[0], ''); // 剥除 frontmatter
+              content = content.slice(frontMatterMatch[0].length); // 剥除 frontmatter
               rawMeta.split('\n').forEach(function(line) {
                 var idx = line.indexOf(':');
                 if (idx > 0) {
@@ -194,7 +203,19 @@
               });
             }
 
-            // 如果是博客目录下的文章，生成顶部文章元数据卡片
+            // 判断是否是文章页面（博客文章或关于我页面，排除网站首页 README）
+            var routeFile = (vm.route && vm.route.file) || '';
+            var routePath = (vm.route && vm.route.path) || window.location.hash || '';
+            var isHome = routeFile === 'README.md' || routeFile === '/README.md' || routePath === '/' || routePath === '#/' || routePath === '' || routePath === '#';
+            var isBlog = !isHome && (
+              routeFile.indexOf('blog') !== -1 ||
+              routePath.indexOf('blog') !== -1 ||
+              routeFile.indexOf('about') !== -1 ||
+              routePath.indexOf('about') !== -1 ||
+              Boolean(meta.date || meta.updated)
+            );
+
+            // 如果是文章，生成顶部元数据卡片
             if (isBlog) {
               // 计算中英文字数与阅读时间
               var cleanText = content.replace(/```[\s\S]*?```/g, '').replace(/<[^>]+>/g, '').replace(/[#*`~>\[\]()_\\-]/g, '');
@@ -203,8 +224,8 @@
               var wordCount = cnWords + enWords;
               var readTime = Math.max(1, Math.ceil(wordCount / 350));
 
-              var pubDate = meta.date || '2026-02-18';
-              var updDate = meta.updated || meta.date || '2026-09-19';
+              var pubDate = meta.date || '2026-02-18 20:00';
+              var updDate = meta.updated || meta.date || '2026-09-19 11:30';
               var author = meta.author || 'Inkstar';
               var tags = meta.tags ? meta.tags.replace(/[\[\]]/g, '').split(',').map(function(t) { return t.trim(); }).filter(Boolean) : [];
 
@@ -215,12 +236,19 @@
                   '</div>';
               }
 
+              // 本地递增与持久化页面 PV，确保初次加载即有数字，不蒜子响应后平滑更新
+              var pageSlug = (routePath || routeFile || 'page').replace(/[^a-zA-Z0-9]/g, '_');
+              var localPvKey = 'inkstar_page_pv_' + pageSlug;
+              var currentPv = parseInt(localStorage.getItem(localPvKey) || '0', 10);
+              currentPv = Math.max(currentPv + 1, 1);
+              localStorage.setItem(localPvKey, currentPv);
+
               var metaHeaderHtml = [
                 '<div class="article-meta-card">',
                 '  <div class="meta-row">',
                 '    <div class="meta-item"><span class="meta-icon">📅</span> <span class="meta-label">发布时间：</span><span class="meta-val">' + pubDate + '</span></div>',
                 '    <div class="meta-item"><span class="meta-icon">🔄</span> <span class="meta-label">修改时间：</span><span class="meta-val">' + updDate + '</span></div>',
-                '    <div class="meta-item" id="busuanzi_container_page_pv"><span class="meta-icon">👁️</span> <span class="meta-label">浏览量：</span><span id="busuanzi_value_page_pv" class="meta-val pv-count">...</span> 次</div>',
+                '    <div class="meta-item" id="busuanzi_container_page_pv"><span class="meta-icon">👁️</span> <span class="meta-label">浏览量：</span><span id="busuanzi_value_page_pv" class="meta-val pv-count" data-slug="' + pageSlug + '">' + currentPv + '</span> 次</div>',
                 '  </div>',
                 '  <div class="meta-row meta-sub-row">',
                 '    <div class="meta-item"><span class="meta-icon">⏱️</span> <span class="meta-label">预计阅读：</span><span class="meta-val">' + readTime + ' 分钟</span> <span class="meta-dim">(' + wordCount + ' 字)</span></div>',
@@ -228,12 +256,13 @@
                 tagsHtml,
                 '  </div>',
                 '</div>'
-              ].join('\n');
+              ].filter(Boolean).join('\n');
 
               // 插入在一级标题下方
-              var h1Match = content.match(/^#\s+[^\r\n]+/);
+              var h1Match = content.match(/^#\s+[^\r\n]+/m);
               if (h1Match) {
-                content = content.replace(h1Match[0], h1Match[0] + '\n\n' + metaHeaderHtml + '\n\n');
+                var h1End = h1Match.index + h1Match[0].length;
+                content = content.slice(0, h1End) + '\n\n' + metaHeaderHtml + '\n\n' + content.slice(h1End);
               } else {
                 content = metaHeaderHtml + '\n\n' + content;
               }
@@ -244,15 +273,17 @@
 
           // 2. 为所有页面注入全局底部统计
           hook.afterEach(function(html, next) {
+            var cachedUv = localStorage.getItem('inkstar_site_uv') || '1,288';
+            var cachedPv = localStorage.getItem('inkstar_site_pv') || '3,896';
             var footerHtml = [
               '<footer class="site-global-footer">',
               '  <div class="footer-stats-box">',
               '    <span id="busuanzi_container_site_pv" class="footer-stat-item">',
-              '      👀 本站总访问量 <span id="busuanzi_value_site_pv" class="footer-badge">...</span> 次',
+              '      👀 本站总访问量 <span id="busuanzi_value_site_pv" class="footer-badge">' + cachedPv + '</span> 次',
               '    </span>',
               '    <span class="footer-divider">|</span>',
               '    <span id="busuanzi_container_site_uv" class="footer-stat-item">',
-              '      👤 您是本站的第 <span id="busuanzi_value_site_uv" class="footer-badge visitor-highlight">...</span> 位访客',
+              '      👤 您是本站的第 <span id="busuanzi_value_site_uv" class="footer-badge visitor-highlight">' + cachedUv + '</span> 位访客',
               '    </span>',
               '  </div>',
               '  <div class="footer-copyright">',
@@ -266,44 +297,63 @@
 
           // 3. SPA 路由切换完成时重新拉取 Busuanzi 统计并重绘 MathJax
           hook.doneEach(function() {
-            // Busuanzi SPA 重新拉取
-            function triggerBusuanzi(retry) {
-              retry = retry || 0;
-              if (window.bszCaller && window.bszCaller.fetch && window.bszTag) {
-                window.bszCaller.fetch("//busuanzi.ibruce.info/busuanzi?jsonpCallback=BusuanziCallback", function(data) {
-                  if (window.bszTag) {
-                    window.bszTag.texts(data);
-                    window.bszTag.shows();
-                  }
-                  // 本地持久化缓存，用于离线或慢网备份
-                  if (data && data.site_uv) localStorage.setItem('inkstar_site_uv', data.site_uv);
-                  if (data && data.site_pv) localStorage.setItem('inkstar_site_pv', data.site_pv);
-                });
-              } else if (retry < 10) {
-                setTimeout(function() {
-                  triggerBusuanzi(retry + 1);
-                }, 200);
-              }
-            }
-            triggerBusuanzi(0);
+            // 自主安全 JSONP 请求 Busuanzi，完全避开外部旧脚本中容易导致 hides() 的时序 bug
+            function refreshBusuanzi() {
+              var cbName = 'BusuanziCallback_' + Math.floor(Math.random() * 10000000);
+              var script = document.createElement('script');
 
-            // 兜底超时检查：若 2.5 秒内不蒜子无响应（如本地或被拦截），优雅填入兜底数值
-            setTimeout(function() {
-              var uvEl = document.getElementById('busuanzi_value_site_uv');
-              if (uvEl && (uvEl.innerText === '...' || uvEl.innerText === '--' || uvEl.innerText === '')) {
-                var cachedUv = localStorage.getItem('inkstar_site_uv') || '1288';
-                uvEl.innerText = cachedUv;
+              window[cbName] = function(data) {
+                try {
+                  if (data) {
+                    var fmt = function(v) {
+                      var n = parseInt(v, 10);
+                      return isNaN(n) ? v : n.toLocaleString();
+                    };
+                    if (data.site_uv) {
+                      var uvEl = document.getElementById('busuanzi_value_site_uv');
+                      if (uvEl) uvEl.textContent = fmt(data.site_uv);
+                      localStorage.setItem('inkstar_site_uv', fmt(data.site_uv));
+                    }
+                    if (data.site_pv) {
+                      var pvEl = document.getElementById('busuanzi_value_site_pv');
+                      if (pvEl) pvEl.textContent = fmt(data.site_pv);
+                      localStorage.setItem('inkstar_site_pv', fmt(data.site_pv));
+                    }
+                    if (data.page_pv) {
+                      var pagePvEl = document.getElementById('busuanzi_value_page_pv');
+                      if (pagePvEl) {
+                        pagePvEl.textContent = fmt(data.page_pv);
+                        var slug = pagePvEl.getAttribute('data-slug');
+                        if (slug) localStorage.setItem('inkstar_page_pv_' + slug, fmt(data.page_pv));
+                      }
+                    }
+                  }
+                } catch(e) {
+                  console.warn('Busuanzi data handler error:', e);
+                } finally {
+                  cleanup();
+                }
+              };
+
+              function cleanup() {
+                try { delete window[cbName]; } catch(e) { window[cbName] = undefined; }
+                if (script && script.parentNode) {
+                  script.parentNode.removeChild(script);
+                }
               }
-              var pvEl = document.getElementById('busuanzi_value_site_pv');
-              if (pvEl && (pvEl.innerText === '...' || pvEl.innerText === '--' || pvEl.innerText === '')) {
-                var cachedPv = localStorage.getItem('inkstar_site_pv') || '3896';
-                pvEl.innerText = cachedPv;
-              }
-              var pagePvEl = document.getElementById('busuanzi_value_page_pv');
-              if (pagePvEl && (pagePvEl.innerText === '...' || pagePvEl.innerText === '--' || pagePvEl.innerText === '')) {
-                pagePvEl.innerText = '86';
-              }
-            }, 2500);
+
+              script.type = 'text/javascript';
+              script.async = true;
+              script.referrerPolicy = 'no-referrer-when-downgrade';
+              script.src = 'https://busuanzi.ibruce.info/busuanzi?jsonpCallback=' + cbName;
+              script.onerror = function() {
+                cleanup();
+              };
+
+              document.head.appendChild(script);
+            }
+
+            refreshBusuanzi();
 
             // MathJax 重绘
             if (window.MathJax && window.MathJax.typesetPromise) {
@@ -325,8 +375,5 @@
   <!-- MathJax 3 与 docsify-latex 插件 -->
   <script src="//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify-latex@0"></script>
-
-  <!-- 不蒜子统计 -->
-  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 </body>
 </html>

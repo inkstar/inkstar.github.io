@@ -1,3 +1,11 @@
+---
+title: 关于我 (About Me)
+date: 2026-02-18 20:00
+updated: 2026-09-19 11:30
+tags: [个人简介, 技能清单, 联系方式]
+author: Inkstar
+---
+
 # 👨‍💻 关于我 (About Me)
 
 你好！我是 **Inkstar**。欢迎来到我的个人空间。
