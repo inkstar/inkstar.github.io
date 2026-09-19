@@ -30,7 +30,9 @@ updated: 2026-09-19
 - 🐘 **[PostgreSQL 核心概念深度解析与系统化学习路径指南](blog/postgresql-guide.md)**  
   从多进程模型、8KB 数据页解剖、MVCC 堆表更新机制与 Autovacuum 运维，到 B-Tree/GIN/BRIN 索引原理、WAL 预写日志与四阶段系统进阶全景路线图。
 
-### 🤖 人工智能与协议架构
+### 🤖 人工智能与前沿技术
+- 🧠 **[向量数据库核心概念深度解析与系统化学习路径指南](blog/vector-database-guide.md)**  
+  从非结构化数据语义表征、欧氏/余弦相似度数学度量，到 HNSW 图与 IVF-PQ 检索算法、Qdrant/Milvus/pgvector 选型与生产级 RAG 混合检索调优全景指南。
 - 🔌 **[什么是 MCP：架构原理与常见告警排查指南](blog/mcp.md)**  
   深入浅出解析 Model Context Protocol 协议、服务适配器以及 Vercel/Stripe/Supabase 常见启动与超时排查。
 

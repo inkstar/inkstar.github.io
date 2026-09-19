@@ -11,7 +11,8 @@
 * **📝 技术博客专栏**
   * **🗄️ 数据库与后端架构**
     * [PostgreSQL 核心概念与系统学习指南](blog/postgresql-guide.md)
-  * **🤖 人工智能与协议架构**
+  * **🤖 人工智能与前沿技术**
+    * [向量数据库核心概念与系统学习指南](blog/vector-database-guide.md)
     * [MCP 架构与常见告警排查指南](blog/mcp.md)
   * **🎨 Web 开发与前端工程**
     * [Mermaid 图表渲染深度避坑指南](blog/docsify-mermaid-guide.md)
