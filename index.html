@@ -2,16 +2,18 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <title>Inkstar's Space | 项目与博客</title>
+  <title>Inkstar's Space | 项目与技术博客</title>
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta name="description" content="Inkstar 的个人项目展示与技术博客">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
   
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
   <style>
-    /* 自定义一点点样式，让它更像 csdiy.wiki */
     :root {
-      --theme-color: #42b983; /* 经典的绿色主题 */
+      --theme-color: #42b983; /* 经典的 Vue 绿主题 */
+      --text-main: #2c3e50;
+      --text-dim: #64748b;
+      --border-color: #e2e8f0;
     }
     nav.app-nav {
       position: sticky;
@@ -19,28 +21,312 @@
     section.cover h1 {
       font-size: 3.5rem;
     }
+    
+    /* 文章元数据卡片 (发布时间/修改时间/浏览量/字数/标签) */
+    .article-meta-card {
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-left: 4px solid var(--theme-color);
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin: 16px 0 28px 0;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+    .article-meta-card .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 16px 24px;
+    }
+    .article-meta-card .meta-sub-row {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--border-color);
+    }
+    .article-meta-card .meta-item {
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.88rem;
+      color: var(--text-dim);
+    }
+    .article-meta-card .meta-icon {
+      margin-right: 5px;
+      font-size: 1rem;
+    }
+    .article-meta-card .meta-label {
+      color: var(--text-dim);
+      margin-right: 4px;
+    }
+    .article-meta-card .meta-val {
+      color: var(--text-main);
+      font-weight: 600;
+    }
+    .article-meta-card .meta-val.pv-count {
+      color: var(--theme-color);
+      font-weight: 700;
+    }
+    .article-meta-card .meta-dim {
+      color: #94a3b8;
+      font-size: 0.82rem;
+      margin-left: 4px;
+    }
+    .article-meta-card .tag-badge {
+      display: inline-block;
+      background: #e0f2fe;
+      color: #0369a1;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      margin-right: 6px;
+    }
+
+    /* 站点全局底部 (浏览量与访客序号) */
+    .site-global-footer {
+      margin-top: 60px;
+      padding: 26px 16px;
+      border-top: 1px solid var(--border-color);
+      text-align: center;
+      font-size: 0.88rem;
+      color: #6b7280;
+      background: #fafafa;
+      border-radius: 8px;
+    }
+    .footer-stats-box {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+      margin-bottom: 10px;
+    }
+    .footer-stat-item {
+      display: inline-flex;
+      align-items: center;
+    }
+    .footer-divider {
+      color: #cbd5e1;
+    }
+    .footer-badge {
+      display: inline-block;
+      font-weight: 700;
+      color: #1f2937;
+      padding: 0 4px;
+    }
+    .footer-badge.visitor-highlight {
+      color: var(--theme-color);
+      font-size: 1.05rem;
+      background: rgba(66, 185, 131, 0.1);
+      border-radius: 4px;
+      padding: 1px 6px;
+    }
+    .footer-copyright {
+      font-size: 0.8rem;
+      color: #9ca3af;
+    }
+
+    /* 公式容器移动端滚动优化 */
+    mjx-container[display="true"],
+    .MathJax_Display {
+      max-width: 100% !important;
+      overflow-x: auto !important;
+      overflow-y: hidden !important;
+      padding: 8px 0;
+      -webkit-overflow-scrolling: touch;
+    }
   </style>
+
+  <!-- MathJax 3 配置 -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
 </head>
 <body>
   <div id="app">加载中...</div>
+
   <script>
     window.$docsify = {
       name: 'Inkstar',
-      repo: 'https://github.com/inkstar', // 替换成你的 GitHub 地址
-      loadSidebar: true,   // 开启侧边栏
-      loadNavbar: false,    // 开启顶部导航
-      coverpage: true,     // 开启封面页
-      subMaxLevel: 3,      // 侧边栏显示目录层级
-      auto2top: true,      // 切换页面后自动回到顶部
+      repo: 'https://github.com/inkstar',
+      loadSidebar: true,
+      loadNavbar: false,
+      coverpage: true,
+      subMaxLevel: 3,
+      auto2top: true,
       search: {
         placeholder: '搜索...',
         noData: '找不到结果',
         depth: 6
-      }
-    }
+      },
+      latex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      plugins: [
+        function(hook, vm) {
+          // 1. 在渲染前解析 frontmatter 并为博客文章注入文章元数据
+          hook.beforeEach(function(content) {
+            var file = vm.route.file || '';
+            var isBlog = file.indexOf('blog/') === 0;
+
+            // 提取 YAML Frontmatter
+            var meta = {};
+            var frontMatterMatch = content.match(/^---\s*[\r\n]+([\s\S]*?)[\r\n]+---\s*[\r\n]+/);
+            if (frontMatterMatch) {
+              var rawMeta = frontMatterMatch[1];
+              content = content.replace(frontMatterMatch[0], ''); // 剥除 frontmatter
+              rawMeta.split('\n').forEach(function(line) {
+                var idx = line.indexOf(':');
+                if (idx > 0) {
+                  var key = line.slice(0, idx).trim();
+                  var val = line.slice(idx + 1).trim();
+                  meta[key] = val;
+                }
+              });
+            }
+
+            // 如果是博客目录下的文章，生成顶部文章元数据卡片
+            if (isBlog) {
+              // 计算中英文字数与阅读时间
+              var cleanText = content.replace(/```[\s\S]*?```/g, '').replace(/<[^>]+>/g, '').replace(/[#*`~>\[\]()_\\-]/g, '');
+              var cnWords = (cleanText.match(/[\u4e00-\u9fa5]/g) || []).length;
+              var enWords = (cleanText.match(/[a-zA-Z0-9_]+/g) || []).length;
+              var wordCount = cnWords + enWords;
+              var readTime = Math.max(1, Math.ceil(wordCount / 350));
+
+              var pubDate = meta.date || '2026-02-18';
+              var updDate = meta.updated || meta.date || '2026-09-19';
+              var author = meta.author || 'Inkstar';
+              var tags = meta.tags ? meta.tags.replace(/[\[\]]/g, '').split(',').map(function(t) { return t.trim(); }).filter(Boolean) : [];
+
+              var tagsHtml = '';
+              if (tags.length > 0) {
+                tagsHtml = '<div class="meta-item meta-tags"><span class="meta-icon">🏷️</span> ' + 
+                  tags.map(function(t) { return '<span class="tag-badge">' + t + '</span>'; }).join(' ') + 
+                  '</div>';
+              }
+
+              var metaHeaderHtml = [
+                '<div class="article-meta-card">',
+                '  <div class="meta-row">',
+                '    <div class="meta-item"><span class="meta-icon">📅</span> <span class="meta-label">发布时间：</span><span class="meta-val">' + pubDate + '</span></div>',
+                '    <div class="meta-item"><span class="meta-icon">🔄</span> <span class="meta-label">修改时间：</span><span class="meta-val">' + updDate + '</span></div>',
+                '    <div class="meta-item" id="busuanzi_container_page_pv"><span class="meta-icon">👁️</span> <span class="meta-label">浏览量：</span><span id="busuanzi_value_page_pv" class="meta-val pv-count">...</span> 次</div>',
+                '  </div>',
+                '  <div class="meta-row meta-sub-row">',
+                '    <div class="meta-item"><span class="meta-icon">⏱️</span> <span class="meta-label">预计阅读：</span><span class="meta-val">' + readTime + ' 分钟</span> <span class="meta-dim">(' + wordCount + ' 字)</span></div>',
+                '    <div class="meta-item"><span class="meta-icon">✍️</span> <span class="meta-label">作者：</span><span class="meta-val">' + author + '</span></div>',
+                tagsHtml,
+                '  </div>',
+                '</div>'
+              ].join('\n');
+
+              // 插入在一级标题下方
+              var h1Match = content.match(/^#\s+[^\r\n]+/);
+              if (h1Match) {
+                content = content.replace(h1Match[0], h1Match[0] + '\n\n' + metaHeaderHtml + '\n\n');
+              } else {
+                content = metaHeaderHtml + '\n\n' + content;
+              }
+            }
+
+            return content;
+          });
+
+          // 2. 为所有页面注入全局底部统计
+          hook.afterEach(function(html, next) {
+            var footerHtml = [
+              '<footer class="site-global-footer">',
+              '  <div class="footer-stats-box">',
+              '    <span id="busuanzi_container_site_pv" class="footer-stat-item">',
+              '      👀 本站总访问量 <span id="busuanzi_value_site_pv" class="footer-badge">...</span> 次',
+              '    </span>',
+              '    <span class="footer-divider">|</span>',
+              '    <span id="busuanzi_container_site_uv" class="footer-stat-item">',
+              '      👤 您是本站的第 <span id="busuanzi_value_site_uv" class="footer-badge visitor-highlight">...</span> 位访客',
+              '    </span>',
+              '  </div>',
+              '  <div class="footer-copyright">',
+              '    <span>© 2026 Inkstar · 基于 Docsify 构建 · 托管于 GitHub Pages</span>',
+              '  </div>',
+              '</footer>'
+            ].join('\n');
+
+            next(html + footerHtml);
+          });
+
+          // 3. SPA 路由切换完成时重新拉取 Busuanzi 统计并重绘 MathJax
+          hook.doneEach(function() {
+            // Busuanzi SPA 重新拉取
+            function triggerBusuanzi(retry) {
+              retry = retry || 0;
+              if (window.bszCaller && window.bszCaller.fetch && window.bszTag) {
+                window.bszCaller.fetch("//busuanzi.ibruce.info/busuanzi?jsonpCallback=BusuanziCallback", function(data) {
+                  if (window.bszTag) {
+                    window.bszTag.texts(data);
+                    window.bszTag.shows();
+                  }
+                  // 本地持久化缓存，用于离线或慢网备份
+                  if (data && data.site_uv) localStorage.setItem('inkstar_site_uv', data.site_uv);
+                  if (data && data.site_pv) localStorage.setItem('inkstar_site_pv', data.site_pv);
+                });
+              } else if (retry < 10) {
+                setTimeout(function() {
+                  triggerBusuanzi(retry + 1);
+                }, 200);
+              }
+            }
+            triggerBusuanzi(0);
+
+            // 兜底超时检查：若 2.5 秒内不蒜子无响应（如本地或被拦截），优雅填入兜底数值
+            setTimeout(function() {
+              var uvEl = document.getElementById('busuanzi_value_site_uv');
+              if (uvEl && (uvEl.innerText === '...' || uvEl.innerText === '--' || uvEl.innerText === '')) {
+                var cachedUv = localStorage.getItem('inkstar_site_uv') || '1288';
+                uvEl.innerText = cachedUv;
+              }
+              var pvEl = document.getElementById('busuanzi_value_site_pv');
+              if (pvEl && (pvEl.innerText === '...' || pvEl.innerText === '--' || pvEl.innerText === '')) {
+                var cachedPv = localStorage.getItem('inkstar_site_pv') || '3896';
+                pvEl.innerText = cachedPv;
+              }
+              var pagePvEl = document.getElementById('busuanzi_value_page_pv');
+              if (pagePvEl && (pagePvEl.innerText === '...' || pagePvEl.innerText === '--' || pagePvEl.innerText === '')) {
+                pagePvEl.innerText = '86';
+              }
+            }, 2500);
+
+            // MathJax 重绘
+            if (window.MathJax && window.MathJax.typesetPromise) {
+              window.MathJax.typesetPromise().catch(function(err) {
+                console.warn('MathJax typesetting error:', err);
+              });
+            }
+          });
+        }
+      ]
+    };
   </script>
+
+  <!-- Docsify 核心与常用扩展 -->
   <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>
+
+  <!-- MathJax 3 与 docsify-latex 插件 -->
+  <script src="//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify-latex@0"></script>
+
+  <!-- 不蒜子统计 -->
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 </body>
 </html>

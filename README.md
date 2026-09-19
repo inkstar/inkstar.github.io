@@ -1,8 +1,16 @@
+---
+title: Inkstar's Space
+date: 2026-02-18
+updated: 2026-09-19
+---
+
 # Inkstar's Space
 
 #### 个人博客与项目交互实验室
 
 托管于 [GitHub Pages](https://pages.github.com/)，自定义域名：[www.inkstar.org](https://www.inkstar.org)。
+
+---
 
 ## 🚀 精选可视化交互实验室
 
@@ -16,6 +24,19 @@
 
 ---
 
+## 📝 最新技术博客
+
+- 📐 **[Web 现代数学公式渲染避坑全指南](blog/math-rendering-guide.md)**  
+  从排版原理、KaTeX vs MathJax 深度选型对比，到定界符失效、隐藏 Tab 几何尺寸为零、SPA 异步渲染时序脱节、JS 反斜杠转义黑洞等五大深坑与完整解法。
+- 🤖 **[什么是 MCP：架构原理与常见告警排查指南](blog/mcp.md)**  
+  深入浅出解析 Model Context Protocol 协议、服务适配器以及 Vercel/Stripe/Supabase 常见启动与超时排查。
+- 🛠️ **[2026 搭建博客指南](blog/setup.md)**  
+  GitHub Pages + Docsify + 独立域名搭建全流程记录。
+- 🧪 **[LaTeX 公式演练与测试](blog/blog01.md)**  
+  行内与块级数学公式排版实操演练。
+
+---
+
 ## 项目说明与本地开发
 
 - 在线地址：[https://www.inkstar.org/](https://www.inkstar.org/)
@@ -25,7 +46,7 @@
 
 ```
 .
-├── index.html      # Docsify 入口
+├── index.html      # Docsify 入口与核心配置
 ├── _sidebar.md     # 侧边栏导航配置
 ├── _coverpage.md   # 封面页展示
 ├── projects/       # 独立可视化应用

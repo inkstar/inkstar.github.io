@@ -1,16 +1,26 @@
-# 什么是 MCP
+---
+title: 什么是 MCP：架构原理与常见告警排查指南
+date: 2026-02-18 21:35
+updated: 2026-09-19 10:23
+tags: [AI, MCP, ModelContextProtocol, Codex, Cursor]
+author: Inkstar
+---
 
-`MCP` 是 `Model Context Protocol`，可以理解成一套让 AI 连接外部工具和服务的标准协议。
+# 什么是 MCP：架构原理与常见告警排查指南
 
-在 Codex 里，`GitHub`、`Vercel`、`Stripe`、`Supabase` 这类服务都可以通过各自的 MCP server 接进来。这样模型就不只是“聊天”，还可以在权限允许的前提下读取项目、查询部署、查看日志、访问数据库结构，或者执行受控操作。
+`MCP` 是 `Model Context Protocol`（模型上下文协议），可以理解成一套让 AI 连接外部工具和服务的工业级标准协议。
+
+在 Codex 与现代 AI Agent 里，`GitHub`、`Vercel`、`Stripe`、`Supabase` 这类服务都可以通过各自的 MCP server 接进来。这样模型就不只是“聊天”，还可以在权限允许的前提下读取项目、查询部署、查看日志、访问数据库结构，或者执行受控操作。
 
 简单类比：
 
-- AI 模型是大脑
-- MCP 是标准接口
-- Vercel / Stripe / Supabase MCP server 是不同服务的适配器
+- **AI 模型是大脑**
+- **MCP 是标准接口**
+- **Vercel / Stripe / Supabase MCP server 是不同服务的适配器**
 
 所以当终端里出现 MCP 相关告警时，通常不是代码本身坏了，而是某个外部服务没有登录、启动失败，或者连接超时。
+
+---
 
 ## 这几条告警分别是什么意思
 
@@ -62,6 +72,8 @@ startup_timeout_sec = 60
 - `supabase`
 - `vercel`
 
+---
+
 ## 怎么理解这些状态
 
 可以按下面的方式快速判断：
@@ -69,6 +81,8 @@ startup_timeout_sec = 60
 - `not logged in`：服务能识别到，但你还没完成登录授权
 - `timed out`：服务启动或连接太慢，超过等待时间
 - `startup incomplete`：上面的问题导致整体初始化没有完成
+
+---
 
 ## 需要马上处理吗
 
@@ -82,6 +96,8 @@ startup_timeout_sec = 60
 2. 登录 `stripe`
 3. 给 `supabase` 增加更长的启动超时
 4. 再重新启动或重试相关命令
+
+---
 
 ## 一句话总结
 

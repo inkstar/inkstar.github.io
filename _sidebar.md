@@ -8,8 +8,9 @@
   * [项目 A - 简短描述](projects/project-a.md)
   * [项目 B - 简短描述](projects/project-b.md)
 * **📝 技术博客**
+  * [Web 数学公式渲染避坑指南](blog/math-rendering-guide.md)
   * [2026 搭建博客指南](blog/setup.md)
-  * [MCP 架构与指南](blog/mcp.md)
+  * [MCP 架构与常见告警指南](blog/mcp.md)
   * [关于我](about.md)
-* **📚 测试**
-  * [测试](blog/blog01.md)
+* **📚 实验与测试**
+  * [LaTeX 公式演练与测试](blog/blog01.md)
