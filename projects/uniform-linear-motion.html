@@ -474,11 +474,11 @@
                         <!-- 输入项 v0 -->
                         <div class="flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800 solver-row" id="row-v0">
                             <label class="flex items-center gap-2.5 cursor-pointer text-sm">
-                                <input type="checkbox" id="check-v0" checked onchange="handleSolverCheck()" class="rounded border-slate-700 text-blue-600 focus:ring-0 w-4 h-4 bg-slate-800">
+                                <input type="checkbox" id="check-v0" checked onchange="handleSolverCheck('v0')" class="rounded border-slate-700 text-blue-600 focus:ring-0 w-4 h-4 bg-slate-800">
                                 <span class="font-medium text-slate-200">初速度 $v_0$</span>
                             </label>
                             <div class="flex items-center gap-1.5">
-                                <input type="number" id="input-v0" value="5" step="0.1" class="w-24 px-2 py-1 bg-slate-800 border border-slate-700 rounded text-right font-mono text-sm text-sky-400 focus:outline-none focus:border-blue-500">
+                                <input type="number" id="input-v0" value="5" step="0.1" oninput="calculateSolver()" class="w-24 px-2 py-1 bg-slate-800 border border-slate-700 rounded text-right font-mono text-sm text-sky-400 focus:outline-none focus:border-blue-500">
                                 <span class="text-xs text-slate-500 w-9">m/s</span>
                             </div>
                         </div>
@@ -486,11 +486,11 @@
                         <!-- 输入项 v -->
                         <div class="flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800 solver-row" id="row-v">
                             <label class="flex items-center gap-2.5 cursor-pointer text-sm">
-                                <input type="checkbox" id="check-v" checked onchange="handleSolverCheck()" class="rounded border-slate-700 text-blue-600 focus:ring-0 w-4 h-4 bg-slate-800">
+                                <input type="checkbox" id="check-v" checked onchange="handleSolverCheck('v')" class="rounded border-slate-700 text-blue-600 focus:ring-0 w-4 h-4 bg-slate-800">
                                 <span class="font-medium text-slate-200">末速度 $v$</span>
                             </label>
                             <div class="flex items-center gap-1.5">
-                                <input type="number" id="input-v" value="15" step="0.1" class="w-24 px-2 py-1 bg-slate-800 border border-slate-700 rounded text-right font-mono text-sm text-sky-400 focus:outline-none focus:border-blue-500">
+                                <input type="number" id="input-v" value="15" step="0.1" oninput="calculateSolver()" class="w-24 px-2 py-1 bg-slate-800 border border-slate-700 rounded text-right font-mono text-sm text-sky-400 focus:outline-none focus:border-blue-500">
                                 <span class="text-xs text-slate-500 w-9">m/s</span>
                             </div>
                         </div>
@@ -498,11 +498,11 @@
                         <!-- 输入项 a -->
                         <div class="flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800 solver-row" id="row-a">
                             <label class="flex items-center gap-2.5 cursor-pointer text-sm">
-                                <input type="checkbox" id="check-a" checked onchange="handleSolverCheck()" class="rounded border-slate-700 text-blue-600 focus:ring-0 w-4 h-4 bg-slate-800">
+                                <input type="checkbox" id="check-a" checked onchange="handleSolverCheck('a')" class="rounded border-slate-700 text-blue-600 focus:ring-0 w-4 h-4 bg-slate-800">
                                 <span class="font-medium text-slate-200">加速度 $a$</span>
                             </label>
                             <div class="flex items-center gap-1.5">
-                                <input type="number" id="input-a" value="2" step="0.1" class="w-24 px-2 py-1 bg-slate-800 border border-slate-700 rounded text-right font-mono text-sm text-amber-400 focus:outline-none focus:border-amber-500">
+                                <input type="number" id="input-a" value="2" step="0.1" oninput="calculateSolver()" class="w-24 px-2 py-1 bg-slate-800 border border-slate-700 rounded text-right font-mono text-sm text-amber-400 focus:outline-none focus:border-amber-500">
                                 <span class="text-xs text-slate-500 w-9">m/s²</span>
                             </div>
                         </div>
@@ -510,11 +510,11 @@
                         <!-- 输入项 t -->
                         <div class="flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800 solver-row opacity-60" id="row-t">
                             <label class="flex items-center gap-2.5 cursor-pointer text-sm">
-                                <input type="checkbox" id="check-t" onchange="handleSolverCheck()" class="rounded border-slate-700 text-blue-600 focus:ring-0 w-4 h-4 bg-slate-800">
+                                <input type="checkbox" id="check-t" onchange="handleSolverCheck('t')" class="rounded border-slate-700 text-blue-600 focus:ring-0 w-4 h-4 bg-slate-800">
                                 <span class="font-medium text-slate-200">运动时间 $t$</span>
                             </label>
                             <div class="flex items-center gap-1.5">
-                                <input type="number" id="input-t" value="5" step="0.1" disabled class="w-24 px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-right font-mono text-sm text-purple-400 focus:outline-none">
+                                <input type="number" id="input-t" value="5" step="0.1" disabled oninput="calculateSolver()" class="w-24 px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-right font-mono text-sm text-purple-400 focus:outline-none">
                                 <span class="text-xs text-slate-500 w-9">s</span>
                             </div>
                         </div>
@@ -522,11 +522,11 @@
                         <!-- 输入项 x -->
                         <div class="flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800 solver-row opacity-60" id="row-x">
                             <label class="flex items-center gap-2.5 cursor-pointer text-sm">
-                                <input type="checkbox" id="check-x" onchange="handleSolverCheck()" class="rounded border-slate-700 text-blue-600 focus:ring-0 w-4 h-4 bg-slate-800">
+                                <input type="checkbox" id="check-x" onchange="handleSolverCheck('x')" class="rounded border-slate-700 text-blue-600 focus:ring-0 w-4 h-4 bg-slate-800">
                                 <span class="font-medium text-slate-200">位移 $x$</span>
                             </label>
                             <div class="flex items-center gap-1.5">
-                                <input type="number" id="input-x" value="50" step="0.1" disabled class="w-24 px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-right font-mono text-sm text-emerald-400 focus:outline-none">
+                                <input type="number" id="input-x" value="50" step="0.1" disabled oninput="calculateSolver()" class="w-24 px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-right font-mono text-sm text-emerald-400 focus:outline-none">
                                 <span class="text-xs text-slate-500 w-9">m</span>
                             </div>
                         </div>
@@ -1650,277 +1650,371 @@
         // ==========================================
         // MODULE 2: “知三求二” 交互求解器核心算法
         // ==========================================
-        function handleSolverCheck() {
+        let selectedOrder = ['v0', 'v', 'a']; // 记录当前勾选的 3 个物理量顺序
+
+        function handleSolverCheck(clickedKey) {
             const keys = ['v0', 'v', 'a', 't', 'x'];
-            const checked = keys.filter(k => document.getElementById(`check-${k}`).checked);
 
-            document.getElementById('solver-selected-count').textContent = checked.length;
+            if (clickedKey) {
+                const cb = document.getElementById(`check-${clickedKey}`);
+                if (cb.checked) {
+                    if (!selectedOrder.includes(clickedKey)) {
+                        selectedOrder.push(clickedKey);
+                        // 若多于 3 项，自动将最早勾选的一项取消（滑动窗口体验）
+                        if (selectedOrder.length > 3) {
+                            const oldestKey = selectedOrder.shift();
+                            const oldCb = document.getElementById(`check-${oldestKey}`);
+                            if (oldCb) oldCb.checked = false;
+                        }
+                    }
+                } else {
+                    selectedOrder = selectedOrder.filter(k => k !== clickedKey);
+                }
+            } else {
+                // 页面初始化或外部调用时重新读取 DOM 状态
+                const currentChecked = keys.filter(k => document.getElementById(`check-${k}`).checked);
+                selectedOrder = currentChecked.slice(0, 3);
+            }
 
+            // 同步所有输入框的启用/禁用和视觉样式
             keys.forEach(k => {
-                const isChecked = document.getElementById(`check-${k}`).checked;
+                const isSelected = selectedOrder.includes(k);
                 const inputEl = document.getElementById(`input-${k}`);
                 const rowEl = document.getElementById(`row-${k}`);
+                const cb = document.getElementById(`check-${k}`);
+                cb.checked = isSelected;
 
-                if (isChecked) {
+                if (isSelected) {
                     inputEl.disabled = false;
-                    inputEl.classList.remove('bg-slate-800/50', 'border-slate-700/50');
+                    inputEl.classList.remove('bg-slate-800/50', 'border-slate-700/50', 'text-slate-500');
                     inputEl.classList.add('bg-slate-800', 'border-slate-700');
-                    rowEl.classList.remove('opacity-60');
+                    rowEl.classList.remove('opacity-50');
                 } else {
                     inputEl.disabled = true;
-                    inputEl.classList.add('bg-slate-800/50', 'border-slate-700/50');
+                    inputEl.classList.add('bg-slate-800/50', 'border-slate-700/50', 'text-slate-500');
                     inputEl.classList.remove('bg-slate-800', 'border-slate-700');
-                    rowEl.classList.add('opacity-60');
+                    rowEl.classList.add('opacity-50');
                 }
             });
 
+            document.getElementById('solver-selected-count').textContent = selectedOrder.length;
+
             const btnCalc = document.getElementById('btn-calc');
-            if (checked.length === 3) {
+            if (selectedOrder.length === 3) {
                 btnCalc.disabled = false;
                 btnCalc.classList.remove('opacity-50', 'cursor-not-allowed');
+                calculateSolver(); // 勾选变动时自动触发实时计算！
             } else {
                 btnCalc.disabled = true;
                 btnCalc.classList.add('opacity-50', 'cursor-not-allowed');
+                document.getElementById('solver-case-tag').textContent = `请勾选恰好 3 个已知量`;
+                document.getElementById('solver-output-content').innerHTML = `<div class="text-amber-400 py-6 text-center text-xs">⚠️ 请在左侧勾选恰好 3 个已知量以开始求解</div>`;
+                document.getElementById('solver-apply-btn').classList.add('hidden');
             }
         }
 
         let lastSolverResult = null;
 
         function calculateSolver() {
-            const keys = ['v0', 'v', 'a', 't', 'x'];
-            const checked = keys.filter(k => document.getElementById(`check-${k}`).checked);
-            if (checked.length !== 3) {
-                alert('请勾选恰好 3 个已知物理量！');
+            if (selectedOrder.length !== 3) {
                 return;
             }
 
             const vals = {};
-            checked.forEach(k => {
+            selectedOrder.forEach(k => {
                 vals[k] = parseFloat(document.getElementById(`input-${k}`).value) || 0;
             });
 
-            const comboKey = checked.sort().join('_');
-            let res = {};
+            const has = (k) => selectedOrder.includes(k);
+            let res = null;
             let stepsHtml = '';
+            let caseTitle = '';
 
-            document.getElementById('solver-case-tag').textContent = `已匹配模型: 已知 ${checked.join(', ')}`;
-
-            if (comboKey === 'a_v0_v') {
+            // 10 类物理组合语义化判定（彻底杜绝字符串排序隐患）
+            if (has('v0') && has('v') && has('a')) {
+                // 模型 1：已知 v0, v, a -> 求 t, x
                 const { v0, v, a } = vals;
+                caseTitle = `模型：已知初速度 $v_0$、末速度 $v$、加速度 $a$（求时间 $t$、位移 $x$）`;
+
                 if (a === 0) {
                     if (v !== v0) {
-                        stepsHtml = `<div class="text-rose-400">矛盾：加速度 a = 0 时初速度与末速度必须相等！</div>`;
-                        renderSolverOutput(stepsHtml);
-                        return;
+                        stepsHtml = `<div class="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-300">
+                            <b>❌ 物理矛盾：</b>加速度 $a = 0$ 为匀速运动，末速度 $v$ 必须等于初速度 $v_0$（当前 $v=${v} \\neq v_0=${v0}$）。
+                        </div>`;
+                    } else {
+                        stepsHtml = `<div class="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl text-amber-300">
+                            <b>ℹ️ 匀速直线运动：</b>加速度 $a = 0$ 且 $v = v_0$，速度恒定。此时时间 $t$ 与位移 $x$ 之间满足 $x = vt$，需进一步在 $t$ 或 $x$ 中给定一个以求出另一个。
+                        </div>`;
                     }
-                    stepsHtml = `<div>加速度为0，为匀速运动，时间 t 与位移 x 需进一步给定其中之一。</div>`;
-                    renderSolverOutput(stepsHtml);
-                    return;
+                } else {
+                    const t = (v - v0) / a;
+                    const x = (v * v - v0 * v0) / (2 * a);
+                    res = { v0, v, a, t, x };
+                    stepsHtml = `
+                        <div class="space-y-3">
+                            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                                <div class="font-bold text-sky-400 mb-1">步骤 1：求解运动时间 $t$</div>
+                                <div>选用速度-时间公式：$$v = v_0 + at \\implies t = \\frac{v - v_0}{a}$$</div>
+                                <div class="font-mono text-slate-200 mt-1">代入数据：$t = \\frac{${v} - (${v0})}{${a}} = \\mathbf{${t.toFixed(3)}\\text{ s}}$</div>
+                            </div>
+                            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                                <div class="font-bold text-emerald-400 mb-1">步骤 2：求解位移 $x$</div>
+                                <div>选用速度-位移公式：$$v^2 - v_0^2 = 2ax \\implies x = \\frac{v^2 - v_0^2}{2a}$$</div>
+                                <div class="font-mono text-slate-200 mt-1">代入数据：$x = \\frac{${v}^2 - (${v0})^2}{2 \\times (${a})} = \\mathbf{${x.toFixed(3)}\\text{ m}}$</div>
+                            </div>
+                            <div class="text-[11px] text-slate-400 font-mono">
+                                验算（平均速度法）：$x = \\frac{v_0+v}{2}t = \\frac{${v0}+(${v})}{2} \\times ${t.toFixed(3)} = ${x.toFixed(3)}\\text{ m}$（完全一致）
+                            </div>
+                        </div>`;
                 }
-                const t = (v - v0) / a;
-                const x = (v * v - v0 * v0) / (2 * a);
-                res = { v0, v, a, t, x };
-                stepsHtml = `
-                    <div class="space-y-3">
-                        <div>
-                            <div class="font-bold text-sky-400 mb-1">步骤 1：求运动时间 $t$</div>
-                            <p>选用速度公式：$$v = v_0 + at \\implies t = \\frac{v - v_0}{a}$$</p>
-                            <p class="font-mono text-slate-300">代入数据：$t = \\frac{${v} - (${v0})}{${a}} = \\mathbf{${t.toFixed(3)}\\text{ s}}$</p>
-                        </div>
-                        <div>
-                            <div class="font-bold text-emerald-400 mb-1">步骤 2：求位移 $x$</div>
-                            <p>选用速度-位移公式：$$v^2 - v_0^2 = 2ax \\implies x = \\frac{v^2 - v_0^2}{2a}$$</p>
-                            <p class="font-mono text-slate-300">代入数据：$x = \\frac{${v}^2 - (${v0})^2}{2 \\times ${a}} = \\mathbf{${x.toFixed(3)}\\text{ m}}$</p>
-                        </div>
-                    </div>`;
-            } else if (comboKey === 'a_t_v0') {
+
+            } else if (has('v0') && has('a') && has('t')) {
+                // 模型 2：已知 v0, a, t -> 求 v, x
                 const { v0, a, t } = vals;
+                caseTitle = `模型：已知初速度 $v_0$、加速度 $a$、时间 $t$（求末速度 $v$、位移 $x$）`;
+
                 const v = v0 + a * t;
                 const x = v0 * t + 0.5 * a * t * t;
                 res = { v0, v, a, t, x };
                 stepsHtml = `
                     <div class="space-y-3">
-                        <div>
-                            <div class="font-bold text-sky-400 mb-1">步骤 1：求末速度 $v$</div>
-                            <p>选用速度公式：$$v = v_0 + at$$</p>
-                            <p class="font-mono text-slate-300">代入数据：$v = ${v0} + (${a}) \\times ${t} = \\mathbf{${v.toFixed(3)}\\text{ m/s}}$</p>
+                        <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                            <div class="font-bold text-sky-400 mb-1">步骤 1：求解末速度 $v$</div>
+                            <div>选用速度-时间公式：$$v = v_0 + at$$</div>
+                            <div class="font-mono text-slate-200 mt-1">代入数据：$v = ${v0} + (${a}) \\times ${t} = \\mathbf{${v.toFixed(3)}\\text{ m/s}}$</div>
                         </div>
-                        <div>
-                            <div class="font-bold text-emerald-400 mb-1">步骤 2：求位移 $x$</div>
-                            <p>选用位移公式：$$x = v_0 t + \\frac{1}{2}at^2$$</p>
-                            <p class="font-mono text-slate-300">代入数据：$x = ${v0} \\times ${t} + \\frac{1}{2} \\times (${a}) \\times ${t}^2 = \\mathbf{${x.toFixed(3)}\\text{ m}}$</p>
+                        <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                            <div class="font-bold text-emerald-400 mb-1">步骤 2：求解位移 $x$</div>
+                            <div>选用位移-时间公式：$$x = v_0 t + \\frac{1}{2}at^2$$</div>
+                            <div class="font-mono text-slate-200 mt-1">代入数据：$x = ${v0} \\times ${t} + 0.5 \\times (${a}) \\times ${t}^2 = \\mathbf{${x.toFixed(3)}\\text{ m}}$</div>
                         </div>
                     </div>`;
-            } else if (comboKey === 'a_v0_x') {
+
+            } else if (has('v0') && has('a') && has('x')) {
+                // 模型 3：已知 v0, a, x -> 求 v, t
                 const { v0, a, x } = vals;
+                caseTitle = `模型：已知初速度 $v_0$、加速度 $a$、位移 $x$（求末速度 $v$、时间 $t$）`;
+
                 const vSq = v0 * v0 + 2 * a * x;
                 if (vSq < 0) {
-                    stepsHtml = `<div class="text-rose-400">无物理实数解：$v^2 = v_0^2 + 2ax = ${vSq.toFixed(2)} < 0$。该位移无法达到！</div>`;
-                    renderSolverOutput(stepsHtml);
-                    return;
-                }
-                const v = Math.sqrt(vSq);
-                const t = a !== 0 ? (v - v0) / a : x / v0;
-                res = { v0, v, a, t, x };
-                stepsHtml = `
-                    <div class="space-y-3">
-                        <div>
-                            <div class="font-bold text-sky-400 mb-1">步骤 1：求末速度 $v$</div>
-                            <p>选用速度-位移公式：$$v = \\pm\\sqrt{v_0^2 + 2ax}$$</p>
-                            <p class="font-mono text-slate-300">代入数据：$v = \\sqrt{${v0}^2 + 2 \\times (${a}) \\times ${x}} = \\mathbf{${v.toFixed(3)}\\text{ m/s}}$</p>
-                        </div>
-                        <div>
-                            <div class="font-bold text-emerald-400 mb-1">步骤 2：求时间 $t$</div>
-                            <p>选用速度公式：$$t = \\frac{v - v_0}{a}$$</p>
-                            <p class="font-mono text-slate-300">代入数据：$t = \\mathbf{${t.toFixed(3)}\\text{ s}}$</p>
-                        </div>
+                    stepsHtml = `<div class="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-300">
+                        <b>❌ 物理无实数解：</b>由 $v^2 = v_0^2 + 2ax = ${v0}^2 + 2 \\times (${a}) \\times ${x} = ${vSq.toFixed(3)} < 0$。<br>
+                        物体在达到目标位移前已减速为 0 并反向，无法达到该位置。
                     </div>`;
-            } else if (comboKey === 't_v0_x') {
+                } else {
+                    const v = Math.sqrt(vSq); // 主方向解
+                    const t = a !== 0 ? (v - v0) / a : (v0 !== 0 ? x / v0 : 0);
+                    res = { v0, v, a, t, x };
+                    stepsHtml = `
+                        <div class="space-y-3">
+                            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                                <div class="font-bold text-sky-400 mb-1">步骤 1：求解末速度 $v$</div>
+                                <div>选用速度-位移公式：$$v = \\pm\\sqrt{v_0^2 + 2ax}$$</div>
+                                <div class="font-mono text-slate-200 mt-1">同向解：$v = \\sqrt{${v0}^2 + 2 \\times (${a}) \\times ${x}} = \\mathbf{${v.toFixed(3)}\\text{ m/s}}$</div>
+                            </div>
+                            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                                <div class="font-bold text-purple-400 mb-1">步骤 2：求解运动时间 $t$</div>
+                                <div>选用速度定义式：$$t = \\frac{v - v_0}{a}$$</div>
+                                <div class="font-mono text-slate-200 mt-1">代入数据：$t = \\frac{${v.toFixed(3)} - (${v0})}{${a}} = \\mathbf{${t.toFixed(3)}\\text{ s}}$</div>
+                            </div>
+                        </div>`;
+                }
+
+            } else if (has('v0') && has('t') && has('x')) {
+                // 模型 4：已知 v0, t, x -> 求 a, v
                 const { v0, t, x } = vals;
-                if (t === 0) {
-                    stepsHtml = `<div class="text-rose-400">时间 t 不能为 0！</div>`;
-                    renderSolverOutput(stepsHtml);
-                    return;
+                caseTitle = `模型：已知初速度 $v_0$、时间 $t$、位移 $x$（求加速度 $a$、末速度 $v$）`;
+
+                if (t <= 0) {
+                    stepsHtml = `<div class="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-300"><b>❌ 错误：</b>运动时间 $t$ 必须大于 0！</div>`;
+                } else {
+                    const a = (2 * (x - v0 * t)) / (t * t);
+                    const v = (2 * x) / t - v0;
+                    res = { v0, v, a, t, x };
+                    stepsHtml = `
+                        <div class="space-y-3">
+                            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                                <div class="font-bold text-amber-400 mb-1">步骤 1：求解加速度 $a$</div>
+                                <div>由位移公式推导：$$x = v_0 t + \\frac{1}{2}at^2 \\implies a = \\frac{2(x - v_0 t)}{t^2}$$</div>
+                                <div class="font-mono text-slate-200 mt-1">代入数据：$a = \\frac{2(${x} - ${v0}\\times ${t})}{${t}^2} = \\mathbf{${a.toFixed(3)}\\text{ m/s²}}$</div>
+                            </div>
+                            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                                <div class="font-bold text-sky-400 mb-1">步骤 2：求解末速度 $v$</div>
+                                <div>由平均速度公式：$$x = \\frac{v_0 + v}{2}t \\implies v = \\frac{2x}{t} - v_0$$</div>
+                                <div class="font-mono text-slate-200 mt-1">代入数据：$v = \\frac{2 \\times ${x}}{${t}} - (${v0}) = \\mathbf{${v.toFixed(3)}\\text{ m/s}}$</div>
+                            </div>
+                        </div>`;
                 }
-                const a = (2 * (x - v0 * t)) / (t * t);
-                const v = v0 + a * t;
-                res = { v0, v, a, t, x };
-                stepsHtml = `
-                    <div class="space-y-3">
-                        <div>
-                            <div class="font-bold text-amber-400 mb-1">步骤 1：求加速度 $a$</div>
-                            <p>由位移公式：$$x = v_0 t + \\frac{1}{2}at^2 \\implies a = \\frac{2(x - v_0 t)}{t^2}$$</p>
-                            <p class="font-mono text-slate-300">代入数据：$a = \\frac{2(${x} - ${v0} \\times ${t})}{${t}^2} = \\mathbf{${a.toFixed(3)}\\text{ m/s²}}$</p>
-                        </div>
-                        <div>
-                            <div class="font-bold text-sky-400 mb-1">步骤 2：求末速度 $v$</div>
-                            <p>选用平均速度公式变形：$$x = \\frac{v_0 + v}{2}t \\implies v = \\frac{2x}{t} - v_0$$</p>
-                            <p class="font-mono text-slate-300">代入数据：$v = \\frac{2 \\times ${x}}{${t}} - ${v0} = \\mathbf{${v.toFixed(3)}\\text{ m/s}}$</p>
-                        </div>
-                    </div>`;
-            } else if (comboKey === 't_v0_v') {
+
+            } else if (has('v0') && has('v') && has('t')) {
+                // 模型 5：已知 v0, v, t -> 求 a, x
                 const { v0, v, t } = vals;
-                if (t === 0) {
-                    stepsHtml = `<div class="text-rose-400">时间 t 不能为 0！</div>`;
-                    renderSolverOutput(stepsHtml);
-                    return;
+                caseTitle = `模型：已知初速度 $v_0$、末速度 $v$、时间 $t$（求加速度 $a$、位移 $x$）`;
+
+                if (t <= 0) {
+                    stepsHtml = `<div class="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-300"><b>❌ 错误：</b>运动时间 $t$ 必须大于 0！</div>`;
+                } else {
+                    const a = (v - v0) / t;
+                    const x = 0.5 * (v0 + v) * t;
+                    res = { v0, v, a, t, x };
+                    stepsHtml = `
+                        <div class="space-y-3">
+                            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                                <div class="font-bold text-amber-400 mb-1">步骤 1：求解加速度 $a$</div>
+                                <div>由加速度定义式：$$a = \\frac{v - v_0}{t}$$</div>
+                                <div class="font-mono text-slate-200 mt-1">代入数据：$a = \\frac{${v} - (${v0})}{${t}} = \\mathbf{${a.toFixed(3)}\\text{ m/s²}}$</div>
+                            </div>
+                            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                                <div class="font-bold text-emerald-400 mb-1">步骤 2：求解位移 $x$</div>
+                                <div>选用平均速度公式：$$x = \\frac{v_0 + v}{2}t$$</div>
+                                <div class="font-mono text-slate-200 mt-1">代入数据：$x = \\frac{${v0} + (${v})}{2} \\times ${t} = \\mathbf{${x.toFixed(3)}\\text{ m}}$</div>
+                            </div>
+                        </div>`;
                 }
-                const a = (v - v0) / t;
-                const x = 0.5 * (v0 + v) * t;
-                res = { v0, v, a, t, x };
-                stepsHtml = `
-                    <div class="space-y-3">
-                        <div>
-                            <div class="font-bold text-amber-400 mb-1">步骤 1：求加速度 $a$</div>
-                            <p>选用加速度定义式：$$a = \\frac{v - v_0}{t}$$</p>
-                            <p class="font-mono text-slate-300">代入数据：$a = \\frac{${v} - (${v0})}{${t}} = \\mathbf{${a.toFixed(3)}\\text{ m/s²}}$</p>
-                        </div>
-                        <div>
-                            <div class="font-bold text-emerald-400 mb-1">步骤 2：求位移 $x$</div>
-                            <p>选用平均速度公式：$$x = \\frac{v_0 + v}{2}t$$</p>
-                            <p class="font-mono text-slate-300">代入数据：$x = \\frac{${v0} + (${v})}{2} \\times ${t} = \\mathbf{${x.toFixed(3)}\\text{ m}}$</p>
-                        </div>
-                    </div>`;
-            } else if (comboKey === 'v0_v_x') {
+
+            } else if (has('v0') && has('v') && has('x')) {
+                // 模型 6：已知 v0, v, x -> 求 a, t
                 const { v0, v, x } = vals;
+                caseTitle = `模型：已知初速度 $v_0$、末速度 $v$、位移 $x$（求加速度 $a$、时间 $t$）`;
+
                 if (x === 0) {
-                    stepsHtml = `<div class="text-rose-400">位移 x 为 0，物体回到原点或静止。</div>`;
-                    renderSolverOutput(stepsHtml);
-                    return;
+                    if (v === -v0 && v0 !== 0) {
+                        stepsHtml = `<div class="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl text-amber-300">
+                            <b>ℹ️ 往返对称运动：</b>物体回到原点（$x = 0$），末速度与初速度大小相等方向相反（$v = -v_0$）。此时加速度 $a$ 与时间 $t$ 成反比关系，需补充时间或加速度数值以确定具体运动。
+                        </div>`;
+                    } else if (v === v0) {
+                        stepsHtml = `<div class="p-4 bg-slate-900 rounded-xl text-slate-300">物体初末速度相同且位移为 0，处于静止或对称往返。</div>`;
+                    } else {
+                        stepsHtml = `<div class="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-300"><b>❌ 矛盾：</b>若 $x=0$ 则初末速度大小必相等。</div>`;
+                    }
+                } else {
+                    const a = (v * v - v0 * v0) / (2 * x);
+                    if (v0 + v === 0) {
+                        stepsHtml = `<div class="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-300"><b>❌ 物理矛盾：</b>平均速度 $\\bar{v} = \\frac{v_0+v}{2} = 0$，则总位移必为 0，与给定 $x=${x}\\text{m}$ 冲突！</div>`;
+                    } else {
+                        const t = (2 * x) / (v0 + v);
+                        res = { v0, v, a, t, x };
+                        stepsHtml = `
+                            <div class="space-y-3">
+                                <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                                    <div class="font-bold text-amber-400 mb-1">步骤 1：求解加速度 $a$</div>
+                                    <div>选用速度-位移公式：$$a = \\frac{v^2 - v_0^2}{2x}$$</div>
+                                    <div class="font-mono text-slate-200 mt-1">代入数据：$a = \\frac{${v}^2 - (${v0})^2}{2 \\times (${x})} = \\mathbf{${a.toFixed(3)}\\text{ m/s²}}$</div>
+                                </div>
+                                <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                                    <div class="font-bold text-purple-400 mb-1">步骤 2：求解运动时间 $t$</div>
+                                    <div>选用平均速度位移公式：$$t = \\frac{2x}{v_0 + v}$$</div>
+                                    <div class="font-mono text-slate-200 mt-1">代入数据：$t = \\frac{2 \\times (${x})}{${v0} + (${v})} = \\mathbf{${t.toFixed(3)}\\text{ s}}$</div>
+                                </div>
+                            </div>`;
+                    }
                 }
-                const a = (v * v - v0 * v0) / (2 * x);
-                const t = (2 * x) / (v0 + v);
-                res = { v0, v, a, t, x };
-                stepsHtml = `
-                    <div class="space-y-3">
-                        <div>
-                            <div class="font-bold text-amber-400 mb-1">步骤 1：求加速度 $a$</div>
-                            <p>选用速度-位移公式：$$a = \\frac{v^2 - v_0^2}{2x}$$</p>
-                            <p class="font-mono text-slate-300">代入数据：$a = \\frac{${v}^2 - (${v0})^2}{2 \\times ${x}} = \\mathbf{${a.toFixed(3)}\\text{ m/s²}}$</p>
-                        </div>
-                        <div>
-                            <div class="font-bold text-purple-400 mb-1">步骤 2：求时间 $t$</div>
-                            <p>选用平均速度位移公式：$$t = \\frac{2x}{v_0 + v}$$</p>
-                            <p class="font-mono text-slate-300">代入数据：$t = \\frac{2 \\times ${x}}{${v0} + (${v})} = \\mathbf{${t.toFixed(3)}\\text{ s}}$</p>
-                        </div>
-                    </div>`;
-            } else if (comboKey === 'a_t_v') {
+
+            } else if (has('v') && has('a') && has('t')) {
+                // 模型 7：已知 v, a, t -> 求 v0, x
                 const { v, a, t } = vals;
+                caseTitle = `模型：已知末速度 $v$、加速度 $a$、时间 $t$（求初速度 $v_0$、位移 $x$）`;
+
                 const v0 = v - a * t;
                 const x = v * t - 0.5 * a * t * t;
                 res = { v0, v, a, t, x };
                 stepsHtml = `
                     <div class="space-y-3">
-                        <div>
-                            <div class="font-bold text-sky-400 mb-1">步骤 1：求初速度 $v_0$</div>
-                            <p>由速度公式逆推：$$v_0 = v - at$$</p>
-                            <p class="font-mono text-slate-300">代入数据：$v_0 = ${v} - (${a}) \\times ${t} = \\mathbf{${v0.toFixed(3)}\\text{ m/s}}$</p>
+                        <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                            <div class="font-bold text-sky-400 mb-1">步骤 1：逆推初速度 $v_0$</div>
+                            <div>由速度-时间公式逆推：$$v_0 = v - at$$</div>
+                            <div class="font-mono text-slate-200 mt-1">代入数据：$v_0 = ${v} - (${a}) \\times ${t} = \\mathbf{${v0.toFixed(3)}\\text{ m/s}}$</div>
                         </div>
-                        <div>
-                            <div class="font-bold text-emerald-400 mb-1">步骤 2：求位移 $x$</div>
-                            <p>选用逆向位移公式：$$x = vt - \\frac{1}{2}at^2$$</p>
-                            <p class="font-mono text-slate-300">代入数据：$x = ${v} \\times ${t} - \\frac{1}{2} \\times (${a}) \\times ${t}^2 = \\mathbf{${x.toFixed(3)}\\text{ m}}$</p>
+                        <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                            <div class="font-bold text-emerald-400 mb-1">步骤 2：求解位移 $x$</div>
+                            <div>选用逆向位移公式：$$x = vt - \\frac{1}{2}at^2$$</div>
+                            <div class="font-mono text-slate-200 mt-1">代入数据：$x = ${v} \\times ${t} - 0.5 \\times (${a}) \\times ${t}^2 = \\mathbf{${x.toFixed(3)}\\text{ m}}$</div>
                         </div>
                     </div>`;
-            } else if (comboKey === 'a_v_x') {
+
+            } else if (has('v') && has('a') && has('x')) {
+                // 模型 8：已知 v, a, x -> 求 v0, t
                 const { v, a, x } = vals;
+                caseTitle = `模型：已知末速度 $v$、加速度 $a$、位移 $x$（求初速度 $v_0$、时间 $t$）`;
+
                 const v0Sq = v * v - 2 * a * x;
                 if (v0Sq < 0) {
-                    stepsHtml = `<div class="text-rose-400">无物理实数解：$v_0^2 = v^2 - 2ax = ${v0Sq.toFixed(2)} < 0$。</div>`;
-                    renderSolverOutput(stepsHtml);
-                    return;
+                    stepsHtml = `<div class="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-300">
+                        <b>❌ 物理无实数解：</b>由 $v_0^2 = v^2 - 2ax = ${v}^2 - 2 \\times (${a}) \\times ${x} = ${v0Sq.toFixed(3)} < 0$。
+                    </div>`;
+                } else {
+                    const v0 = Math.sqrt(v0Sq);
+                    const t = a !== 0 ? (v - v0) / a : (v !== 0 ? x / v : 0);
+                    res = { v0, v, a, t, x };
+                    stepsHtml = `
+                        <div class="space-y-3">
+                            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                                <div class="font-bold text-sky-400 mb-1">步骤 1：求解初速度 $v_0$</div>
+                                <div>由速度-位移公式：$$v_0 = \\pm\\sqrt{v^2 - 2ax}$$</div>
+                                <div class="font-mono text-slate-200 mt-1">主方向解：$v_0 = \\sqrt{${v}^2 - 2 \\times (${a}) \\times ${x}} = \\mathbf{${v0.toFixed(3)}\\text{ m/s}}$</div>
+                            </div>
+                            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                                <div class="font-bold text-purple-400 mb-1">步骤 2：求解运动时间 $t$</div>
+                                <div>选用速度公式：$$t = \\frac{v - v_0}{a}$$</div>
+                                <div class="font-mono text-slate-200 mt-1">代入数据：$t = \\mathbf{${t.toFixed(3)}\\text{ s}}$</div>
+                            </div>
+                        </div>`;
                 }
-                const v0 = Math.sqrt(v0Sq);
-                const t = (v - v0) / a;
-                res = { v0, v, a, t, x };
-                stepsHtml = `
-                    <div class="space-y-3">
-                        <div>
-                            <div class="font-bold text-sky-400 mb-1">步骤 1：求初速度 $v_0$</div>
-                            <p>由速度位移公式：$$v_0 = \\sqrt{v^2 - 2ax}$$</p>
-                            <p class="font-mono text-slate-300">代入数据：$v_0 = \\sqrt{${v}^2 - 2 \\times (${a}) \\times ${x}} = \\mathbf{${v0.toFixed(3)}\\text{ m/s}}$</p>
-                        </div>
-                        <div>
-                            <div class="font-bold text-purple-400 mb-1">步骤 2：求时间 $t$</div>
-                            <p>选用速度公式：$$t = \\frac{v - v_0}{a} = \\mathbf{${t.toFixed(3)}\\text{ s}}$$</p>
-                        </div>
-                    </div>`;
-            } else if (comboKey === 't_v_x') {
+
+            } else if (has('v') && has('t') && has('x')) {
+                // 模型 9：已知 v, t, x -> 求 v0, a
                 const { v, t, x } = vals;
-                const v0 = (2 * x) / t - v;
-                const a = (v - v0) / t;
-                res = { v0, v, a, t, x };
-                stepsHtml = `
-                    <div class="space-y-3">
-                        <div>
-                            <div class="font-bold text-sky-400 mb-1">步骤 1：求初速度 $v_0$</div>
-                            <p>由平均速度位移公式：$$x = \\frac{v_0 + v}{2}t \\implies v_0 = \\frac{2x}{t} - v$$</p>
-                            <p class="font-mono text-slate-300">代入数据：$v_0 = \\frac{2 \\times ${x}}{${t}} - (${v}) = \\mathbf{${v0.toFixed(3)}\\text{ m/s}}$</p>
-                        </div>
-                        <div>
-                            <div class="font-bold text-amber-400 mb-1">步骤 2：求加速度 $a$</div>
-                            <p>由速度定义式：$$a = \\frac{v - v_0}{t} = \\mathbf{${a.toFixed(3)}\\text{ m/s²}}$$</p>
-                        </div>
-                    </div>`;
-            } else if (comboKey === 'a_t_x') {
+                caseTitle = `模型：已知末速度 $v$、时间 $t$、位移 $x$（求初速度 $v_0$、加速度 $a$）`;
+
+                if (t <= 0) {
+                    stepsHtml = `<div class="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-300"><b>❌ 错误：</b>运动时间 $t$ 必须大于 0！</div>`;
+                } else {
+                    const v0 = (2 * x) / t - v;
+                    const a = (v - v0) / t;
+                    res = { v0, v, a, t, x };
+                    stepsHtml = `
+                        <div class="space-y-3">
+                            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                                <div class="font-bold text-sky-400 mb-1">步骤 1：求解初速度 $v_0$</div>
+                                <div>由平均速度公式变形：$$x = \\frac{v_0 + v}{2}t \\implies v_0 = \\frac{2x}{t} - v$$</div>
+                                <div class="font-mono text-slate-200 mt-1">代入数据：$v_0 = \\frac{2 \\times ${x}}{${t}} - (${v}) = \\mathbf{${v0.toFixed(3)}\\text{ m/s}}$</div>
+                            </div>
+                            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                                <div class="font-bold text-amber-400 mb-1">步骤 2：求解加速度 $a$</div>
+                                <div>由加速度定义式：$$a = \\frac{v - v_0}{t}$$</div>
+                                <div class="font-mono text-slate-200 mt-1">代入数据：$a = \\frac{${v} - (${v0.toFixed(3)})}{${t}} = \\mathbf{${a.toFixed(3)}\\text{ m/s²}}$</div>
+                            </div>
+                        </div>`;
+                }
+
+            } else if (has('a') && has('t') && has('x')) {
+                // 模型 10：已知 a, t, x -> 求 v0, v
                 const { a, t, x } = vals;
-                const v0 = (x - 0.5 * a * t * t) / t;
-                const v = v0 + a * t;
-                res = { v0, v, a, t, x };
-                stepsHtml = `
-                    <div class="space-y-3">
-                        <div>
-                            <div class="font-bold text-sky-400 mb-1">步骤 1：求初速度 $v_0$</div>
-                            <p>由位移公式：$$v_0 = \\frac{x - \\frac{1}{2}at^2}{t}$$</p>
-                            <p class="font-mono text-slate-300">代入数据：$v_0 = \\frac{${x} - 0.5 \\times (${a}) \\times ${t}^2}{${t}} = \\mathbf{${v0.toFixed(3)}\\text{ m/s}}$</p>
-                        </div>
-                        <div>
-                            <div class="font-bold text-sky-400 mb-1">步骤 2：求末速度 $v$</div>
-                            <p>由速度公式：$$v = v_0 + at = \\mathbf{${v.toFixed(3)}\\text{ m/s}}$$</p>
-                        </div>
-                    </div>`;
+                caseTitle = `模型：已知加速度 $a$、时间 $t$、位移 $x$（求初速度 $v_0$、末速度 $v$）`;
+
+                if (t <= 0) {
+                    stepsHtml = `<div class="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-300"><b>❌ 错误：</b>运动时间 $t$ 必须大于 0！</div>`;
+                } else {
+                    const v0 = (x - 0.5 * a * t * t) / t;
+                    const v = v0 + a * t;
+                    res = { v0, v, a, t, x };
+                    stepsHtml = `
+                        <div class="space-y-3">
+                            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                                <div class="font-bold text-sky-400 mb-1">步骤 1：求解初速度 $v_0$</div>
+                                <div>由位移公式变形：$$x = v_0 t + \\frac{1}{2}at^2 \\implies v_0 = \\frac{x - \\frac{1}{2}at^2}{t}$$</div>
+                                <div class="font-mono text-slate-200 mt-1">代入数据：$v_0 = \\frac{${x} - 0.5 \\times (${a}) \\times ${t}^2}{${t}} = \\mathbf{${v0.toFixed(3)}\\text{ m/s}}$</div>
+                            </div>
+                            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                                <div class="font-bold text-sky-400 mb-1">步骤 2：求解末速度 $v$</div>
+                                <div>选用速度公式：$$v = v_0 + at$$</div>
+                                <div class="font-mono text-slate-200 mt-1">代入数据：$v = ${v0.toFixed(3)} + (${a}) \\times ${t} = \\mathbf{${v.toFixed(3)}\\text{ m/s}}$</div>
+                            </div>
+                        </div>`;
+                }
             }
 
+            document.getElementById('solver-case-tag').textContent = caseTitle;
             lastSolverResult = res;
             renderSolverOutput(stepsHtml, res);
         }
@@ -1931,11 +2025,11 @@
             if (res) {
                 resCards = `
                     <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 p-3 bg-slate-900 rounded-xl border border-slate-800 text-center mb-4">
-                        <div class="p-1"><span class="text-[10px] text-slate-500 block">初速 v₀</span><span class="font-mono text-sky-400 font-bold text-xs">${res.v0.toFixed(2)} m/s</span></div>
-                        <div class="p-1"><span class="text-[10px] text-slate-500 block">末速 v</span><span class="font-mono text-sky-400 font-bold text-xs">${res.v.toFixed(2)} m/s</span></div>
-                        <div class="p-1"><span class="text-[10px] text-slate-500 block">加速度 a</span><span class="font-mono text-amber-400 font-bold text-xs">${res.a.toFixed(2)} m/s²</span></div>
-                        <div class="p-1"><span class="text-[10px] text-slate-500 block">时间 t</span><span class="font-mono text-purple-400 font-bold text-xs">${res.t.toFixed(2)} s</span></div>
-                        <div class="p-1"><span class="text-[10px] text-slate-500 block">位移 x</span><span class="font-mono text-emerald-400 font-bold text-xs">${res.x.toFixed(2)} m</span></div>
+                        <div class="p-1"><span class="text-[10px] text-slate-400 block">初速 v₀</span><span class="font-mono text-sky-400 font-bold text-xs">${res.v0.toFixed(2)} m/s</span></div>
+                        <div class="p-1"><span class="text-[10px] text-slate-400 block">末速 v</span><span class="font-mono text-sky-400 font-bold text-xs">${res.v.toFixed(2)} m/s</span></div>
+                        <div class="p-1"><span class="text-[10px] text-slate-400 block">加速度 a</span><span class="font-mono text-amber-400 font-bold text-xs">${res.a.toFixed(2)} m/s²</span></div>
+                        <div class="p-1"><span class="text-[10px] text-slate-400 block">时间 t</span><span class="font-mono text-purple-400 font-bold text-xs">${res.t.toFixed(2)} s</span></div>
+                        <div class="p-1"><span class="text-[10px] text-slate-400 block">位移 x</span><span class="font-mono text-emerald-400 font-bold text-xs">${res.x.toFixed(2)} m</span></div>
                     </div>
                 `;
                 document.getElementById('solver-apply-btn').classList.remove('hidden');
@@ -1947,21 +2041,20 @@
         }
 
         function resetSolver() {
-            ['v0', 'v', 'a'].forEach(k => document.getElementById(`check-${k}`).checked = true);
-            ['t', 'x'].forEach(k => document.getElementById(`check-${k}`).checked = false);
+            selectedOrder = ['v0', 'v', 'a'];
             document.getElementById('input-v0').value = 5;
             document.getElementById('input-v').value = 15;
             document.getElementById('input-a').value = 2;
             document.getElementById('input-t').value = 5;
             document.getElementById('input-x').value = 50;
             handleSolverCheck();
-            calculateSolver();
         }
 
         function applySolverToSandbox() {
             if (!lastSolverResult) return;
             const res = lastSolverResult;
-            const tMax = Math.max(4, Math.ceil(res.t * 1.25));
+            const validT = (res.t && res.t > 0) ? res.t : 6;
+            const tMax = Math.max(4, Math.min(20, Math.ceil(validT * 1.25)));
             loadScenario(res.v0, res.a, tMax);
             switchTab('sandbox');
         }
