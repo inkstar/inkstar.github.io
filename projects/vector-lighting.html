@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>高中数学 · 向量数量积与 3D 光照着色交互实验室 | Inkstar Lab</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        lab: {
+                            normal: '#38bdf8',  // 法向量 蓝
+                            light: '#f59e0b',   // 光源向量 橙黄
+                            proj: '#10b981',    // 投影 绿
+                            dark: '#0f172a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- MathJax 3 矢量数学公式渲染引擎 -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            svg: {
+                fontCache: 'global'
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+            }
+        };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+    <style>
+        body {
+            background-color: #0b1120;
+            color: #f1f5f9;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans SC", sans-serif;
+        }
+        .slider-thumb-modern::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #f59e0b;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.6);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-amber-500 selection:text-slate-900">
+
+    <!-- 顶部导航栏 -->
+    <header class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800/80 px-4 lg:px-8 py-3.5 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-amber-500 to-sky-400 flex items-center justify-center shadow-lg shadow-amber-500/20">
+                <span class="text-slate-950 font-black text-lg">·</span>
+            </div>
+            <div>
+                <h1 class="text-base sm:text-lg font-bold text-white tracking-tight flex items-center gap-2">
+                    向量数量积与 3D 光照着色实验室
+                    <span class="text-xs font-normal px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 hidden sm:inline">高中数学 · 向量应用</span>
+                </h1>
+                <p class="text-xs text-slate-400">Dot Product & 3D Shader Lighting Lab · 向量内积 / 朗伯定律 / 实时着色</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-2 sm:space-x-3">
+            <a href="../index.html" class="text-xs sm:text-sm px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                <span>返回主站</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- 主体区域 -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5">
+        
+        <!-- 左侧/中栏：交互画布工作区 (占 7 列) -->
+        <div class="lg:col-span-7 flex flex-col space-y-4">
+            
+            <!-- 模式切换 Tabs -->
+            <div class="bg-slate-900/80 p-1.5 rounded-xl border border-slate-800 flex items-center justify-between text-xs sm:text-sm">
+                <div class="flex space-x-1.5 w-full sm:w-auto">
+                    <button id="tab2D" class="flex-1 sm:flex-none px-4 py-2 rounded-lg font-medium transition bg-amber-500 text-slate-950 shadow-md">
+                        📐 2D 截面与平面向量投影
+                    </button>
+                    <button id="tab3D" class="flex-1 sm:flex-none px-4 py-2 rounded-lg font-medium transition text-slate-400 hover:text-white hover:bg-slate-800">
+                        🔮 3D 真实球体 Phong 着色
+                    </button>
+                </div>
+                <div class="hidden sm:flex items-center gap-2 text-xs text-slate-400 pr-2">
+                    <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>支持鼠标/手指直接拖拽光源</span>
+                </div>
+            </div>
+
+            <!-- 画布容器 -->
+            <div class="relative bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl flex flex-col items-center justify-center p-2 sm:p-4 aspect-[4/3] sm:aspect-[16/10]">
+                
+                <!-- 2D Canvas 视图 -->
+                <canvas id="canvas2D" class="w-full h-full cursor-crosshair touch-none"></canvas>
+                
+                <!-- 3D Canvas 视图 (默认隐藏) -->
+                <canvas id="canvas3D" class="w-full h-full cursor-grab active:cursor-grabbing touch-none hidden"></canvas>
+
+                <!-- 画布覆盖浮动操作栏 -->
+                <div class="absolute top-4 left-4 bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-800 text-xs flex items-center gap-3 pointer-events-none">
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full bg-sky-400"></span>
+                        <span class="text-slate-300">法向量 $\vec{n}$</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+                        <span class="text-slate-300">光照向量 $\vec{l}$</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                        <span class="text-slate-300">投影 $\cos\theta$</span>
+                    </div>
+                </div>
+
+                <div class="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs text-slate-400 bg-slate-900/80 backdrop-blur-md px-3 py-2 rounded-xl border border-slate-800 pointer-events-auto">
+                    <div class="flex items-center gap-2">
+                        <span id="lightAngleLabel" class="font-mono text-amber-400 font-semibold">θ = 45.0°</span>
+                        <span id="angleTypeBadge" class="px-1.5 py-0.5 rounded text-[10px] bg-sky-500/20 text-sky-300 border border-sky-500/30">锐角 · 光照吸收</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button id="btnPlayOrbit" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1">
+                            <span id="playIcon">▶</span>
+                            <span id="playText">太阳公转</span>
+                        </button>
+                        <button id="btnReset" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
+                            重置
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 控制滑块面板 -->
+            <div class="bg-slate-900/70 p-4 rounded-2xl border border-slate-800/80 space-y-3">
+                <div class="flex items-center justify-between text-xs">
+                    <span class="text-slate-300 font-medium flex items-center gap-1.5">
+                        <span>☀️ 光源入射角 $\theta$</span>
+                        <span class="text-slate-500">(0° 正午直射 $\leftrightarrow$ 180° 完全背阴)</span>
+                    </span>
+                    <span id="sliderAngleVal" class="font-mono font-bold text-amber-400">45°</span>
+                </div>
+                <input id="sliderAngle" type="range" min="0" max="360" value="45" step="0.5" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer slider-thumb-modern">
+
+                <!-- 3D 专属控制项 (在 3D 模式下显示) -->
+                <div id="controls3DOnly" class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-800/60 hidden">
+                    <div>
+                        <div class="flex justify-between text-[11px] text-slate-400 mb-1">
+                            <span>镜面高光 (Specular)</span>
+                            <span id="shininessVal" class="font-mono text-amber-400">32</span>
+                        </div>
+                        <input id="sliderShininess" type="range" min="4" max="128" value="32" step="4" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer slider-thumb-modern">
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-[11px] text-slate-400 mb-1">
+                            <span>环境底光 (Ambient)</span>
+                            <span id="ambientVal" class="font-mono text-amber-400">15%</span>
+                        </div>
+                        <input id="sliderAmbient" type="range" min="0" max="40" value="15" step="1" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer slider-thumb-modern">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 快捷预设情境按钮组 -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                <button class="preset-btn p-2.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-left transition" data-angle="0">
+                    <div class="font-medium text-amber-300">☀️ 正午直射</div>
+                    <div class="text-[11px] text-slate-400">θ = 0° (点积 1.000)</div>
+                </button>
+                <button class="preset-btn p-2.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-left transition" data-angle="45">
+                    <div class="font-medium text-amber-300">🌇 傍晚斜射</div>
+                    <div class="text-[11px] text-slate-400">θ = 45° (点积 0.707)</div>
+                </button>
+                <button class="preset-btn p-2.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-left transition" data-angle="90">
+                    <div class="font-medium text-sky-300">🌅 晨昏切线</div>
+                    <div class="text-[11px] text-slate-400">θ = 90° (临界明暗线)</div>
+                </button>
+                <button class="preset-btn p-2.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-left transition" data-angle="180">
+                    <div class="font-medium text-slate-400">🌑 极夜背光</div>
+                    <div class="text-[11px] text-slate-400">θ = 180° (截断为 0)</div>
+                </button>
+            </div>
+
+        </div>
+
+        <!-- 右侧：数理推导演算与着色仪表盘 (占 5 列) -->
+        <div class="lg:col-span-5 flex flex-col space-y-4">
+            
+            <!-- 实时代数计算卡片 -->
+            <div class="bg-slate-900/80 rounded-2xl border border-slate-800 p-5 space-y-4 shadow-xl">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                        实时向量数量积仪表盘
+                    </h3>
+                    <span id="diffusePercent" class="text-xs font-mono px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold">
+                        70.7% 亮度
+                    </span>
+                </div>
+
+                <!-- 亮度计进度条 -->
+                <div class="space-y-1.5">
+                    <div class="flex justify-between text-xs text-slate-400">
+                        <span>表面吸收漫反射光强 $I_{\text{diffuse}}$</span>
+                        <span id="dotProductResult" class="font-mono font-bold text-white">0.707</span>
+                    </div>
+                    <div class="w-full h-3 bg-slate-950 rounded-full overflow-hidden p-0.5 border border-slate-800">
+                        <div id="intensityBar" class="h-full rounded-full bg-gradient-to-r from-slate-700 via-amber-600 to-amber-300 transition-all duration-75" style="width: 70.7%;"></div>
+                    </div>
+                </div>
+
+                <!-- 向量坐标与代数公式 -->
+                <div class="space-y-2.5 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80 text-xs font-mono">
+                    <div class="flex justify-between items-center text-slate-300">
+                        <span class="text-sky-400 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-sky-400"></span>
+                            表面法向量 $\vec{n}$:
+                        </span>
+                        <span id="valNormal" class="text-slate-200">(0.000, 1.000)</span>
+                    </div>
+                    <div class="flex justify-between items-center text-slate-300">
+                        <span class="text-amber-400 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                            光线入射向量 $\vec{l}$:
+                        </span>
+                        <span id="valLight" class="text-slate-200">(0.707, 0.707)</span>
+                    </div>
+                    <div class="flex justify-between items-center text-slate-300 border-t border-slate-800/60 pt-2">
+                        <span class="text-emerald-400">夹角余弦 $\cos\theta$:</span>
+                        <span id="valCosTheta" class="text-emerald-300 font-bold">0.707</span>
+                    </div>
+                    <div class="flex justify-between items-center text-slate-300">
+                        <span class="text-purple-400">数量积 $\vec{n} \cdot \vec{l}$:</span>
+                        <span id="valDotProduct" class="text-purple-300 font-bold">0.707</span>
+                    </div>
+                </div>
+
+                <!-- 朗伯余弦定律公式框 -->
+                <div class="p-3 bg-amber-950/20 rounded-xl border border-amber-500/20 text-xs text-amber-200/90 leading-relaxed">
+                    <div class="font-bold text-amber-300 mb-1 flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        朗伯漫反射光照定律 (Lambert's Cosine Law)
+                    </div>
+                    $$I_{\text{diff}} = I_{\text{light}} \cdot \max(0, \vec{n} \cdot \vec{l}) = I_{\text{light}} \cdot \max(0, \cos\theta)$$
+                    <p class="mt-1 text-[11px] text-slate-400">
+                        当 $\theta > 90^\circ$（光线在平面背面）时，$\cos\theta < 0$。自然界中物体背面无法被穿透照亮，因此数学上使用 $\max(0, \vec{n} \cdot \vec{l})$ 严密截断为 0！
+                    </p>
+                </div>
+
+            </div>
+
+            <!-- 数理知识与真实工程对应卡片 -->
+            <div class="bg-slate-900/80 rounded-2xl border border-slate-800 p-5 space-y-3.5 text-xs text-slate-300 leading-relaxed">
+                <h4 class="font-bold text-white text-sm flex items-center gap-2">
+                    <span class="text-base">🚀</span>
+                    为什么高中数学要学“向量数量积”？
+                </h4>
+                <div class="space-y-2">
+                    <div class="p-2.5 rounded-lg bg-slate-950/50 border border-slate-800/80">
+                        <div class="font-semibold text-sky-300 mb-0.5">1. 几何投影的极致化简</div>
+                        <p class="text-slate-400 text-[11px]">
+                            传统几何求投影需要作垂线、证明全等相似；而代数数量积将投影长度直接浓缩为 $\frac{\vec{a} \cdot \vec{b}}{|\vec{b}|}$，两行坐标相乘即可求出。
+                        </p>
+                    </div>
+                    <div class="p-2.5 rounded-lg bg-slate-950/50 border border-slate-800/80">
+                        <div class="font-semibold text-amber-300 mb-0.5">2. 现代游戏与 3D 渲染的命脉</div>
+                        <p class="text-slate-400 text-[11px]">
+                            在《黑神话：悟空》或《原神》这类 3D 游戏中，GPU 每秒需要计算数十亿个三角形顶点的着色。显卡运行的 GPU Shader 程序底层，每一行都在并发执行这个向量点积公式！
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="border-t border-slate-800/80 py-4 text-center text-xs text-slate-500 bg-slate-950">
+        <p>Inkstar Lab · 高中数理交互实验室 · 托管于 GitHub Pages</p>
+    </footer>
+
+    <!-- 核心交互渲染脚本 -->
+    <script>
+        // 全局状态
+        let currentMode = '2D'; // '2D' | '3D'
+        let lightAngle = 45; // 0 ~ 360 度
+        let isOrbiting = false;
+        let orbitTimer = null;
+        let shininess = 32;
+        let ambient = 0.15;
+        let isDragging = false;
+
+        // DOM 元素
+        const canvas2D = document.getElementById('canvas2D');
+        const ctx2D = canvas2D.getContext('2d');
+        const canvas3D = document.getElementById('canvas3D');
+        const ctx3D = canvas3D.getContext('2d');
+
+        const tab2D = document.getElementById('tab2D');
+        const tab3D = document.getElementById('tab3D');
+        const controls3DOnly = document.getElementById('controls3DOnly');
+
+        const sliderAngle = document.getElementById('sliderAngle');
+        const sliderAngleVal = document.getElementById('sliderAngleVal');
+        const sliderShininess = document.getElementById('sliderShininess');
+        const shininessVal = document.getElementById('shininessVal');
+        const sliderAmbient = document.getElementById('sliderAmbient');
+        const ambientVal = document.getElementById('ambientVal');
+
+        const lightAngleLabel = document.getElementById('lightAngleLabel');
+        const angleTypeBadge = document.getElementById('angleTypeBadge');
+        const diffusePercent = document.getElementById('diffusePercent');
+        const dotProductResult = document.getElementById('dotProductResult');
+        const intensityBar = document.getElementById('intensityBar');
+        const valNormal = document.getElementById('valNormal');
+        const valLight = document.getElementById('valLight');
+        const valCosTheta = document.getElementById('valCosTheta');
+        const valDotProduct = document.getElementById('valDotProduct');
+
+        const btnPlayOrbit = document.getElementById('btnPlayOrbit');
+        const playIcon = document.getElementById('playIcon');
+        const playText = document.getElementById('playText');
+        const btnReset = document.getElementById('btnReset');
+
+        // 设置高清 Canvas DPI
+        function resizeCanvas(canvas) {
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            const ctx = canvas.getContext('2d');
+            ctx.scale(dpr, dpr);
+            return { width: rect.width, height: rect.height };
+        }
+
+        // 计算向量与光照核心数学
+        function getVectorMetrics() {
+            // 法向量始终向上 (0, 1)
+            const nx = 0, ny = 1;
+            
+            // 入射光向量: 角度从正上方按顺时针或逆时针展开
+            // lightAngle: 0 度为正上方 (0, 1), 90 度为正右方 (1, 0), 180 度为正下方 (0, -1)
+            const rad = (lightAngle * Math.PI) / 180;
+            const lx = Math.sin(rad);
+            const ly = Math.cos(rad);
+
+            // 数量积 dot = nx*lx + ny*ly = ly = cos(rad)
+            const dot = nx * lx + ny * ly;
+            
+            // 夹角 theta: [0, 180] 度
+            const angleInRad = Math.acos(Math.max(-1, Math.min(1, dot)));
+            const angleInDeg = (angleInRad * 180) / Math.PI;
+
+            // 朗伯漫反射 (非负截断)
+            const diffuse = Math.max(0, dot);
+
+            return { nx, ny, lx, ly, dot, angleInDeg, diffuse };
+        }
+
+        // 更新数值仪表盘
+        function updateDashboard(metrics) {
+            const { nx, ny, lx, ly, dot, angleInDeg, diffuse } = metrics;
+            
+            sliderAngle.value = lightAngle;
+            sliderAngleVal.innerText = `${lightAngle.toFixed(1)}°`;
+            lightAngleLabel.innerText = `θ = ${angleInDeg.toFixed(1)}°`;
+
+            if (angleInDeg < 89.9) {
+                angleTypeBadge.className = "px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+                angleTypeBadge.innerText = "锐角 · 光照吸收";
+            } else if (angleInDeg <= 90.1) {
+                angleTypeBadge.className = "px-1.5 py-0.5 rounded text-[10px] bg-sky-500/20 text-sky-300 border border-sky-500/30";
+                angleTypeBadge.innerText = "直角 · 临界掠射";
+            } else {
+                angleTypeBadge.className = "px-1.5 py-0.5 rounded text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/30";
+                angleTypeBadge.innerText = "钝角 · 背光暗影";
+            }
+
+            diffusePercent.innerText = `${(diffuse * 100).toFixed(1)}% 亮度`;
+            dotProductResult.innerText = `${dot.toFixed(3)}`;
+            intensityBar.style.width = `${(diffuse * 100).toFixed(1)}%`;
+
+            valNormal.innerText = `(${nx.toFixed(3)}, ${ny.toFixed(3)})`;
+            valLight.innerText = `(${lx.toFixed(3)}, ${ly.toFixed(3)})`;
+            valCosTheta.innerText = `${dot.toFixed(3)}`;
+            valDotProduct.innerText = `${dot.toFixed(3)}`;
+        }
+
+        // 绘制 2D 向量与平面受光切片
+        function draw2DScene() {
+            const { width, height } = resizeCanvas(canvas2D);
+            const metrics = getVectorMetrics();
+            updateDashboard(metrics);
+
+            ctx2D.clearRect(0, 0, width, height);
+
+            const cx = width / 2;
+            const cy = height * 0.65;
+            const vectorLen = Math.min(width, height) * 0.38;
+
+            // 1. 绘制背景刻度圆盘
+            ctx2D.save();
+            ctx2D.strokeStyle = 'rgba(51, 65, 85, 0.4)';
+            ctx2D.lineWidth = 1;
+            ctx2D.setLineDash([4, 4]);
+            ctx2D.beginPath();
+            ctx2D.arc(cx, cy, vectorLen, 0, 2 * Math.PI);
+            ctx2D.stroke();
+            ctx2D.restore();
+
+            // 2. 绘制受光水平表面 (基座)
+            const surfaceWidth = vectorLen * 1.6;
+            const surfaceHeight = 36;
+            const surfaceX = cx - surfaceWidth / 2;
+            const surfaceY = cy;
+
+            // 动态渐变受光颜色 (根据 metrics.diffuse 实时计算表面颜色)
+            const intensity = metrics.diffuse;
+            const r = Math.round(15 + intensity * 235);
+            const g = Math.round(23 + intensity * 175);
+            const b = Math.round(42 + intensity * 50);
+
+            // 地面立体方块
+            const grad = ctx2D.createLinearGradient(surfaceX, surfaceY, surfaceX, surfaceY + surfaceHeight);
+            grad.addColorStop(0, `rgb(${r}, ${g}, ${b})`);
+            grad.addColorStop(1, '#0f172a');
+
+            ctx2D.fillStyle = grad;
+            ctx2D.fillRect(surfaceX, surfaceY, surfaceWidth, surfaceHeight);
+
+            ctx2D.strokeStyle = intensity > 0.1 ? `rgba(245, 158, 11, ${0.4 + intensity * 0.6})` : '#334155';
+            ctx2D.lineWidth = 2;
+            ctx2D.strokeRect(surfaceX, surfaceY, surfaceWidth, surfaceHeight);
+
+            // 受光面文字标签
+            ctx2D.fillStyle = intensity > 0.5 ? '#0f172a' : '#94a3b8';
+            ctx2D.font = 'bold 11px sans-serif';
+            ctx2D.textAlign = 'center';
+            ctx2D.fillText(`受光面 (实时亮度: ${(intensity * 100).toFixed(0)}%)`, cx, cy + 22);
+
+            // 3. 绘制表面法向量 n (竖直向上，天蓝色)
+            drawArrow(ctx2D, cx, cy, cx, cy - vectorLen, '#38bdf8', 3, '单位法向量 n (0, 1)');
+
+            // 4. 绘制光照入射向量 l (橙黄色)
+            const lx = cx + metrics.lx * vectorLen;
+            const ly = cy - metrics.ly * vectorLen;
+            drawArrow(ctx2D, cx, cy, lx, ly, '#f59e0b', 3.5, '光照方向 l');
+
+            // 5. 绘制投影虚线 (绿色)
+            if (metrics.diffuse > 0.01) {
+                ctx2D.save();
+                ctx2D.strokeStyle = '#10b981';
+                ctx2D.lineWidth = 1.5;
+                ctx2D.setLineDash([3, 3]);
+                ctx2D.beginPath();
+                ctx2D.moveTo(lx, ly);
+                ctx2D.lineTo(cx, ly);
+                ctx2D.stroke();
+
+                // 投影线段加粗
+                ctx2D.strokeStyle = '#10b981';
+                ctx2D.lineWidth = 3;
+                ctx2D.setLineDash([]);
+                ctx2D.beginPath();
+                ctx2D.moveTo(cx, cy);
+                ctx2D.lineTo(cx, ly);
+                ctx2D.stroke();
+                ctx2D.restore();
+            }
+
+            // 6. 绘制向量夹角弧度 θ
+            const angleRad = (metrics.angleInDeg * Math.PI) / 180;
+            ctx2D.save();
+            ctx2D.strokeStyle = '#fbbf24';
+            ctx2D.lineWidth = 2;
+            ctx2D.beginPath();
+            // 从 -pi/2 逆时针或顺时针
+            const startAngle = -Math.PI / 2;
+            const endAngle = startAngle + (metrics.lx >= 0 ? angleRad : -angleRad);
+            ctx2D.arc(cx, cy, 45, startAngle, endAngle, metrics.lx < 0);
+            ctx2D.stroke();
+
+            // 夹角文字
+            const textAngle = startAngle + (metrics.lx >= 0 ? angleRad / 2 : -angleRad / 2);
+            const tx = cx + Math.cos(textAngle) * 65;
+            const ty = cy + Math.sin(textAngle) * 65;
+            ctx2D.fillStyle = '#fbbf24';
+            ctx2D.font = 'bold 12px monospace';
+            ctx2D.textAlign = 'center';
+            ctx2D.fillText(`θ = ${metrics.angleInDeg.toFixed(1)}°`, tx, ty);
+            ctx2D.restore();
+
+            // 7. 绘制光源太阳小球 (可拖拽手柄)
+            ctx2D.save();
+            const sunGlow = ctx2D.createRadialGradient(lx, ly, 0, lx, ly, 22);
+            sunGlow.addColorStop(0, 'rgba(245, 158, 11, 1)');
+            sunGlow.addColorStop(0.4, 'rgba(245, 158, 11, 0.6)');
+            sunGlow.addColorStop(1, 'rgba(245, 158, 11, 0)');
+            ctx2D.fillStyle = sunGlow;
+            ctx2D.beginPath();
+            ctx2D.arc(lx, ly, 22, 0, 2 * Math.PI);
+            ctx2D.fill();
+
+            ctx2D.fillStyle = '#fef08a';
+            ctx2D.beginPath();
+            ctx2D.arc(lx, ly, 8, 0, 2 * Math.PI);
+            ctx2D.fill();
+            ctx2D.restore();
+        }
+
+        // 绘制带箭头的矢量线段
+        function drawArrow(ctx, fromX, fromY, toX, toY, color, width, label) {
+            const headlen = 12;
+            const dx = toX - fromX;
+            const dy = toY - fromY;
+            const angle = Math.atan2(dy, dx);
+
+            ctx.save();
+            ctx.strokeStyle = color;
+            ctx.fillStyle = color;
+            ctx.lineWidth = width;
+
+            // 箭身
+            ctx.beginPath();
+            ctx.moveTo(fromX, fromY);
+            ctx.lineTo(toX, toY);
+            ctx.stroke();
+
+            // 箭头
+            ctx.beginPath();
+            ctx.moveTo(toX, toY);
+            ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 6), toY - headlen * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 6), toY - headlen * Math.sin(angle + Math.PI / 6));
+            ctx.closePath();
+            ctx.fill();
+
+            // 文本标签
+            if (label) {
+                ctx.font = 'bold 12px sans-serif';
+                ctx.textAlign = 'center';
+                const offsetX = Math.cos(angle) * 18;
+                const offsetY = Math.sin(angle) * 18;
+                ctx.fillText(label, toX + offsetX, toY + offsetY);
+            }
+            ctx.restore();
+        }
+
+        // 绘制 3D 真实球体 Phong 着色 (纯 Canvas 像素级实时渲染)
+        function draw3DScene() {
+            const { width, height } = resizeCanvas(canvas3D);
+            const metrics = getVectorMetrics();
+            updateDashboard(metrics);
+
+            ctx3D.clearRect(0, 0, width, height);
+
+            const cx = width / 2;
+            const cy = height / 2;
+            const radius = Math.min(width, height) * 0.36;
+
+            // 光源三维方向向量 L: 从球心指向光源
+            // lx = sin(rad), ly = cos(rad), lz = 0.5 (适度抬升以形成丰富三维感)
+            const rad = (lightAngle * Math.PI) / 180;
+            let lx = Math.sin(rad);
+            let ly = Math.cos(rad);
+            let lz = 0.6;
+            const lLen = Math.hypot(lx, ly, lz);
+            lx /= lLen; ly /= lLen; lz /= lLen;
+
+            // 视线向量 V 垂直屏幕向外 (0, 0, 1)
+            const vx = 0, vy = 0, vz = 1;
+
+            // 使用 ImageData 对球体像素点进行光照着色
+            const imgData = ctx3D.createImageData(width, height);
+            const data = imgData.data;
+
+            const r2 = radius * radius;
+            const minX = Math.max(0, Math.floor(cx - radius));
+            const maxX = Math.min(width, Math.ceil(cx + radius));
+            const minY = Math.max(0, Math.floor(cy - radius));
+            const maxY = Math.min(height, Math.ceil(cy + radius));
+
+            // 主材质色 (暖金铜色)
+            const matR = 245, matG = 158, matB = 11;
+
+            for (let y = minY; y < maxY; y++) {
+                const dy = cy - y; // 向上为正
+                const dy2 = dy * dy;
+                for (let x = minX; x < maxX; x++) {
+                    const dx = x - cx; // 向右为正
+                    const dist2 = dx * dx + dy2;
+
+                    if (dist2 <= r2) {
+                        const dz = Math.sqrt(r2 - dist2);
+                        
+                        // 1. 球面该像素点的三维单位法向量 N = (dx/r, dy/r, dz/r)
+                        const nx = dx / radius;
+                        const ny = dy / radius;
+                        const nz = dz / radius;
+
+                        // 2. 向量点积: 朗伯漫反射 N · L
+                        const NdotL = nx * lx + ny * ly + nz * lz;
+                        const diffuse = Math.max(0, NdotL);
+
+                        // 3. 镜面高光 (Blinn-Phong 半角向量 H = (L + V)/|L + V|)
+                        const hx = lx + vx, hy = ly + vy, hz = lz + vz;
+                        const hLen = Math.hypot(hx, hy, hz);
+                        const NdotH = (nx * hx + ny * hy + nz * hz) / hLen;
+                        const specular = Math.pow(Math.max(0, NdotH), shininess);
+
+                        // 4. 光照合成: Ambient + Diffuse + Specular
+                        const totalLight = ambient + diffuse * (1 - ambient);
+                        
+                        const pixelR = Math.min(255, Math.round(matR * totalLight + 255 * specular * 0.8));
+                        const pixelG = Math.min(255, Math.round(matG * totalLight + 255 * specular * 0.8));
+                        const pixelB = Math.min(255, Math.round(matB * totalLight + 255 * specular * 0.8));
+
+                        const idx = (y * width + x) * 4;
+                        data[idx] = pixelR;
+                        data[idx + 1] = pixelG;
+                        data[idx + 2] = pixelB;
+                        data[idx + 3] = 255;
+                    }
+                }
+            }
+
+            ctx3D.putImageData(imgData, 0, 0);
+
+            // 绘制球体外边缘环境光晕与光源指示点
+            ctx3D.save();
+            ctx3D.strokeStyle = 'rgba(56, 189, 248, 0.3)';
+            ctx3D.lineWidth = 2;
+            ctx3D.beginPath();
+            ctx3D.arc(cx, cy, radius, 0, 2 * Math.PI);
+            ctx3D.stroke();
+
+            // 绘制三维空间光源点
+            const lightOrbDist = radius * 1.35;
+            const sunX = cx + Math.sin(rad) * lightOrbDist;
+            const sunY = cy - Math.cos(rad) * lightOrbDist;
+
+            ctx3D.fillStyle = '#f59e0b';
+            ctx3D.beginPath();
+            ctx3D.arc(sunX, sunY, 10, 0, 2 * Math.PI);
+            ctx3D.fill();
+
+            ctx3D.font = 'bold 11px sans-serif';
+            ctx3D.fillStyle = '#fef08a';
+            ctx3D.textAlign = 'center';
+            ctx3D.fillText('3D 光源', sunX, sunY - 14);
+
+            ctx3D.restore();
+        }
+
+        // 统一重绘分发
+        function render() {
+            if (currentMode === '2D') {
+                draw2DScene();
+            } else {
+                draw3DScene();
+            }
+        }
+
+        // 事件监听：Tab 切换
+        tab2D.addEventListener('click', () => {
+            currentMode = '2D';
+            tab2D.className = "flex-1 sm:flex-none px-4 py-2 rounded-lg font-medium transition bg-amber-500 text-slate-950 shadow-md";
+            tab3D.className = "flex-1 sm:flex-none px-4 py-2 rounded-lg font-medium transition text-slate-400 hover:text-white hover:bg-slate-800";
+            canvas2D.classList.remove('hidden');
+            canvas3D.classList.add('hidden');
+            controls3DOnly.classList.add('hidden');
+            render();
+        });
+
+        tab3D.addEventListener('click', () => {
+            currentMode = '3D';
+            tab3D.className = "flex-1 sm:flex-none px-4 py-2 rounded-lg font-medium transition bg-amber-500 text-slate-950 shadow-md";
+            tab2D.className = "flex-1 sm:flex-none px-4 py-2 rounded-lg font-medium transition text-slate-400 hover:text-white hover:bg-slate-800";
+            canvas3D.classList.remove('hidden');
+            canvas2D.classList.add('hidden');
+            controls3DOnly.classList.remove('hidden');
+            render();
+        });
+
+        // 事件监听：滑块调节
+        sliderAngle.addEventListener('input', (e) => {
+            lightAngle = parseFloat(e.target.value);
+            render();
+        });
+
+        sliderShininess.addEventListener('input', (e) => {
+            shininess = parseInt(e.target.value);
+            shininessVal.innerText = shininess;
+            render();
+        });
+
+        sliderAmbient.addEventListener('input', (e) => {
+            ambient = parseInt(e.target.value) / 100;
+            ambientVal.innerText = `${e.target.value}%`;
+            render();
+        });
+
+        // 快捷预设按钮
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                lightAngle = parseFloat(btn.getAttribute('data-angle'));
+                render();
+            });
+        });
+
+        // 自动公转动画
+        btnPlayOrbit.addEventListener('click', () => {
+            isOrbiting = !isOrbiting;
+            if (isOrbiting) {
+                playIcon.innerText = '⏸';
+                playText.innerText = '暂停公转';
+                btnPlayOrbit.className = "px-2.5 py-1 rounded-lg bg-amber-500 text-slate-950 font-bold transition flex items-center gap-1";
+                orbitTimer = setInterval(() => {
+                    lightAngle = (lightAngle + 0.8) % 360;
+                    render();
+                }, 20);
+            } else {
+                playIcon.innerText = '▶';
+                playText.innerText = '太阳公转';
+                btnPlayOrbit.className = "px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1";
+                clearInterval(orbitTimer);
+            }
+        });
+
+        // 重置按钮
+        btnReset.addEventListener('click', () => {
+            if (isOrbiting) btnPlayOrbit.click();
+            lightAngle = 45;
+            shininess = 32;
+            ambient = 0.15;
+            sliderShininess.value = 32;
+            shininessVal.innerText = '32';
+            sliderAmbient.value = 15;
+            ambientVal.innerText = '15%';
+            render();
+        });
+
+        // 鼠标与手势拖拽光源计算
+        function handlePointer(e, canvas) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            if (!clientX || !clientY) return;
+
+            const x = clientX - rect.left - rect.width / 2;
+            const y = (currentMode === '2D' ? rect.height * 0.65 : rect.height / 2) - (clientY - rect.top);
+
+            // 从垂直向上 (0, 1) 的偏移角
+            let deg = (Math.atan2(x, y) * 180) / Math.PI;
+            if (deg < 0) deg += 360;
+            lightAngle = deg;
+            render();
+        }
+
+        [canvas2D, canvas3D].forEach(cvs => {
+            cvs.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                if (isOrbiting) btnPlayOrbit.click();
+                handlePointer(e, cvs);
+            });
+            cvs.addEventListener('mousemove', (e) => {
+                if (isDragging) handlePointer(e, cvs);
+            });
+            window.addEventListener('mouseup', () => { isDragging = false; });
+
+            // 触摸支持
+            cvs.addEventListener('touchstart', (e) => {
+                isDragging = true;
+                if (isOrbiting) btnPlayOrbit.click();
+                handlePointer(e, cvs);
+            }, { passive: true });
+            cvs.addEventListener('touchmove', (e) => {
+                if (isDragging) handlePointer(e, cvs);
+            }, { passive: true });
+            cvs.addEventListener('touchend', () => { isDragging = false; });
+        });
+
+        // 窗口缩放自适应
+        window.addEventListener('resize', render);
+
+        // 初始渲染
+        window.addEventListener('DOMContentLoaded', () => {
+            render();
+        });
+    </script>
+</body>
+</html>

@@ -16,6 +16,8 @@ updated: 2026-09-19
 
 - 🚗 **[物理·匀变速直线运动实验室 ↗](projects/uniform-linear-motion.html ':target=_blank')**  
   高中物理必修一核心考点可视化实验室：包含动力学仿真跑道、智能滑块小车矢量箭头、打点残影、四维图像联动（$v-t$、$x-t$、$a-t$、$v^2-x$）、五大核心公式图谱、“知三求二”智能推导演算器、三大性质（时间中点 vs 位移中点、纸带打点与逐差法、初速为0比例王国几何积木切片）以及高考刹车死时间陷阱、追及相遇临界模型。
+- 🎮 **[向量数量积与 3D 光照着色交互实验室 ↗](projects/vector-lighting.html ':target=_blank')**  
+  高中数学平面/空间向量核心应用实验室：提供 2D 截面投影与 3D 真实球体 Phong/Lambert 着色双模式。支持鼠标/手指直接拖拽光源位置，实时可视化法向量 $\vec{n}$、光照向量 $\vec{l}$、夹角弧度 $\theta$ 与数量积 $\vec{n} \cdot \vec{l}$ 算式推导，展示 3D 图形学游戏引擎如何利用向量内积计算物体表面明暗与高光。
 - 📈 **[Power Function 幂函数模型 ↗](projects/powerfunction.html ':target=_blank')**  
   交互式幂函数性质与图像动态演练。
 - 📊 **[三角函数极值区间演示 ↗](projects/dailyproblem26052601.html ':target=_blank')**  

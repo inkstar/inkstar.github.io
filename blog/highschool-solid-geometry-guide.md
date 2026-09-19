@@ -123,7 +123,7 @@ flowchart LR
 ## 四、 现实应用展示：3D 图形学空间平面法向量与光线追踪
 
 在现实计算机 3D 渲染引擎（如 Blender、Unreal Engine 或网页 WebGL）中，任何复杂的物体表面都被离散拆解为成千上万个空间三角形小面片。GPU 计算每个顶点光照阴影的底层逻辑，正是高中立体几何中的**法向量点积**（Lambert 漫反射着色定律）：
-$$I = I_{\text{light}} \cdot \max(0, \cos\theta) = I_{\text{light}} \cdot \max\left(0, \frac{\vec{L} \cdot \vec{n}}{|\vec{L}| |\vec{n}|}\right)$$
+> 🎮 **在线动手体验**：建议打开配套的 **[向量数量积与 3D 光照着色交互实验室 ↗](projects/vector-lighting.html ':target=_blank')** 亲自拖拽光源，直观感受法向量与光照向量内积计算出的实时 3D 明暗交界线。
 
 以下 Python 脚本完整实现了空间三维坐标建系、法向量外积求解、平面间二面角计算与光照强度的真实物理模拟：
 

@@ -127,7 +127,7 @@ flowchart LR
 - 光线照射方向的**光照向量**为 $\vec{L}$（单位向量）；
 - 该点接收到的光线反射亮度，恰好等于法向量与光向量的点积：
   $$\text{Brightness} = \max(0, \ \vec{N} \cdot \vec{L}) = \max(0, \ \cos\theta)$$
-  当光线垂直入射（$\theta = 0^\circ$）时，$\vec{N} \cdot \vec{L} = 1$，表面最亮；当光线斜射或背光（$\cos\theta \le 0$）时，表面陷入黑暗。
+> 🎮 **在线动手体验**：本站已上线配套的 **[向量数量积与 3D 光照着色交互实验室 ↗](projects/vector-lighting.html ':target=_blank')**！支持在浏览器中自由拖拽光源位置，实时观察法向量、光照向量投影与 3D 球体像素级着色。
 
 ### Python 3D 光照着色模拟脚本：
 
