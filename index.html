@@ -213,7 +213,36 @@
         }
       },
       plugins: [
-        function(hook, vm) {
+          // 路径规范化函数（去除 hash 与 .md，保持为标准 /blog/xxx 格式）
+          function getNormalizedRoutePath(vm) {
+            var p = (vm && vm.route && vm.route.path) || '';
+            if (!p && window.location.hash) {
+              p = window.location.hash.replace(/^#/, '').split('?')[0];
+            }
+            if (!p || p === '/') {
+              p = (vm && vm.route && vm.route.file) ? ('/' + vm.route.file.replace(/\.md$/, '')) : '/';
+            }
+            if (!p || p === '') p = '/';
+            if (p.charAt(0) !== '/') p = '/' + p;
+            p = p.replace(/\.md$/, '');
+            p = p.replace(/\/$/, '') || '/';
+            return p;
+          }
+
+          function isBlogRoute(normPath, meta) {
+            var isHome = normPath === '/' || normPath === '/README' || normPath === '/index';
+            if (isHome) return false;
+            return (
+              normPath.indexOf('/blog') !== -1 ||
+              normPath.indexOf('/about') !== -1 ||
+              Boolean(meta && (meta.date || meta.updated))
+            );
+          }
+
+          function getPageSlug(normPath) {
+            return normPath.replace(/[^a-zA-Z0-9]/g, '_').replace(/^_+|_+$/g, '') || 'page';
+          }
+
           // 1. 在渲染前解析 frontmatter 并为博客文章注入文章元数据
           hook.beforeEach(function(content) {
             content = content.replace(/^\uFEFF/, '');
@@ -234,17 +263,8 @@
               });
             }
 
-            // 判断是否是文章页面（博客文章或关于我页面，排除网站首页 README）
-            var routeFile = (vm.route && vm.route.file) || '';
-            var routePath = (vm.route && vm.route.path) || window.location.hash || '';
-            var isHome = routeFile === 'README.md' || routeFile === '/README.md' || routePath === '/' || routePath === '#/' || routePath === '' || routePath === '#';
-            var isBlog = !isHome && (
-              routeFile.indexOf('blog') !== -1 ||
-              routePath.indexOf('blog') !== -1 ||
-              routeFile.indexOf('about') !== -1 ||
-              routePath.indexOf('about') !== -1 ||
-              Boolean(meta.date || meta.updated)
-            );
+            var normPath = getNormalizedRoutePath(vm);
+            var isBlog = isBlogRoute(normPath, meta);
 
             // 如果是文章，生成顶部元数据卡片
             if (isBlog) {
@@ -267,19 +287,18 @@
                   '</div>';
               }
 
-              // 本地递增与持久化页面 PV，确保初次加载即有数字，不蒜子响应后平滑更新
-              var pageSlug = (routePath || routeFile || 'page').replace(/[^a-zA-Z0-9]/g, '_');
+              // 本地持久化与即时展示单篇文章 PV
+              var pageSlug = getPageSlug(normPath);
               var localPvKey = 'inkstar_page_pv_' + pageSlug;
-              var currentPv = parseInt(localStorage.getItem(localPvKey) || '0', 10);
-              currentPv = Math.max(currentPv + 1, 1);
-              localStorage.setItem(localPvKey, currentPv);
+              var cachedPv = localStorage.getItem(localPvKey);
+              var displayPv = cachedPv ? parseInt(cachedPv, 10).toLocaleString() : '1';
 
               var metaHeaderHtml = [
                 '<div class="article-meta-card">',
                 '  <div class="meta-row">',
                 '    <div class="meta-item"><span class="meta-icon">📅</span> <span class="meta-label">发布时间：</span><span class="meta-val">' + pubDate + '</span></div>',
                 '    <div class="meta-item"><span class="meta-icon">🔄</span> <span class="meta-label">修改时间：</span><span class="meta-val">' + updDate + '</span></div>',
-                '    <div class="meta-item" id="busuanzi_container_page_pv"><span class="meta-icon">👁️</span> <span class="meta-label">浏览量：</span><span id="busuanzi_value_page_pv" class="meta-val pv-count" data-slug="' + pageSlug + '">' + currentPv + '</span> 次</div>',
+                '    <div class="meta-item" id="busuanzi_container_page_pv"><span class="meta-icon">👁️</span> <span class="meta-label">浏览量：</span><span id="busuanzi_value_page_pv" class="meta-val pv-count" data-slug="' + pageSlug + '" data-path="' + normPath + '">' + displayPv + '</span> 次</div>',
                 '  </div>',
                 '  <div class="meta-row meta-sub-row">',
                 '    <div class="meta-item"><span class="meta-icon">⏱️</span> <span class="meta-label">预计阅读：</span><span class="meta-val">' + readTime + ' 分钟</span> <span class="meta-dim">(' + wordCount + ' 字)</span></div>',
@@ -320,8 +339,8 @@
               }
             }
 
-            var cachedUv = localStorage.getItem('inkstar_site_uv') || '1,288';
-            var cachedPv = localStorage.getItem('inkstar_site_pv') || '3,896';
+            var cachedUv = localStorage.getItem('inkstar_site_uv') || '32';
+            var cachedPv = localStorage.getItem('inkstar_site_pv') || '108';
             var footerHtml = [
               '<footer class="site-global-footer">',
               '  <div class="footer-stats-box">',
@@ -342,65 +361,93 @@
             next(html + footerHtml);
           });
 
-          // 3. SPA 路由切换完成时重新拉取 Busuanzi 统计、重绘 MathJax 和 Mermaid
+          // 3. SPA 路由切换完成时拉取独立统计、重绘 MathJax 和 Mermaid
           hook.doneEach(function() {
-            // 自主安全 JSONP 请求 Busuanzi，完全避开外部旧脚本中容易导致 hides() 的时序 bug
-            function refreshBusuanzi() {
-              var cbName = 'BusuanziCallback_' + Math.floor(Math.random() * 10000000);
-              var script = document.createElement('script');
+            var normPath = getNormalizedRoutePath(vm);
+            var pageSlug = getPageSlug(normPath);
 
-              window[cbName] = function(data) {
-                try {
-                  if (data) {
-                    var fmt = function(v) {
-                      var n = parseInt(v, 10);
-                      return isNaN(n) ? v : n.toLocaleString();
-                    };
-                    if (data.site_uv) {
-                      var uvEl = document.getElementById('busuanzi_value_site_uv');
-                      if (uvEl) uvEl.textContent = fmt(data.site_uv);
-                      localStorage.setItem('inkstar_site_uv', fmt(data.site_uv));
-                    }
-                    if (data.site_pv) {
-                      var pvEl = document.getElementById('busuanzi_value_site_pv');
-                      if (pvEl) pvEl.textContent = fmt(data.site_pv);
-                      localStorage.setItem('inkstar_site_pv', fmt(data.site_pv));
-                    }
-                    if (data.page_pv) {
-                      var pagePvEl = document.getElementById('busuanzi_value_page_pv');
-                      if (pagePvEl) {
-                        pagePvEl.textContent = fmt(data.page_pv);
-                        var slug = pagePvEl.getAttribute('data-slug');
-                        if (slug) localStorage.setItem('inkstar_page_pv_' + slug, fmt(data.page_pv));
-                      }
-                    }
-                  }
-                } catch(e) {
-                  console.warn('Busuanzi data handler error:', e);
-                } finally {
-                  cleanup();
-                }
+            // 规范化标准 URL（去除 hash，确保统计后端按独立文章路径精准隔离计数）
+            var canonicalOrigin = 'https://www.inkstar.org';
+            var targetUrl = canonicalOrigin + normPath;
+
+            // 访客 UV 判定与标记
+            var isNewUv = document.cookie.indexOf('vercount_uv_inkstar=1') === -1;
+            if (isNewUv) {
+              document.cookie = 'vercount_uv_inkstar=1; path=/; max-age=31536000; samesite=lax';
+            }
+
+            function updateStatsUI(stats) {
+              if (!stats) return;
+              var fmt = function(v) {
+                var n = parseInt(v, 10);
+                return isNaN(n) ? v : n.toLocaleString();
               };
 
-              function cleanup() {
-                try { delete window[cbName]; } catch(e) { window[cbName] = undefined; }
-                if (script && script.parentNode) {
-                  script.parentNode.removeChild(script);
+              // 1. 更新单篇文章独立浏览量 (严格核对 data-path，防路由快速切换竞态)
+              var pagePvEl = document.getElementById('busuanzi_value_page_pv');
+              if (pagePvEl && pagePvEl.getAttribute('data-path') === normPath) {
+                if (stats.page_pv !== undefined) {
+                  var pVal = stats.page_pv;
+                  pagePvEl.textContent = fmt(pVal);
+                  localStorage.setItem('inkstar_page_pv_' + pageSlug, pVal);
                 }
               }
 
-              script.type = 'text/javascript';
-              script.async = true;
-              script.referrerPolicy = 'no-referrer-when-downgrade';
-              script.src = 'https://busuanzi.ibruce.info/busuanzi?jsonpCallback=' + cbName;
-              script.onerror = function() {
-                cleanup();
-              };
+              // 2. 更新整站 PV 与 UV
+              var uvEl = document.getElementById('busuanzi_value_site_uv');
+              var pvEl = document.getElementById('busuanzi_value_site_pv');
+              var prevUv = parseInt((localStorage.getItem('inkstar_site_uv') || '0').replace(/,/g, ''), 10) || 0;
+              var prevPv = parseInt((localStorage.getItem('inkstar_site_pv') || '0').replace(/,/g, ''), 10) || 0;
 
-              document.head.appendChild(script);
+              if (stats.site_uv !== undefined) {
+                var curUv = Math.max(prevUv, parseInt(stats.site_uv, 10) || 0);
+                if (uvEl && curUv > 0) uvEl.textContent = fmt(curUv);
+                if (curUv > 0) localStorage.setItem('inkstar_site_uv', fmt(curUv));
+              }
+              if (stats.site_pv !== undefined) {
+                var curPv = Math.max(prevPv, parseInt(stats.site_pv, 10) || 0);
+                if (pvEl && curPv > 0) pvEl.textContent = fmt(curPv);
+                if (curPv > 0) localStorage.setItem('inkstar_site_pv', fmt(curPv));
+              }
             }
 
-            refreshBusuanzi();
+            // 发送统计请求（主通道 Cloudflare Anycast，异常时自动切换备用镜像）
+            var reqBody = JSON.stringify({ url: targetUrl, isNewUv: isNewUv });
+            fetch('https://events.vercount.one/api/v2/log', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: reqBody
+            })
+            .then(function(res) {
+              if (!res.ok) throw new Error('HTTP ' + res.status);
+              return res.json();
+            })
+            .then(function(json) {
+              if (json && json.data) updateStatsUI(json.data);
+            })
+            .catch(function() {
+              // 备用通道重试
+              fetch('https://cn.vercount.one/api/v2/log', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: reqBody
+              })
+              .then(function(res) { return res.json(); })
+              .then(function(json) {
+                if (json && json.data) updateStatsUI(json.data);
+              })
+              .catch(function(e) {
+                console.warn('Stats fetch offline fallback:', e);
+                // 离线兜底：递增本地计数
+                var pagePvEl = document.getElementById('busuanzi_value_page_pv');
+                if (pagePvEl && pagePvEl.getAttribute('data-path') === normPath) {
+                  var cur = parseInt(localStorage.getItem('inkstar_page_pv_' + pageSlug) || '1', 10);
+                  var next = cur + 1;
+                  pagePvEl.textContent = next.toLocaleString();
+                  localStorage.setItem('inkstar_page_pv_' + pageSlug, next);
+                }
+              });
+            });
 
             // MathJax 重绘
             if (window.MathJax && window.MathJax.typesetPromise) {
