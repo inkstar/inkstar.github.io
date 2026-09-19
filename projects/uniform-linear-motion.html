@@ -11,28 +11,40 @@
             theme: {
                 extend: {
                     colors: {
-                        brand: {
-                            50: '#f0fdf4',
-                            100: '#dcfce7',
-                            500: '#22c55e',
-                            600: '#16a34a',
-                            700: '#15803d',
-                        },
                         physics: {
-                            velocity: '#0284c7',   // 蓝色代表速度
-                            accel: '#ea580c',      // 橙色代表加速度
-                            disp: '#16a34a',       // 绿色代表位移
-                            time: '#9333ea'        // 紫色代表时间
+                            velocity: '#0284c7',
+                            accel: '#ea580c',
+                            disp: '#16a34a',
+                            time: '#9333ea'
                         }
                     }
                 }
             }
         }
     </script>
-    <!-- KaTeX 数学公式渲染 -->
+    <!-- MathJax 3 矢量数学公式渲染引擎 (与项目中 dailyproblem 统一，完美支持行内 $ 和块级 $$) -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            svg: {
+                fontCache: 'global'
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+            }
+        };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+    <!-- KaTeX 双重保险后备支持 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
     <style>
         body {
             background-color: #0f172a;
@@ -53,13 +65,27 @@
         .slider-thumb-modern::-webkit-slider-thumb:hover {
             transform: scale(1.2);
         }
-        .katex { font-size: 1.08em; line-height: 1.2; }
         .tab-btn.active {
             background-color: #2563eb;
             color: #ffffff;
             box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.4);
         }
-        /* 自定义滚动条 */
+        /* MathJax 移动端自适应与对齐 */
+        mjx-container {
+            max-width: 100%;
+            outline: none;
+        }
+        mjx-container[display="true"] {
+            margin: 0.5em 0 !important;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+        mjx-container:not([display="true"]) {
+            display: inline-grid;
+            vertical-align: -0.15em;
+        }
+        .katex { font-size: 1.08em; line-height: 1.2; }
+        /* 自定义细滚动条 */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #1e293b; }
         ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
@@ -377,7 +403,7 @@
                             $$v^2 - v_0^2 = 2ax$$
                         </div>
                         <p class="text-xs text-slate-400 leading-relaxed mt-2">
-                            <b class="text-slate-200">解题秘籍：</b>题干若未提及时间 $t$ 且不求时间 $t$ 时，首选此公式！结合动能定理 $W = \Delta E_k$ 亦可得。
+                            <b class="text-slate-200">解题秘籍：</b>题干若未提及时间 $t$ 且不求时间 $t$ 时，首选此公式！结合动能定理 $W = \Delta E_k$ 亦可推导。
                         </p>
                     </div>
 
@@ -684,7 +710,7 @@
                             $$a = \frac{(x_4+x_5+x_6) - (x_1+x_2+x_3)}{9T^2}$$
                         </div>
                         <p class="text-xs text-slate-400 leading-relaxed">
-                            逐差法的巧妙之处：将纸带分为前后两大段，最大限度减小测量偶然误差，所有测量数据均被有效利用。
+                            逐差法的巧妙之处：将纸带分为前后两组，最大限度减小测量偶然误差，所有测量数据均被有效利用。
                         </p>
                     </div>
 
@@ -893,6 +919,37 @@
     <!-- 核心 JavaScript 交互逻辑 -->
     <script>
         // ==========================================
+        // 全局数学公式渲染通用接口 (MathJax 3 + KaTeX 后备)
+        // ==========================================
+        function triggerMathRender(container = document.body) {
+            // 1. 首选 MathJax 3
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                try {
+                    window.MathJax.typesetPromise([container]).catch(err => {
+                        console.warn('MathJax typeset error:', err);
+                    });
+                    return;
+                } catch (e) {}
+            }
+            // 2. 备选 KaTeX
+            if (typeof renderMathInElement === 'function') {
+                try {
+                    renderMathInElement(container, {
+                        delimiters: [
+                            {left: '$$', right: '$$', display: true},
+                            {left: '$', right: '$', display: false},
+                            {left: '\\(', right: '\\)', display: false},
+                            {left: '\\[', right: '\\]', display: true}
+                        ],
+                        throwOnError: false
+                    });
+                } catch (err) {
+                    console.warn('KaTeX render error:', err);
+                }
+            }
+        }
+
+        // ==========================================
         // 全局状态管理
         // ==========================================
         const state = {
@@ -964,7 +1021,7 @@
             });
 
             if (tabId === 'sandbox') {
-                requestAnimationFrame(renderLoop);
+                renderAll();
             } else if (tabId === 'properties') {
                 setTimeout(() => {
                     updateMidpointDemo();
@@ -974,6 +1031,12 @@
             } else if (tabId === 'traps') {
                 calcBrakeDemo();
             }
+
+            // 切换标签页后，确保新展示的内容完成公式渲染
+            setTimeout(() => {
+                const activeMod = document.getElementById(`module-${tabId}`);
+                if (activeMod) triggerMathRender(activeMod);
+            }, 60);
         }
 
         // ==========================================
@@ -1126,7 +1189,7 @@
                         <div>• <b>最大位移：</b><span class="text-emerald-400 font-mono">x = ${xMax.toFixed(2)} m</span>。过此点后，物体反向加速！</div>`;
             }
             physicsInsight.innerHTML = text;
-            renderMathInElement(physicsInsight, { throwOnError: false });
+            triggerMathRender(physicsInsight);
         }
 
         // ==========================================
@@ -1179,7 +1242,7 @@
                 </div>`;
             }
             graphExplainer.innerHTML = html;
-            renderMathInElement(graphExplainer, { throwOnError: false });
+            triggerMathRender(graphExplainer);
         }
 
         // ==========================================
@@ -1221,7 +1284,6 @@
             const ctx = trackCtx;
             ctx.clearRect(0, 0, width, height);
 
-            // 计算位移范围以自适应确定比例尺
             const tMax = state.tMax;
             const samplePoints = [0, tMax, state.currentTime];
             if (state.a !== 0) {
@@ -1234,7 +1296,7 @@
                 if (val < minX) minX = val;
                 if (val > maxX) maxX = val;
             });
-            // 保持一定视野边界
+
             minX = Math.min(-10, Math.floor(minX / 10) * 10 - 10);
             maxX = Math.max(30, Math.ceil(maxX / 10) * 10 + 10);
             const rangeX = maxX - minX;
@@ -1318,19 +1380,19 @@
             ctx.lineWidth = 1.5;
             ctx.stroke();
 
-            // 质点中心高亮
+            // 质点中心
             ctx.beginPath();
             ctx.arc(carScreenX, trackY - carH/2 - 4, 3, 0, Math.PI * 2);
             ctx.fillStyle = '#ffffff';
             ctx.fill();
 
-            // 5. 绘制速度矢量箭头 (蓝色)
+            // 5. 速度矢量箭头 (蓝色)
             if (Math.abs(curV) > 0.05) {
                 const arrowLen = Math.min(80, Math.max(-80, curV * 3.5));
                 drawArrow(ctx, carScreenX, carY - 8, carScreenX + arrowLen, carY - 8, '#38bdf8', `v: ${curV.toFixed(1)} m/s`);
             }
 
-            // 6. 绘制加速度矢量箭头 (橙色)
+            // 6. 加速度矢量箭头 (橙色)
             if (Math.abs(state.a) > 0.05) {
                 const aLen = Math.min(70, Math.max(-70, state.a * 5.0));
                 drawArrow(ctx, carScreenX, carY - 24, carScreenX + aLen, carY - 24, '#f59e0b', `a: ${state.a.toFixed(1)} m/s²`);
@@ -1366,7 +1428,7 @@
             }
         }
 
-        // 绘制运动学多维图像 Canvas
+        // 绘制运动学图像 Canvas
         function drawGraph() {
             const { width, height } = resizeCanvas(graphCanvas);
             const ctx = graphCtx;
@@ -1380,7 +1442,6 @@
             const tMax = state.tMax;
             const curT = state.currentTime;
 
-            // 根据模式获取 Y 轴数据范围
             let minY = 0, maxY = 0;
             const numSamples = 100;
             const curveData = [];
@@ -1418,7 +1479,6 @@
                 }
             }
 
-            // 保持坐标系充盈饱满
             const ySpan = Math.max(1, maxY - minY);
             minY = Math.floor(minY - ySpan * 0.15);
             maxY = Math.ceil(maxY + ySpan * 0.15);
@@ -1429,11 +1489,10 @@
                 return { x: sx, y: sy };
             }
 
-            // 1. 绘制网格线与原点轴
+            // 1. 网格与坐标轴
             ctx.strokeStyle = '#1e293b';
             ctx.lineWidth = 1;
 
-            // 横向网格
             const yTicks = 5;
             ctx.font = '10px monospace';
             ctx.fillStyle = '#64748b';
@@ -1450,7 +1509,6 @@
                 ctx.fillText(yVal.toFixed(1), padL - 8, sy);
             }
 
-            // 零轴高亮 (若在视野内)
             if (minY <= 0 && maxY >= 0) {
                 const zeroPos = toScreen(0, 0);
                 ctx.strokeStyle = '#475569';
@@ -1461,7 +1519,6 @@
                 ctx.stroke();
             }
 
-            // 纵向时间网格与刻度
             ctx.textAlign = 'center';
             ctx.textBaseline = 'top';
             const tTicks = 5;
@@ -1485,9 +1542,8 @@
             ctx.textAlign = 'right';
             ctx.fillText('时间 t (s)', padL + plotW, padT + plotH + 24);
 
-            // 2. 模式特有绘制 (阴影面积 / 切线)
+            // 2. 图像特征图解 (面积 / 切线)
             if (mode === 'vt') {
-                // 绘制当前时刻积分阴影面积 (位移 x)
                 const zeroY = toScreen(0, 0).y;
                 const curPos = toScreen(curT, calcVelocity(state.v0, state.a, curT));
 
@@ -1507,7 +1563,6 @@
                 ctx.fill();
                 ctx.restore();
 
-                // 面积标注文本
                 const curDisp = calcDisplacement(state.v0, state.a, curT);
                 ctx.font = 'bold 11px sans-serif';
                 ctx.fillStyle = '#38bdf8';
@@ -1519,7 +1574,6 @@
                     ctx.fillText(`面积 = 位移 x = ${curDisp.toFixed(1)}m`, midPos.x, midPos.y);
                 }
             } else if (mode === 'xt') {
-                // 绘制当前点的切线 (斜率即瞬时速度)
                 const curX = calcDisplacement(state.v0, state.a, curT);
                 const curV = calcVelocity(state.v0, state.a, curT);
                 const curPos = toScreen(curT, curX);
@@ -1543,7 +1597,7 @@
                 ctx.fillText(`切线斜率 = v = ${curV.toFixed(1)} m/s`, curPos.x + 8, curPos.y - 8);
             }
 
-            // 3. 绘制完整曲线
+            // 3. 绘制主曲线
             ctx.beginPath();
             ctx.lineWidth = 3;
             const strokeColors = { vt: '#38bdf8', xt: '#10b981', at: '#f59e0b', v2x: '#c084fc' };
@@ -1556,7 +1610,7 @@
             });
             ctx.stroke();
 
-            // 4. 当前时刻点与十字线高亮
+            // 4. 当前时刻点与十字线
             let curVal = 0;
             if (mode === 'vt') curVal = calcVelocity(state.v0, state.a, curT);
             else if (mode === 'xt') curVal = calcDisplacement(state.v0, state.a, curT);
@@ -1568,7 +1622,6 @@
 
             const activePos = toScreen(curT, curVal);
 
-            // 十字虚线
             ctx.strokeStyle = 'rgba(241, 245, 249, 0.4)';
             ctx.lineWidth = 1;
             ctx.setLineDash([3, 3]);
@@ -1580,7 +1633,6 @@
             ctx.stroke();
             ctx.setLineDash([]);
 
-            // 外发光实心点
             ctx.beginPath();
             ctx.arc(activePos.x, activePos.y, 6, 0, Math.PI * 2);
             ctx.fillStyle = '#ffffff';
@@ -1589,7 +1641,6 @@
             ctx.lineWidth = 2.5;
             ctx.stroke();
 
-            // 坐标气泡
             ctx.font = 'bold 11px monospace';
             ctx.fillStyle = '#ffffff';
             ctx.textAlign = activePos.x > width - 100 ? 'right' : 'left';
@@ -1639,7 +1690,7 @@
             const keys = ['v0', 'v', 'a', 't', 'x'];
             const checked = keys.filter(k => document.getElementById(`check-${k}`).checked);
             if (checked.length !== 3) {
-                alert('请恰好勾选 3 个已知物理量！');
+                alert('请勾选恰好 3 个已知物理量！');
                 return;
             }
 
@@ -1654,9 +1705,7 @@
 
             document.getElementById('solver-case-tag').textContent = `已匹配模型: 已知 ${checked.join(', ')}`;
 
-            // 10 种组合全分支求解
             if (comboKey === 'a_v0_v') {
-                // 已知 v0, v, a -> 求 t, x
                 const { v0, v, a } = vals;
                 if (a === 0) {
                     if (v !== v0) {
@@ -1685,7 +1734,6 @@
                         </div>
                     </div>`;
             } else if (comboKey === 'a_t_v0') {
-                // 已知 v0, a, t -> 求 v, x
                 const { v0, a, t } = vals;
                 const v = v0 + a * t;
                 const x = v0 * t + 0.5 * a * t * t;
@@ -1704,7 +1752,6 @@
                         </div>
                     </div>`;
             } else if (comboKey === 'a_v0_x') {
-                // 已知 v0, a, x -> 求 v, t
                 const { v0, a, x } = vals;
                 const vSq = v0 * v0 + 2 * a * x;
                 if (vSq < 0) {
@@ -1712,7 +1759,7 @@
                     renderSolverOutput(stepsHtml);
                     return;
                 }
-                const v = Math.sqrt(vSq); // 先取正
+                const v = Math.sqrt(vSq);
                 const t = a !== 0 ? (v - v0) / a : x / v0;
                 res = { v0, v, a, t, x };
                 stepsHtml = `
@@ -1720,7 +1767,7 @@
                         <div>
                             <div class="font-bold text-sky-400 mb-1">步骤 1：求末速度 $v$</div>
                             <p>选用速度-位移公式：$$v = \\pm\\sqrt{v_0^2 + 2ax}$$</p>
-                            <p class="font-mono text-slate-300">代入数据：$v = \\sqrt{${v0}^2 + 2 \\times (${a}) \\times ${x}} = \\mathbf{${v.toFixed(3)}\\text{ m/s}}$ (取同向正根)</p>
+                            <p class="font-mono text-slate-300">代入数据：$v = \\sqrt{${v0}^2 + 2 \\times (${a}) \\times ${x}} = \\mathbf{${v.toFixed(3)}\\text{ m/s}}$</p>
                         </div>
                         <div>
                             <div class="font-bold text-emerald-400 mb-1">步骤 2：求时间 $t$</div>
@@ -1729,7 +1776,6 @@
                         </div>
                     </div>`;
             } else if (comboKey === 't_v0_x') {
-                // 已知 v0, t, x -> 求 a, v
                 const { v0, t, x } = vals;
                 if (t === 0) {
                     stepsHtml = `<div class="text-rose-400">时间 t 不能为 0！</div>`;
@@ -1753,7 +1799,6 @@
                         </div>
                     </div>`;
             } else if (comboKey === 't_v0_v') {
-                // 已知 v0, v, t -> 求 a, x
                 const { v0, v, t } = vals;
                 if (t === 0) {
                     stepsHtml = `<div class="text-rose-400">时间 t 不能为 0！</div>`;
@@ -1777,7 +1822,6 @@
                         </div>
                     </div>`;
             } else if (comboKey === 'v0_v_x') {
-                // 已知 v0, v, x -> 求 a, t
                 const { v0, v, x } = vals;
                 if (x === 0) {
                     stepsHtml = `<div class="text-rose-400">位移 x 为 0，物体回到原点或静止。</div>`;
@@ -1801,7 +1845,6 @@
                         </div>
                     </div>`;
             } else if (comboKey === 'a_t_v') {
-                // 已知 v, a, t -> 求 v0, x
                 const { v, a, t } = vals;
                 const v0 = v - a * t;
                 const x = v * t - 0.5 * a * t * t;
@@ -1820,7 +1863,6 @@
                         </div>
                     </div>`;
             } else if (comboKey === 'a_v_x') {
-                // 已知 v, a, x -> 求 v0, t
                 const { v, a, x } = vals;
                 const v0Sq = v * v - 2 * a * x;
                 if (v0Sq < 0) {
@@ -1844,7 +1886,6 @@
                         </div>
                     </div>`;
             } else if (comboKey === 't_v_x') {
-                // 已知 v, t, x -> 求 v0, a
                 const { v, t, x } = vals;
                 const v0 = (2 * x) / t - v;
                 const a = (v - v0) / t;
@@ -1862,7 +1903,6 @@
                         </div>
                     </div>`;
             } else if (comboKey === 'a_t_x') {
-                // 已知 a, t, x -> 求 v0, v
                 const { a, t, x } = vals;
                 const v0 = (x - 0.5 * a * t * t) / t;
                 const v = v0 + a * t;
@@ -1903,7 +1943,7 @@
                 document.getElementById('solver-apply-btn').classList.add('hidden');
             }
             outEl.innerHTML = resCards + stepsHtml;
-            renderMathInElement(outEl, { throwOnError: false });
+            triggerMathRender(outEl);
         }
 
         function resetSolver() {
@@ -1956,7 +1996,6 @@
             const lineY = height * 0.55;
             const trackW = width - padX * 2;
 
-            // 跑道线
             ctx.strokeStyle = '#334155';
             ctx.lineWidth = 4;
             ctx.beginPath();
@@ -1964,7 +2003,6 @@
             ctx.lineTo(padX + trackW, lineY);
             ctx.stroke();
 
-            // 起点与终点
             ctx.fillStyle = '#94a3b8';
             ctx.font = '10px monospace';
             ctx.textAlign = 'center';
@@ -1979,17 +2017,13 @@
             ctx.fill();
             ctx.fillText(`终点 (v=${v})`, padX + trackW, lineY + 18);
 
-            // 时间中点与位移中点位置
-            // 若匀加速 (v > v0)，时间中点在前半程 (x_t2 / x_total < 0.5)
-            // x(t/2) / x_total = (v0*T/2 + 0.5*a*(T/2)^2) / (v0*T + 0.5*a*T^2)
             let timeMidRatio = 0.5;
             if (v0 + v > 0) {
                 timeMidRatio = (3 * v0 + v) / (4 * (v0 + v));
             }
             const timeMidX = padX + timeMidRatio * trackW;
-            const dispMidX = padX + 0.5 * trackW; // 位移中点严格在正中 50%
+            const dispMidX = padX + 0.5 * trackW;
 
-            // 绘制时间中点标记 (蓝色)
             ctx.fillStyle = '#38bdf8';
             ctx.beginPath();
             ctx.arc(timeMidX, lineY, 6, 0, Math.PI * 2);
@@ -1997,7 +2031,6 @@
             ctx.fillText(`时间中点`, timeMidX, lineY - 24);
             ctx.fillText(`v_t/2=${vt2.toFixed(1)}`, timeMidX, lineY - 12);
 
-            // 绘制位移中点标记 (橙黄色)
             ctx.fillStyle = '#f59e0b';
             ctx.beginPath();
             ctx.arc(dispMidX, lineY, 6, 0, Math.PI * 2);
@@ -2013,27 +2046,24 @@
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, width, height);
 
-            const T = 0.1; // 计数点间隔
-            const a = 2.0; // 加速度 2.0 m/s^2
-            const v0 = 0.3; // 纸带初速度 0.3 m/s
+            const T = 0.1;
+            const a = 2.0;
+            const v0 = 0.3;
 
-            // 6段位移
             const intervals = [];
             for (let i = 1; i <= 6; i++) {
                 const tPrev = (i - 1) * T;
                 const tCurr = i * T;
                 const xi = v0 * T + 0.5 * a * (tCurr * tCurr - tPrev * tPrev);
-                intervals.push(xi * 100); // 换算为 cm
+                intervals.push(xi * 100);
             }
 
-            // 绘制米黄色纸带
             ctx.fillStyle = '#fef3c7';
             ctx.fillRect(0, 10, width, height - 20);
             ctx.strokeStyle = '#d97706';
             ctx.lineWidth = 1;
             ctx.strokeRect(0, 10, width, height - 20);
 
-            // 绘制小黑点与标记
             let curPixelX = 30;
             const totalCm = intervals.reduce((acc, c) => acc + c, 0);
             const scale = (width - 70) / totalCm;
@@ -2042,7 +2072,6 @@
             ctx.textAlign = 'center';
             ctx.font = '10px monospace';
 
-            // 0号点
             ctx.beginPath();
             ctx.arc(curPixelX, height / 2, 3, 0, Math.PI * 2);
             ctx.fill();
@@ -2052,13 +2081,11 @@
                 const segW = intervals[i] * scale;
                 const nextX = curPixelX + segW;
 
-                // 标点
                 ctx.beginPath();
                 ctx.arc(nextX, height / 2, 3, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.fillText((i + 1).toString(), nextX, height / 2 + 18);
 
-                // 区间跨度标注
                 ctx.strokeStyle = '#92400e';
                 ctx.lineWidth = 1;
                 ctx.beginPath();
@@ -2072,9 +2099,8 @@
                 curPixelX = nextX;
             }
 
-            // 逐差法计算 a
-            const sumAfter = intervals[3] + intervals[4] + intervals[5]; // x4+x5+x6 (cm)
-            const sumBefore = intervals[0] + intervals[1] + intervals[2]; // x1+x2+x3 (cm)
+            const sumAfter = intervals[3] + intervals[4] + intervals[5];
+            const sumBefore = intervals[0] + intervals[1] + intervals[2];
             const calcA_cm = (sumAfter - sumBefore) / (9 * T * T);
             const calcA_m = calcA_cm / 100;
 
@@ -2104,12 +2130,10 @@
             const plotW = width - padL - padR;
             const plotH = height - padT - padB;
 
-            // 4个等时区
             const colors = ['#38bdf8', '#10b981', '#f59e0b', '#ec4899'];
             const n = 4;
             const stepW = plotW / n;
 
-            // 绘制坐标轴
             ctx.strokeStyle = '#475569';
             ctx.lineWidth = 1.5;
             ctx.beginPath();
@@ -2119,7 +2143,6 @@
             ctx.lineTo(padL, padT - 5);
             ctx.stroke();
 
-            // 绘制斜线 v = at
             ctx.strokeStyle = '#94a3b8';
             ctx.lineWidth = 2;
             ctx.beginPath();
@@ -2133,7 +2156,6 @@
                 const yLeft = padT + plotH - ((i - 1) / n) * plotH;
                 const yRight = padT + plotH - (i / n) * plotH;
 
-                // 填充梯形/三角形
                 ctx.beginPath();
                 ctx.moveTo(xLeft, padT + plotH);
                 ctx.lineTo(xLeft, yLeft);
@@ -2147,14 +2169,12 @@
                 ctx.lineWidth = 1.5;
                 ctx.stroke();
 
-                // 标注奇数比 (1, 3, 5, 7)
                 const oddNum = 2 * i - 1;
                 ctx.font = 'bold 12px sans-serif';
                 ctx.fillStyle = colors[i - 1];
                 ctx.textAlign = 'center';
                 ctx.fillText(`“${oddNum}”`, (xLeft + xRight) / 2, padT + plotH - ((i - 0.4) / n) * plotH * 0.7);
 
-                // 标注时间刻度
                 ctx.font = '10px monospace';
                 ctx.fillStyle = '#64748b';
                 ctx.fillText(`${i}T`, xRight, padT + plotH + 15);
@@ -2236,7 +2256,7 @@
             }
 
             content.innerHTML = html;
-            renderMathInElement(content, { throwOnError: false });
+            triggerMathRender(content);
         }
 
         // ==========================================
@@ -2263,13 +2283,12 @@
             calculateSolver();
             renderAll();
 
-            renderMathInElement(document.body, {
-                delimiters: [
-                    {left: '$$', right: '$$', display: true},
-                    {left: '$', right: '$', display: false}
-                ],
-                throwOnError: false
-            });
+            // 首屏全量渲染公式
+            triggerMathRender(document.body);
+
+            // 针对异步加载完成时的延时双重确认
+            setTimeout(() => { triggerMathRender(document.body); }, 500);
+            setTimeout(() => { triggerMathRender(document.body); }, 1500);
         });
     </script>
 </body>
