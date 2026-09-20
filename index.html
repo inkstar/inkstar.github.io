@@ -10,6 +10,21 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   
+  <!-- 社交平台与微信分享预览元规范 (Open Graph & Twitter Card) -->
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Inkstar's Space">
+  <meta property="og:title" id="og-title" content="Inkstar's Space | 项目与技术博客">
+  <meta property="og:description" id="og-description" content="Inkstar 的个人项目展示与技术博客，涵盖高中数学深度解析、现代化工程架构与思考随笔。">
+  <meta property="og:image" id="og-image" content="https://www.inkstar.org/images/share-cover.png">
+  <meta property="og:url" id="og-url" content="https://www.inkstar.org/">
+  <meta itemprop="name" content="Inkstar's Space | 项目与技术博客">
+  <meta itemprop="description" content="Inkstar 的个人项目展示与技术博客，涵盖高中数学深度解析、现代化工程架构与思考随笔。">
+  <meta itemprop="image" content="https://www.inkstar.org/images/share-cover.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Inkstar's Space | 项目与技术博客">
+  <meta name="twitter:description" content="Inkstar 的个人项目展示与技术博客，涵盖高中数学深度解析、现代化工程架构与思考随笔。">
+  <meta name="twitter:image" content="https://www.inkstar.org/images/share-cover.png">
+
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
   <style>
     :root {
@@ -259,6 +274,234 @@
       background: #f1f5f9;
       color: #1e293b !important;
       transform: translateY(-1px);
+    }
+
+    /* 文章顶部与底部社交分享按钮规范 */
+    .meta-share-bar {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .meta-share-label {
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      font-weight: 600;
+    }
+    .btn-meta-share, .btn-meta-copy, .btn-back-share, .btn-back-copy {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-decoration: none !important;
+    }
+    .btn-meta-share, .btn-back-share {
+      background: #ecfdf5;
+      color: #047857 !important;
+      border: 1px solid #a7f3d0;
+    }
+    .btn-meta-share:hover, .btn-back-share:hover {
+      background: #d1fae5;
+      border-color: #6ee7b7;
+      transform: translateY(-1px);
+    }
+    .btn-meta-copy, .btn-back-copy {
+      background: #f1f5f9;
+      color: #334155 !important;
+      border: 1px solid #cbd5e1;
+    }
+    .btn-meta-copy:hover, .btn-back-copy:hover {
+      background: #e2e8f0;
+      color: #0f172a !important;
+      transform: translateY(-1px);
+    }
+
+    /* 文章分享海报弹窗与推荐文案组件 */
+    .share-modal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 999999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      box-sizing: border-box;
+    }
+    .share-modal-backdrop {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.72);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
+    .share-modal-dialog {
+      position: relative;
+      background: #ffffff;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 440px;
+      max-height: 92vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.28);
+      overflow: hidden;
+      animation: modalPopIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes modalPopIn {
+      from { opacity: 0; transform: scale(0.92); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .share-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .share-modal-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .share-modal-close {
+      border: none;
+      background: transparent;
+      font-size: 1.25rem;
+      color: #64748b;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+      line-height: 1;
+      transition: background 0.15s, color 0.15s;
+    }
+    .share-modal-close:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+    .share-modal-body {
+      padding: 14px 18px;
+      overflow-y: auto;
+      text-align: center;
+      -webkit-overflow-scrolling: touch;
+    }
+    .share-poster-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      padding: 60px 20px;
+      color: #64748b;
+      font-size: 0.92rem;
+    }
+    .share-poster-img-wrap {
+      margin-bottom: 12px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.12);
+      border: 1px solid #e2e8f0;
+      max-height: 58vh;
+      overflow-y: auto;
+      background: #f8fafc;
+    }
+    .share-poster-img {
+      width: 100%;
+      height: auto;
+      display: block;
+      user-select: auto;
+      -webkit-user-select: auto;
+      cursor: pointer;
+    }
+    .share-modal-tip {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.8rem;
+      color: #166534;
+      line-height: 1.55;
+      text-align: left;
+    }
+    .share-modal-footer {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 18px;
+      border-top: 1px solid #e2e8f0;
+      background: #f8fafc;
+      flex-wrap: wrap;
+    }
+    .btn-poster-action {
+      flex: 1;
+      min-width: 110px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+      text-align: center;
+    }
+    .btn-poster-download {
+      background: #10b981;
+      color: #ffffff;
+    }
+    .btn-poster-download:hover {
+      background: #059669;
+    }
+    .btn-poster-copy {
+      background: #ffffff;
+      color: #334155;
+      border-color: #cbd5e1;
+    }
+    .btn-poster-copy:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+    .btn-poster-close {
+      background: transparent;
+      color: #64748b;
+      flex: 0 0 auto;
+      min-width: 60px;
+    }
+    .btn-poster-close:hover {
+      background: #e2e8f0;
+    }
+
+    /* 全局轻量 Toast 提示浮条 */
+    .share-toast {
+      position: fixed;
+      bottom: 36px;
+      left: 50%;
+      transform: translateX(-50%) translateY(24px);
+      background: rgba(15, 23, 42, 0.94);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #ffffff;
+      padding: 10px 22px;
+      border-radius: 30px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+      pointer-events: none;
+      opacity: 0;
+      z-index: 1000000;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      white-space: nowrap;
+    }
+    .share-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
     }
 
     /* 阅读进度指示条 */
@@ -1282,6 +1525,11 @@
   </script>
 </head>
   <body>
+  <!-- 微信旧版爬虫抓取首图兼容规范（300x300以上正方形封面图） -->
+  <div style="display:none;font-size:0;line-height:0;" aria-hidden="true">
+    <img src="images/share-cover.png" alt="Inkstar's Space" width="300" height="300" />
+  </div>
+
   <!-- 移动端侧边栏抽屉遮罩层 -->
   <div id="mobile-sidebar-backdrop"></div>
 
@@ -1302,6 +1550,7 @@
       <span class="dock-icon">📖</span>
       <span class="dock-text">沉浸阅读</span>
     </button>
+    <button id="btn-share-dock" class="dock-btn-sm" onclick="window.generateArticleSharePoster()" title="生成朋友圈高清分享海报">📱</button>
     <button class="dock-btn-sm" onclick="window.adjustFontSize(-1)" title="调小字号">A-</button>
     <button class="dock-btn-sm" onclick="window.adjustFontSize(1)" title="调大字号">A+</button>
     <button class="dock-btn-sm" onclick="window.scrollToTop()" title="回到顶部">↑</button>
@@ -1450,6 +1699,14 @@
                 '</div>'
               ].join('\n');
 
+              var shareButtonsHtml = [
+                '<div class="meta-share-bar">',
+                '  <span class="meta-share-label">分享到微信：</span>',
+                '  <button type="button" class="btn-meta-share" onclick="window.generateArticleSharePoster()" title="生成适合微信朋友圈的高清长图海报">📱 生成分享海报</button>',
+                '  <button type="button" class="btn-meta-copy" onclick="window.copyArticleShareText()" title="复制带有标题与核心导读的推荐文案">📋 复制推荐文案</button>',
+                '</div>'
+              ].join('\n');
+
               var metaHeaderHtml = [
                 breadcrumbHtml,
                 '<div class="article-meta-card">',
@@ -1463,13 +1720,20 @@
                 '    <div class="meta-item"><span class="meta-icon">✍️</span> <span class="meta-label">作者：</span><span class="meta-val">' + author + '</span></div>',
                 tagsHtml,
                 '  </div>',
+                shareButtonsHtml,
                 '</div>'
               ].filter(Boolean).join('\n');
 
               var backNavHtml = [
                 '<div class="article-nav-back">',
-                '  <a href="#/" class="btn-back-home">🏠 返回网站首页</a>',
-                '  <a href="#/README" class="btn-back-catalog">📑 返回博客专栏目录</a>',
+                '  <div class="nav-back-links">',
+                '    <a href="#/" class="btn-back-home">🏠 返回网站首页</a>',
+                '    <a href="#/README" class="btn-back-catalog">📑 返回博客专栏目录</a>',
+                '  </div>',
+                '  <div class="nav-back-shares">',
+                '    <button type="button" class="btn-back-share" onclick="window.generateArticleSharePoster()" title="生成朋友圈高清分享海报">📱 生成精美海报</button>',
+                '    <button type="button" class="btn-back-copy" onclick="window.copyArticleShareText()" title="复制精美文章推荐语与链接">📋 复制推荐语</button>',
+                '  </div>',
                 '</div>'
               ].join('\n');
 
@@ -2303,7 +2567,406 @@
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/docsify-latex@0"></script>
 
-  <!-- Mermaid 10 流程图排版引擎 -->
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <!-- 离线本地二维码生成核心引擎 -->
+  <script src="js/qrcode.min.js"></script>
+
+  <!-- 文章分享海报弹窗组件 -->
+  <div id="share-poster-modal" class="share-modal" style="display:none;">
+    <div class="share-modal-backdrop" onclick="window.closeSharePosterModal()"></div>
+    <div class="share-modal-dialog">
+      <div class="share-modal-header">
+        <span class="share-modal-title">✨ 微信文章分享海报卡片</span>
+        <button class="share-modal-close" onclick="window.closeSharePosterModal()" aria-label="关闭">✕</button>
+      </div>
+      <div class="share-modal-body">
+        <div id="share-poster-loading" class="share-poster-loading">
+          <div class="comments-loading-spinner"></div>
+          <span>正在生成朋友圈高清分享海报...</span>
+        </div>
+        <div id="share-poster-img-wrap" class="share-poster-img-wrap" style="display:none;">
+          <img id="share-poster-img" class="share-poster-img" alt="文章分享海报" />
+        </div>
+        <div class="share-modal-tip">
+          <span>💡 <b>手机端分享提示</b>：长按上方海报图片即可直接保存到相册或发送给微信好友/朋友圈；在微信中长按图片还可直接识别二维码秒开阅读！</span>
+        </div>
+      </div>
+      <div class="share-modal-footer">
+        <button type="button" class="btn-poster-action btn-poster-download" onclick="window.downloadSharePoster()">📥 保存海报图片</button>
+        <button type="button" class="btn-poster-action btn-poster-copy" onclick="window.copyArticleShareText()">📋 复制推荐文案</button>
+        <button type="button" class="btn-poster-action btn-poster-close" onclick="window.closeSharePosterModal()">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 轻量全局 Toast 提示浮条 -->
+  <div id="share-toast" class="share-toast"></div>
+
+  <script>
+    // 全局 Toast 轻提示
+    window.showToast = function(msg) {
+      var toast = document.getElementById('share-toast');
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(function() {
+        toast.classList.remove('show');
+      }, 2600);
+    };
+
+    window.closeSharePosterModal = function() {
+      var modal = document.getElementById('share-poster-modal');
+      if (modal) modal.style.display = 'none';
+    };
+
+    // 一键复制推荐文案（标题 + 导读 + 链接）
+    window.copyArticleShareText = function() {
+      var title = '';
+      var h1 = document.querySelector('.markdown-section h1');
+      if (h1) title = h1.textContent.replace(/^[#\s]+/, '').trim();
+      if (!title) title = document.title || "Inkstar's Space 博客文章";
+
+      var normPath = window.location.hash ? window.location.hash.replace(/^#/, '') : '/';
+      var shareUrl = 'https://www.inkstar.org/#' + normPath;
+
+      var excerpt = '';
+      var metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc && metaDesc.content && metaDesc.content.indexOf("Inkstar 的个人项目展示") === -1) {
+        excerpt = metaDesc.content.trim();
+      }
+      if (!excerpt) {
+        var p = document.querySelector('.markdown-section p:not(.tip):not(.warn)');
+        if (p) excerpt = p.textContent.replace(/\s+/g, ' ').trim();
+      }
+      if (excerpt.length > 70) excerpt = excerpt.slice(0, 70) + '...';
+
+      var textParts = [
+        '📖 推荐阅读：《' + title + '》',
+        excerpt ? '💡 核心导读：' + excerpt : '',
+        '🔗 阅读链接：' + shareUrl
+      ].filter(Boolean).join('\n');
+
+      function fallbackCopy(text) {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand('copy');
+          window.showToast('✅ 推荐文案已复制！可直接粘贴至微信/朋友圈~');
+        } catch (err) {
+          window.showToast('⚠️ 复制失败，请手动复制当前页面链接');
+        }
+        document.body.removeChild(ta);
+      }
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(textParts).then(function() {
+          window.showToast('✅ 推荐文案已复制！可直接粘贴至微信/朋友圈~');
+        }).catch(function() {
+          fallbackCopy(textParts);
+        });
+      } else {
+        fallbackCopy(textParts);
+      }
+    };
+
+    window.downloadSharePoster = function() {
+      if (!window._currentSharePosterDataUrl) return;
+      var a = document.createElement('a');
+      a.href = window._currentSharePosterDataUrl;
+      var titleEl = document.querySelector('.markdown-section h1');
+      var title = titleEl ? titleEl.textContent.replace(/^[#\s]+/, '').trim() : 'article';
+      a.download = 'Inkstar_Share_' + title.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_') + '.png';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.showToast('📥 海报图片已开始下载！');
+    };
+
+    // 绘制圆角矩形辅助函数
+    function drawCanvasRoundRect(ctx, x, y, width, height, radius, fillStyle, strokeStyle, lineWidth) {
+      var r = typeof radius === 'number'
+        ? { tl: radius, tr: radius, br: radius, bl: radius }
+        : radius;
+      ctx.beginPath();
+      ctx.moveTo(x + r.tl, y);
+      ctx.lineTo(x + width - r.tr, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + r.tr);
+      ctx.lineTo(x + width, y + height - r.br);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - r.br, y + height);
+      ctx.lineTo(x + r.bl, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - r.bl);
+      ctx.lineTo(x, y + r.tl);
+      ctx.quadraticCurveTo(x, y, x + r.tl, y);
+      ctx.closePath();
+      if (fillStyle) {
+        ctx.fillStyle = fillStyle;
+        ctx.fill();
+      }
+      if (strokeStyle) {
+        ctx.strokeStyle = strokeStyle;
+        ctx.lineWidth = lineWidth || 1;
+        ctx.stroke();
+      }
+    }
+
+    // 绘制文本自动换行辅助函数
+    function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight, maxLines) {
+      var chars = text.split('');
+      var line = '';
+      var lines = [];
+      for (var n = 0; n < chars.length; n++) {
+        var testLine = line + chars[n];
+        var testWidth = ctx.measureText(testLine).width;
+        if (testWidth > maxWidth && n > 0) {
+          lines.push(line);
+          line = chars[n];
+          if (maxLines && lines.length === maxLines - 1) {
+            var rest = chars.slice(n).join('');
+            while (ctx.measureText(line + rest + '...').width > maxWidth && rest.length > 0) {
+              rest = rest.slice(0, -1);
+            }
+            lines.push(line + rest + '...');
+            line = '';
+            break;
+          }
+        } else {
+          line = testLine;
+        }
+      }
+      if (line) lines.push(line);
+      for (var k = 0; k < lines.length; k++) {
+        ctx.fillText(lines[k], x, y + k * lineHeight);
+      }
+      return lines.length * lineHeight;
+    }
+
+    // 绘制二维码至 Canvas（纯数学矩阵绘制，无外部网络图片依赖）
+    function drawQrCodeToCanvas(ctx, text, x, y, size) {
+      if (typeof qrcode === 'undefined') {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(x, y, size, size);
+        ctx.fillStyle = '#64748b';
+        ctx.font = '14px sans-serif';
+        ctx.fillText('二维码组件', x + 16, y + size / 2);
+        return;
+      }
+      var qr = qrcode(0, 'M');
+      qr.addData(text);
+      qr.make();
+      var count = qr.getModuleCount();
+      var cellSize = size / count;
+
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(x, y, size, size);
+
+      ctx.fillStyle = '#0f172a';
+      for (var r = 0; r < count; r++) {
+        for (var c = 0; c < count; c++) {
+          if (qr.isDark(r, c)) {
+            ctx.fillRect(x + c * cellSize, y + r * cellSize, cellSize + 0.4, cellSize + 0.4);
+          }
+        }
+      }
+    }
+
+    // 一键生成文章分享海报
+    window.generateArticleSharePoster = function() {
+      var titleEl = document.querySelector('.markdown-section h1');
+      var title = titleEl ? titleEl.textContent.replace(/^[#\s]+/, '').trim() : "Inkstar's Space 精选博文";
+
+      var dateStr = '';
+      var dateEl = document.querySelector('.article-meta-card .meta-item:first-child .meta-val');
+      if (dateEl) dateStr = dateEl.textContent.trim().split(' ')[0];
+      if (!dateStr) {
+        var now = new Date();
+        dateStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+      }
+
+      var readTimeStr = '约 10 分钟阅读';
+      var rtEl = document.querySelector('.article-meta-card .meta-sub-row .meta-val');
+      if (rtEl) readTimeStr = rtEl.textContent.trim() + ' 分钟阅读';
+
+      var tags = [];
+      var tagEls = document.querySelectorAll('.article-meta-card .tag-badge');
+      Array.prototype.forEach.call(tagEls, function(el) {
+        if (tags.length < 4) tags.push(el.textContent.trim());
+      });
+
+      var quote = '';
+      var blockquote = document.querySelector('.markdown-section blockquote p');
+      if (blockquote) {
+        quote = blockquote.textContent.replace(/\s+/g, ' ').trim();
+      }
+      if (!quote || quote.length < 15) {
+        var firstP = document.querySelector('.markdown-section p:not(.tip):not(.warn)');
+        if (firstP) quote = firstP.textContent.replace(/\s+/g, ' ').trim();
+      }
+      if (quote.length > 100) quote = quote.slice(0, 100) + '...';
+      if (!quote) quote = '探索高中数学本质思维与现代化工程架构，沉淀深度思考与实践总结。';
+
+      var normPath = window.location.hash ? window.location.hash.replace(/^#/, '') : '/';
+      var shareUrl = 'https://www.inkstar.org/#' + normPath;
+
+      var modal = document.getElementById('share-poster-modal');
+      var loadingEl = document.getElementById('share-poster-loading');
+      var imgWrap = document.getElementById('share-poster-img-wrap');
+      var posterImg = document.getElementById('share-poster-img');
+
+      if (modal) modal.style.display = 'flex';
+      if (loadingEl) loadingEl.style.display = 'flex';
+      if (imgWrap) imgWrap.style.display = 'none';
+
+      setTimeout(function() {
+        try {
+          var canvas = document.createElement('canvas');
+          var scale = 2;
+          var width = 720;
+          var height = 1040;
+          canvas.width = width * scale;
+          canvas.height = height * scale;
+          var ctx = canvas.getContext('2d');
+          ctx.scale(scale, scale);
+
+          // 背景：柔和高质感浅灰底色
+          ctx.fillStyle = '#f8fafc';
+          ctx.fillRect(0, 0, width, height);
+
+          // 卡片白色主体
+          var pad = 24;
+          var cardW = width - pad * 2;
+          var cardH = height - pad * 2;
+          drawCanvasRoundRect(ctx, pad, pad, cardW, cardH, 20, '#ffffff', '#e2e8f0', 1.5);
+
+          // 顶部翡翠绿渐变饰条
+          var grad = ctx.createLinearGradient(pad, pad, pad + cardW, pad);
+          grad.addColorStop(0, '#10b981');
+          grad.addColorStop(1, '#059669');
+          drawCanvasRoundRect(ctx, pad, pad, cardW, 8, { tl: 20, tr: 20, br: 0, bl: 0 }, grad, null);
+
+          // 品牌栏
+          var curY = pad + 40;
+          ctx.fillStyle = '#0f172a';
+          ctx.font = 'bold 22px -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif';
+          ctx.fillText("🌟 Inkstar's Space", pad + 24, curY);
+
+          ctx.fillStyle = '#64748b';
+          ctx.font = '15px -apple-system, BlinkMacSystemFont, sans-serif';
+          ctx.textAlign = 'right';
+          ctx.fillText(dateStr + ' · 原创博文', pad + cardW - 24, curY - 2);
+          ctx.textAlign = 'left';
+
+          // 顶部分割线
+          curY += 18;
+          ctx.strokeStyle = '#f1f5f9';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(pad + 24, curY);
+          ctx.lineTo(pad + cardW - 24, curY);
+          ctx.stroke();
+
+          // 文章大标题
+          curY += 46;
+          ctx.fillStyle = '#0f172a';
+          ctx.font = 'bold 34px -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif';
+          var titleH = wrapCanvasText(ctx, title, pad + 24, curY, cardW - 48, 46, 3);
+          curY += titleH + 8;
+
+          // 标签徽章
+          if (tags && tags.length > 0) {
+            ctx.font = 'bold 14px -apple-system, BlinkMacSystemFont, sans-serif';
+            var tagX = pad + 24;
+            for (var t = 0; t < tags.length; t++) {
+              var tw = ctx.measureText(tags[t]).width + 24;
+              drawCanvasRoundRect(ctx, tagX, curY, tw, 28, 6, '#ecfdf5', '#a7f3d0', 1);
+              ctx.fillStyle = '#047857';
+              ctx.fillText(tags[t], tagX + 12, curY + 19);
+              tagX += tw + 10;
+            }
+            curY += 46;
+          } else {
+            curY += 14;
+          }
+
+          // 核心导读金句卡片 (Quote Box)
+          var quoteBoxY = curY;
+          var quoteBoxH = 186;
+          drawCanvasRoundRect(ctx, pad + 24, quoteBoxY, cardW - 48, quoteBoxH, 12, '#f8fafc', '#e2e8f0', 1);
+          drawCanvasRoundRect(ctx, pad + 24, quoteBoxY, 4, quoteBoxH, { tl: 12, tr: 0, br: 0, bl: 12 }, '#10b981', null);
+
+          ctx.fillStyle = '#059669';
+          ctx.font = 'bold 15px -apple-system, BlinkMacSystemFont, sans-serif';
+          ctx.fillText('💡 核心导读与思维提要', pad + 44, quoteBoxY + 34);
+
+          ctx.fillStyle = '#334155';
+          ctx.font = '17px -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif';
+          wrapCanvasText(ctx, quote, pad + 44, quoteBoxY + 70, cardW - 88, 28, 4);
+
+          curY = quoteBoxY + quoteBoxH + 36;
+
+          // 底部虚线分割线
+          ctx.strokeStyle = '#e2e8f0';
+          ctx.lineWidth = 1;
+          ctx.setLineDash([4, 4]);
+          ctx.beginPath();
+          ctx.moveTo(pad + 24, curY);
+          ctx.lineTo(pad + cardW - 24, curY);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          // 底部区域：左侧作者与扫码提示，右侧清晰二维码
+          var footY = curY + 34;
+          var qrSize = 146;
+          var qrX = pad + cardW - 24 - qrSize;
+          var qrY = footY - 6;
+
+          drawCanvasRoundRect(ctx, qrX - 6, qrY - 6, qrSize + 12, qrSize + 12, 10, '#ffffff', '#cbd5e1', 1);
+          drawQrCodeToCanvas(ctx, shareUrl, qrX, qrY, qrSize);
+
+          ctx.fillStyle = '#0f172a';
+          ctx.font = 'bold 18px -apple-system, BlinkMacSystemFont, sans-serif';
+          ctx.fillText('Inkstar · 个人技术空间', pad + 24, footY + 16);
+
+          ctx.fillStyle = '#64748b';
+          ctx.font = '14px -apple-system, BlinkMacSystemFont, sans-serif';
+          ctx.fillText(readTimeStr, pad + 24, footY + 44);
+
+          ctx.fillStyle = '#047857';
+          ctx.font = 'bold 15px -apple-system, BlinkMacSystemFont, sans-serif';
+          ctx.fillText('📱 微信长按图片识别二维码 · 直达阅读', pad + 24, footY + 76);
+
+          ctx.fillStyle = '#94a3b8';
+          ctx.font = '13px -apple-system, BlinkMacSystemFont, sans-serif';
+          ctx.fillText('https://www.inkstar.org', pad + 24, footY + 104);
+
+          var dataUrl = canvas.toDataURL('image/png');
+          window._currentSharePosterDataUrl = dataUrl;
+          posterImg.src = dataUrl;
+
+          if (loadingEl) loadingEl.style.display = 'none';
+          if (imgWrap) imgWrap.style.display = 'block';
+
+        } catch (err) {
+          console.error('Share poster generation error:', err);
+          if (loadingEl) {
+            loadingEl.innerHTML = '<span>⚠️ 海报绘制遇到异常，已为您一键复制推荐文案！</span>';
+          }
+          window.copyArticleShareText();
+        }
+      }, 100);
+    };
+
+    if (!window._shareModalKeyBound) {
+      window._shareModalKeyBound = true;
+      window.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          window.closeSharePosterModal();
+        }
+      });
+    }
+  </script>
 </body>
 </html>
