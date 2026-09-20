@@ -5,6 +5,7 @@
 * <a href="writer.html" target="_blank" rel="noopener">✍️ 随笔在线发布台 ↗</a>
 
 * **☕ 灵感随笔专栏**
+  * [我就是想随便写写生活感受之类的](blog/essay-20260920-我就是想随便写写生活感受之类的.md)
   * [为什么要搭建这个独立数字花园：关于沉淀与表达的碎碎念](blog/essay-digital-garden-manifesto.md)
   * [在算法洪流的时代，重拾慢思考与手写笔记的乐趣](blog/essay-slow-thinking-in-ai-era.md)
 
