@@ -409,9 +409,41 @@
     /* =========================================================
        侧边栏文章结构大纲 (Article TOC Mode in Left Sidebar)
        ========================================================= */
+    .sidebar-mode-switcher {
+      display: none;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      margin: 10px 12px 8px 12px;
+      padding: 4px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: #f8fafc;
+    }
+    .sidebar-mode-btn {
+      min-width: 0;
+      padding: 6px 8px;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: #64748b;
+      font-size: 0.8rem;
+      font-weight: 700;
+      line-height: 1.2;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .sidebar-mode-btn:hover {
+      color: #1e293b;
+      background: #eef2f7;
+    }
+    .sidebar-mode-btn.active {
+      color: #047857;
+      background: #ffffff;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+    }
     .sidebar-article-toc {
       display: none;
-      padding: 14px 14px 40px 14px;
+      padding: 8px 14px 40px 14px;
       animation: fadeInToc 0.2s ease-out;
     }
     @keyframes fadeInToc {
@@ -419,51 +451,12 @@
       to { opacity: 1; transform: translateY(0); }
     }
     
-    .sidebar-toc-topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
-      padding-bottom: 10px;
-      border-bottom: 1px dashed var(--border-color);
-    }
-    .btn-switch-global-sidebar {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 4px 10px;
-      border-radius: 6px;
-      background: #f1f5f9;
-      color: #334155;
-      font-size: 0.8rem;
-      font-weight: 600;
-      border: 1px solid #cbd5e1;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      text-decoration: none !important;
-    }
-    .btn-switch-global-sidebar:hover {
-      background: #e2e8f0;
-      color: #0f172a;
-      border-color: #94a3b8;
-    }
-    
-    .sidebar-toc-tag {
-      font-size: 0.72rem;
-      padding: 2px 6px;
-      border-radius: 4px;
-      background: #ecfdf5;
-      color: #059669;
-      font-weight: 600;
-      border: 1px solid #a7f3d0;
-    }
-
     .sidebar-toc-article-heading {
-      font-size: 0.92rem;
+      font-size: 0.9rem;
       font-weight: 700;
       color: #1e293b;
       line-height: 1.45;
-      margin-bottom: 14px;
+      margin: 6px 2px 12px 2px;
       padding-left: 8px;
       border-left: 3px solid var(--theme-color);
       display: -webkit-box;
@@ -475,8 +468,6 @@
     .sidebar-toc-section-title {
       font-size: 0.75rem;
       font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
       color: #94a3b8;
       margin-bottom: 8px;
       padding-left: 4px;
@@ -498,7 +489,7 @@
     }
     .article-toc-link {
       display: block;
-      padding: 4px 8px;
+      padding: 5px 8px;
       border-radius: 5px;
       color: #475569 !important;
       font-size: 0.83rem;
@@ -530,33 +521,6 @@
       color: #15803d !important;
       font-weight: 700;
       border-left-color: #16a34a;
-    }
-
-    /* 在全站导航模式下的“切换至本文大纲”快捷浮条 */
-    .sidebar-article-shortcut {
-      margin: 10px 12px 14px 12px;
-      padding: 7px 10px;
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    .sidebar-article-shortcut:hover {
-      background: #dcfce7;
-      border-color: #86efac;
-    }
-    .sidebar-article-shortcut .shortcut-text {
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: #15803d;
-    }
-    .sidebar-article-shortcut .shortcut-arrow {
-      font-size: 0.85rem;
-      color: #16a34a;
     }
   </style>
 
@@ -1006,7 +970,8 @@
             updateProgress();
 
             // 4. 左侧边栏文章结构大纲智能切换与 ScrollSpy 联动
-            function setupSidebarArticleToc() {
+            function setupSidebarArticleToc(retryCount) {
+              retryCount = retryCount || 0;
               function escapeHtml(str) {
                 if (!str) return '';
                 return String(str)
@@ -1018,13 +983,20 @@
 
               function getHeadingCleanText(el) {
                 if (!el) return '';
-                var span = el.querySelector('span');
-                if (span && span.textContent && span.textContent.trim()) {
-                  return span.textContent.trim();
-                }
-                var anchor = el.querySelector('.anchor');
-                if (anchor && anchor.textContent && anchor.textContent.trim()) {
-                  return anchor.textContent.trim();
+                var clone = el.cloneNode(true);
+                var anchors = clone.querySelectorAll('.anchor, a.anchor');
+                Array.prototype.forEach.call(anchors, function(anchor) {
+                  anchor.parentNode.removeChild(anchor);
+                });
+                var text = (clone.innerText || clone.textContent || '').trim();
+                if (text) return text;
+
+                var idAnchor = el.querySelector('.anchor');
+                if (idAnchor) {
+                  var span = idAnchor.querySelector('span');
+                  if (span && span.textContent && span.textContent.trim()) {
+                    return span.textContent.trim();
+                  }
                 }
                 return (el.innerText || el.textContent || '').trim();
               }
@@ -1048,13 +1020,57 @@
 
               var isHome = normPath === '/' || normPath === '/README' || normPath === '/index';
               var tocContainer = document.getElementById('sidebar-article-toc');
-              var shortcut = document.getElementById('sidebar-article-shortcut');
+              var modeSwitcher = document.getElementById('sidebar-mode-switcher');
+              var legacyShortcut = document.getElementById('sidebar-article-shortcut');
+              if (legacyShortcut && legacyShortcut.parentNode) {
+                legacyShortcut.parentNode.removeChild(legacyShortcut);
+              }
+
+              function ensureModeSwitcher() {
+                if (modeSwitcher) return modeSwitcher;
+                modeSwitcher = document.createElement('div');
+                modeSwitcher.id = 'sidebar-mode-switcher';
+                modeSwitcher.className = 'sidebar-mode-switcher';
+                modeSwitcher.innerHTML = [
+                  '<button type="button" class="sidebar-mode-btn" data-sidebar-mode="global">全站目录</button>',
+                  '<button type="button" class="sidebar-mode-btn" data-sidebar-mode="article">本文目录</button>'
+                ].join('');
+                sidebar.insertBefore(modeSwitcher, sidebarNav);
+
+                var buttons = modeSwitcher.querySelectorAll('.sidebar-mode-btn');
+                Array.prototype.forEach.call(buttons, function(btn) {
+                  btn.onclick = function(e) {
+                    e.preventDefault();
+                    setSidebarMode(this.getAttribute('data-sidebar-mode'));
+                  };
+                });
+                return modeSwitcher;
+              }
+
+              function setSidebarMode(mode) {
+                var hasArticleToc = tocContainer && tocContainer.getAttribute('data-ready') === 'true';
+                if (mode === 'article' && !hasArticleToc) mode = 'global';
+
+                sidebarNav.style.setProperty('display', mode === 'global' ? 'block' : 'none', 'important');
+                if (tocContainer) {
+                  tocContainer.style.setProperty('display', mode === 'article' ? 'block' : 'none', 'important');
+                }
+                if (modeSwitcher) {
+                  modeSwitcher.style.setProperty('display', hasArticleToc ? 'grid' : 'none', 'important');
+                  var buttons = modeSwitcher.querySelectorAll('.sidebar-mode-btn');
+                  Array.prototype.forEach.call(buttons, function(btn) {
+                    btn.classList.toggle('active', btn.getAttribute('data-sidebar-mode') === mode);
+                  });
+                }
+                sidebar.setAttribute('data-sidebar-mode', mode);
+              }
 
               // 首页或概览页，还原全站导航目录
               if (isHome) {
+                if (modeSwitcher) modeSwitcher.style.setProperty('display', 'none', 'important');
                 if (tocContainer) tocContainer.style.setProperty('display', 'none', 'important');
                 sidebarNav.style.setProperty('display', 'block', 'important');
-                if (shortcut) shortcut.style.display = 'none';
+                sidebar.setAttribute('data-sidebar-mode', 'global');
                 if (window._tocScrollSpy) {
                   window.removeEventListener('scroll', window._tocScrollSpy);
                   window._tocScrollSpy = null;
@@ -1065,9 +1081,16 @@
               // 检索正文中的二级和三级标题 (H2, H3)
               var headings = document.querySelectorAll('.markdown-section h2, .markdown-section h3');
               if (!headings || headings.length < 2) {
+                if (retryCount < 12) {
+                  setTimeout(function() {
+                    setupSidebarArticleToc(retryCount + 1);
+                  }, 160);
+                  return;
+                }
+                if (modeSwitcher) modeSwitcher.style.setProperty('display', 'none', 'important');
+                if (tocContainer) tocContainer.setAttribute('data-ready', 'false');
                 if (tocContainer) tocContainer.style.setProperty('display', 'none', 'important');
                 sidebarNav.style.setProperty('display', 'block', 'important');
-                if (shortcut) shortcut.style.display = 'none';
                 if (window._tocScrollSpy) {
                   window.removeEventListener('scroll', window._tocScrollSpy);
                   window._tocScrollSpy = null;
@@ -1096,22 +1119,17 @@
                 tocContainer.className = 'sidebar-article-toc';
                 sidebarNav.parentNode.insertBefore(tocContainer, sidebarNav.nextSibling);
               }
+              ensureModeSwitcher();
 
               // 构建大纲 HTML 结构
               var tocHtml = [
-                '<div class="sidebar-toc-topbar">',
-                '  <button type="button" class="btn-switch-global-sidebar" id="btn-switch-to-global" title="返回全站导航目录">',
-                '    <span>← 全站目录</span>',
-                '  </button>',
-                '  <span class="sidebar-toc-tag">本文大纲</span>',
-                '</div>',
                 '<div class="sidebar-toc-article-heading" title="' + escapeHtml(articleTitle) + '">' + escapeHtml(articleTitle) + '</div>',
-                '<div class="sidebar-toc-section-title">文章章节导航 (TOC)</div>',
+                '<div class="sidebar-toc-section-title">文章章节</div>',
                 '<ul class="article-toc-nav">'
               ];
 
               var validHeadingCount = 0;
-              headings.forEach(function(h, idx) {
+              Array.prototype.forEach.call(headings, function(h, idx) {
                 var tag = h.tagName.toLowerCase();
                 var level = tag === 'h2' ? '2' : '3';
                 var titleText = getHeadingCleanText(h);
@@ -1132,49 +1150,23 @@
               tocHtml.push('</ul>');
 
               if (validHeadingCount < 2) {
-                if (tocContainer) tocContainer.style.setProperty('display', 'none', 'important');
-                sidebarNav.style.setProperty('display', 'block', 'important');
-                if (shortcut) shortcut.style.display = 'none';
+                tocContainer.setAttribute('data-ready', 'false');
+                setSidebarMode('global');
                 return;
               }
 
+              tocContainer.setAttribute('data-ready', 'true');
               tocContainer.innerHTML = tocHtml.join('\n');
 
-              // 全局目录顶部快捷入口
-              if (!shortcut) {
-                shortcut = document.createElement('div');
-                shortcut.id = 'sidebar-article-shortcut';
-                shortcut.className = 'sidebar-article-shortcut';
-                shortcut.innerHTML = '<span class="shortcut-text">📑 查看本文章节大纲</span><span class="shortcut-arrow">➔</span>';
-                sidebarNav.insertBefore(shortcut, sidebarNav.firstChild);
-              } else {
-                shortcut.style.display = 'flex';
-              }
-
-              // 默认切换为“本文大纲”侧边栏模式
-              sidebarNav.style.setProperty('display', 'none', 'important');
-              tocContainer.style.setProperty('display', 'block', 'important');
-
-              // 交互：切换回全站目录
-              var btnGlobal = tocContainer.querySelector('#btn-switch-to-global');
-              if (btnGlobal) {
-                btnGlobal.onclick = function(e) {
-                  e.stopPropagation();
-                  tocContainer.style.setProperty('display', 'none', 'important');
-                  sidebarNav.style.setProperty('display', 'block', 'important');
-                };
-              }
-
-              // 交互：从全站目录快速切回本文大纲
-              shortcut.onclick = function(e) {
-                e.stopPropagation();
-                sidebarNav.style.setProperty('display', 'none', 'important');
-                tocContainer.style.setProperty('display', 'block', 'important');
-              };
+              // 换文章时默认展示本文目录；同一篇文章内保留用户刚刚选择的模式。
+              var prevTocPath = sidebar.getAttribute('data-current-toc-path');
+              var currentMode = prevTocPath === normPath ? sidebar.getAttribute('data-sidebar-mode') : 'article';
+              sidebar.setAttribute('data-current-toc-path', normPath);
+              setSidebarMode(currentMode === 'global' ? 'global' : 'article');
 
               // 交互：点击大纲章节平滑滚动定位
               var tocLinks = tocContainer.querySelectorAll('.article-toc-link');
-              tocLinks.forEach(function(link) {
+              Array.prototype.forEach.call(tocLinks, function(link) {
                 link.onclick = function(e) {
                   e.preventDefault();
                   var tid = this.getAttribute('data-target-id');
@@ -1190,7 +1182,7 @@
                   });
 
                   var allItems = tocContainer.querySelectorAll('.article-toc-item');
-                  allItems.forEach(function(it) {
+                  Array.prototype.forEach.call(allItems, function(it) {
                     if (it.getAttribute('data-target-id') === tid) {
                       it.classList.add('active');
                     } else {
@@ -1227,7 +1219,7 @@
                 }
 
                 var allItems = tocContainer.querySelectorAll('.article-toc-item');
-                allItems.forEach(function(it) {
+                Array.prototype.forEach.call(allItems, function(it) {
                   if (it.getAttribute('data-target-id') === currentActiveId) {
                     it.classList.add('active');
                   } else {
@@ -1249,18 +1241,20 @@
                 searchInput._tocBound = true;
                 searchInput.addEventListener('input', function() {
                   if (this.value && this.value.trim().length > 0) {
-                    var tc = document.getElementById('sidebar-article-toc');
-                    var sn = document.querySelector('aside.sidebar .sidebar-nav');
-                    if (tc) tc.style.setProperty('display', 'none', 'important');
-                    if (sn) sn.style.setProperty('display', 'block', 'important');
+                    setSidebarMode('global');
                   }
                 });
               }
             }
 
-            // 执行大纲构建（即时执行与微任务延迟双重保障）
+            // 执行大纲构建：等待 Docsify 将正文标题真正渲染到 DOM 后再生成章节列表
             setupSidebarArticleToc();
-            setTimeout(setupSidebarArticleToc, 120);
+            setTimeout(function() { setupSidebarArticleToc(1); }, 120);
+            if (window.requestAnimationFrame) {
+              window.requestAnimationFrame(function() {
+                setupSidebarArticleToc(1);
+              });
+            }
           });
         }
       ]
