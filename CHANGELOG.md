@@ -6,6 +6,12 @@
 
 ## [2026-09-21]
 
+### Mermaid 全站图表渲染恢复
+- 定位分享海报提交 `92dda9b` 误删 Mermaid 运行时脚本，造成引擎缺失、全站图表仅保留源码容器。
+- 恢复固定版本 `mermaid@10.9.3`，在 Docsify 之前加载并关闭自动扫描，由 `doneEach` 统一渲染。
+- 增加运行时缺失诊断、启用渲染失败 Promise 报错，并使用 `textContent` 保留代码块源码。
+- 在 [Mermaid 渲染避坑指南](blog/docsify-mermaid-guide.md) 补充本次故障证据、修复与回归方法，并澄清弃用 API 不等于删除 API。
+
 ### 📈 搜索优化与增长工程专栏扩展
 - 新增技术文章 **[《服务业本地 SEO 与 AI 搜索可见性增长指南：从搜索排名到用户触达》](blog/local-seo-ai-search-visibility-guide.md)**：
   - 基于 `new_know` 认知解构规范，系统拆解服务业公司在搜索引擎、地图商家资料、本地评价体系与 AI 搜索摘要中的可见性增长逻辑。

@@ -1599,7 +1599,10 @@
         renderer: {
           code: function(code, lang) {
             if (lang === "mermaid") {
-              return '<div class="mermaid">' + code + '</div>';
+              var container = document.createElement('div');
+              container.className = 'mermaid';
+              container.textContent = code;
+              return container.outerHTML;
             }
             return this.origin.code.apply(this, arguments);
           }
@@ -2096,7 +2099,7 @@
                 if (unrendered.length > 0) {
                   window.mermaid.run({
                     nodes: unrendered,
-                    suppressErrors: true
+                    suppressErrors: false
                   }).then(function() {
                     normalizeMermaidSvgSize();
                   }).catch(function(err) {
@@ -2109,6 +2112,8 @@
               } catch (err) {
                 console.warn('Mermaid init error:', err);
               }
+            } else if (document.querySelector('.mermaid')) {
+              console.error('Mermaid runtime unavailable: check the pinned script and network response.');
             }
             // 沉浸阅读控制器与阅读进度条初始化
             var isBlogPage = isBlogRoute(normPath);
@@ -2590,6 +2595,12 @@
       });
       window._zenKeydownBound = true;
     }
+  </script>
+
+  <!-- 必须先于 Docsify 加载，避免首次 doneEach 时引擎尚未就绪。 -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.3/dist/mermaid.min.js"></script>
+  <script>
+    if (window.mermaid) window.mermaid.initialize({ startOnLoad: false });
   </script>
 
   <!-- Docsify 核心与常用扩展 -->

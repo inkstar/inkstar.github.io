@@ -1,7 +1,7 @@
 ---
 title: Web Markdown 与 Docsify 中 Mermaid 图表渲染深度避坑指南：从源码解析到工程级落地
 date: 2026-09-19 11:30
-updated: 2026-09-19 11:30
+updated: 2026-09-21
 tags: [前端工程, Docsify, Mermaid, SVG, Markdown, SPA]
 author: Inkstar
 ---
@@ -15,6 +15,31 @@ author: Inkstar
 ---
 
 ## 1. 现象复盘：为什么你的 Mermaid 图表无法渲染？
+
+### 2026-09-21 全站失效复盘：运行时脚本被误删
+
+本次故障的直接原因已通过 Git 历史和线上浏览器确认：提交 `92dda9b` 在加入二维码和文章分享海报功能时，将原有 Mermaid CDN `<script>` 替换成了二维码脚本。Markdown 图表容器和 `doneEach` 渲染逻辑仍在，但负责生成 SVG 的引擎没有加载。
+
+修复前，线上本文页面可检测到 **4 个 `.mermaid` 容器、0 个图表 SVG**，`typeof window.mermaid` 为 `"undefined"`。原来的 `if (window.mermaid)` 在条件不成立时直接跳过，因此没有明确的缺失依赖报错。遇到多个页面同时失效，应先检查公共入口依赖，再排查单篇图表语法。
+
+本次修复在 `index.html` 中恢复并锁定 Mermaid **10.9.3**，放在 Docsify 核心脚本之前，确保首次 `doneEach` 执行时运行时已经可用：
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.3/dist/mermaid.min.js"></script>
+<script>
+  if (window.mermaid) mermaid.initialize({ startOnLoad: false });
+</script>
+<!-- 随后加载 Docsify，由 doneEach 调用 mermaid.run() -->
+<script src="https://cdn.jsdelivr.net/npm/docsify@4"></script>
+```
+
+这里使用普通同步脚本，不添加 `async`；关闭自动扫描，由 Docsify 的页面生命周期触发渲染。保留站点现有的主题、SVG 尺寸归一化与路由切换处理。固定版本便于复现，不意味着版本可以永远不维护。
+
+同时补上两项诊断措施：有图表却缺失引擎时输出明确的控制台错误；`run()` 使用 `suppressErrors: false`，让已有的 `.catch()` 收到渲染失败。代码块通过 DOM 的 `textContent` 写入后再序列化，避免直接拼接源码时把标签或特殊字符解释成页面 HTML。
+
+回归检查应覆盖直接打开文章、站内切换和返回、移动端显示，并比较每篇 Markdown 的 Mermaid 代码块数量与实际成功生成的 SVG 数量。只检查 HTTP 200 或容器存在，无法发现这类功能回归。API 行为可参考 [Mermaid 官方使用说明](https://mermaid.js.org/config/usage.html#using-mermaid-run)。
+
+以下章节保留通用排查背景，部署时以本节的固定版本和加载顺序为准。
 
 在 Markdown 文档中，我们习惯使用如下标准语法编写流程图：
 
@@ -95,10 +120,10 @@ Marked 在解析 ````mermaid` 代码块时，只会将其视作一个带有 `dat
 - **Mermaid 8/9 时代**：
   官方主推的排版触发 API 为 `mermaid.init(undefined, '.mermaid')` 或 `mermaid.initialize({ startOnLoad: true })`。
 - **Mermaid 10 时代**：
-  官方进行了彻底的模块化重构，`mermaid.init()` 被正式废弃，全面转向异步 Promise 驱动的 **`mermaid.run({ querySelector: '.mermaid' })`**。
+  `mermaid.run()` 自 v10 引入，是复杂集成的推荐 API；`mermaid.init()` 被标记为弃用，但弃用不等于在 v10 中已删除。
 
 ```javascript
-// ❌ Mermaid 10 下调用老 API 会直接抛出异常或静默失效
+// 旧 API 已弃用，不建议新集成继续依赖
 mermaid.init(undefined, document.querySelectorAll('.mermaid'));
 
 // ✅ Mermaid 10 正确用法：支持指定 nodes 数组或 querySelector
@@ -108,7 +133,7 @@ await mermaid.run({
 });
 ```
 
-大量老旧的第三方 Docsify 插件在底层直接硬编码调用了 `mermaid.init`，一旦在 CDN 中引入了最新的 `mermaid@10`，整套流程直接崩溃。
+第三方插件与核心运行时应核对版本和 API 兼容性；不能仅凭使用了 `init()` 就断言 v10 一定无法渲染。
 
 ---
 
@@ -152,7 +177,10 @@ window.$docsify = {
     renderer: {
       code: function(code, lang) {
         if (lang === "mermaid") {
-          return '<div class="mermaid">' + code + '</div>';
+          var container = document.createElement('div');
+          container.className = 'mermaid';
+          container.textContent = code;
+          return container.outerHTML;
         }
         return this.origin.code.apply(this, arguments);
       }
@@ -257,12 +285,12 @@ hook.doneEach(function() {
 
 ---
 
-### 方案关键步骤五：引入最新 Mermaid 10 核心运行时
-在 `index.html` 底部引入官方最新发行包：
+### 方案关键步骤五：引入固定版本的 Mermaid 10 核心运行时
+在 `index.html` 的 Docsify 核心脚本之前引入固定发行包，并按本文故障复盘中的示例关闭自动扫描：
 
 ```html
 <!-- Mermaid 10 流程图排版引擎 -->
-<script src="//cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.3/dist/mermaid.min.js"></script>
 ```
 
 ---
