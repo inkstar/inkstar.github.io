@@ -1229,6 +1229,14 @@
         min-height: 38px;
         padding: 8px 28px 8px 10px !important;
       }
+      aside.sidebar .sidebar-nav li.sidebar-subgroup > p {
+        min-height: 36px;
+        padding: 8px 24px 8px 10px !important;
+      }
+      aside.sidebar .sidebar-nav ul li a {
+        min-height: 36px;
+        padding: 7px 10px !important;
+      }
 
       /* 3. 现代化悬浮圆形汉堡与关闭切换按钮 (z-index: 10001) */
       .sidebar-toggle {
@@ -1629,7 +1637,144 @@
             return normPath.replace(/[^a-zA-Z0-9]/g, '_').replace(/^_+|_+$/g, '') || 'page';
           }
 
-          // DOM 就绪时第一时间将遮罩挂载至 <main> 内，确保移动端层级与手势完全正确
+          // 全站侧边栏折叠分组与层级样式统一联动
+          function setupCollapsibleGlobalSidebar() {
+            var sidebarNav = document.querySelector('aside.sidebar .sidebar-nav');
+            if (!sidebarNav) return;
+
+            // 1. 处理一级分类折叠 (例如: 灵感随笔专栏、技术博客专栏、高中数学专栏)
+            var topItems = sidebarNav.querySelectorAll(':scope > ul > li');
+            Array.prototype.forEach.call(topItems, function(item) {
+              var trigger = item.querySelector(':scope > p');
+              var childList = item.querySelector(':scope > ul');
+              if (!trigger || !childList) return;
+
+              item.classList.add('sidebar-group');
+              if (!trigger.getAttribute('tabindex')) trigger.setAttribute('tabindex', '0');
+              trigger.setAttribute('role', 'button');
+
+              var hasActiveChild = Boolean(item.querySelector('p.active, li.active, a.active'));
+              if (hasActiveChild) item.classList.add('expanded');
+
+              if (!trigger._sidebarCollapseBound) {
+                trigger._sidebarCollapseBound = true;
+                trigger.addEventListener('click', function(e) {
+                  if (e.target && e.target.closest('a')) return;
+                  e.preventDefault();
+                  e.stopPropagation();
+                  item.classList.toggle('expanded');
+                });
+                trigger.addEventListener('keydown', function(e) {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    item.classList.toggle('expanded');
+                  }
+                });
+              }
+            });
+
+            // 2. 处理二级分类折叠（例如：高中数学各分册、技术分类子专栏）
+            var subItems = sidebarNav.querySelectorAll('.sidebar-group > ul > li');
+            Array.prototype.forEach.call(subItems, function(subItem) {
+              var subTrigger = subItem.querySelector(':scope > p');
+              var subChildList = subItem.querySelector(':scope > ul');
+              if (!subTrigger || !subChildList) return;
+
+              subItem.classList.add('sidebar-subgroup');
+              if (!subTrigger.getAttribute('tabindex')) subTrigger.setAttribute('tabindex', '0');
+              subTrigger.setAttribute('role', 'button');
+
+              var hasActiveChild = Boolean(subItem.querySelector('p.active, li.active, a.active'));
+              if (hasActiveChild) {
+                subItem.classList.add('expanded');
+                var parentGroup = subItem.closest('.sidebar-group');
+                if (parentGroup) parentGroup.classList.add('expanded');
+              }
+
+              if (!subTrigger._sidebarCollapseBound) {
+                subTrigger._sidebarCollapseBound = true;
+                subTrigger.addEventListener('click', function(e) {
+                  if (e.target && e.target.closest('a')) return;
+                  e.preventDefault();
+                  e.stopPropagation();
+                  subItem.classList.toggle('expanded');
+                });
+                subTrigger.addEventListener('keydown', function(e) {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    subItem.classList.toggle('expanded');
+                  }
+                });
+              }
+            });
+
+            // 3. 自动展开当前激活页面所在的父级分组
+            var activeLink = sidebarNav.querySelector('a.active, li.active > a');
+            if (activeLink) {
+              var currentSub = activeLink.closest('.sidebar-subgroup');
+              if (currentSub) currentSub.classList.add('expanded');
+              var currentGroup = activeLink.closest('.sidebar-group');
+              if (currentGroup) currentGroup.classList.add('expanded');
+            }
+          }
+
+          // 移动端抽屉遮罩与侧边栏事件防护
+          function setupMobileSidebarInteraction() {
+            var backdrop = document.getElementById('mobile-sidebar-backdrop');
+            var mainEl = document.querySelector('main');
+            var sidebarEl = document.querySelector('aside.sidebar');
+
+            // 关键架构修复：将遮罩挂载到 <main> 内部、<aside.sidebar> 之前
+            // 彻底杜绝 WebKit 堆叠上下文隔离 bug，确保侧边栏 z-index 永远压制在遮罩之上且可自由点击！
+            if (backdrop && mainEl && sidebarEl && backdrop.parentNode !== mainEl) {
+              mainEl.insertBefore(backdrop, sidebarEl);
+            }
+
+            if (backdrop && !backdrop._mobileBound) {
+              backdrop._mobileBound = true;
+              function closeDrawer(e) {
+                if (e && e.type === 'touchend') e.preventDefault();
+                document.body.classList.remove('close');
+              }
+              backdrop.addEventListener('click', closeDrawer);
+              backdrop.addEventListener('touchend', closeDrawer, { passive: false });
+            }
+
+            if (!window._mobileEscBound) {
+              window._mobileEscBound = true;
+              window.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && window.innerWidth <= 768 && document.body.classList.contains('close')) {
+                  document.body.classList.remove('close');
+                }
+              });
+            }
+
+            var sidebar = document.querySelector('aside.sidebar');
+            if (sidebar && !sidebar._mobileLinkBound) {
+              sidebar._mobileLinkBound = true;
+              // 核心修复：阻止侧边栏内部所有点击与触摸事件冒泡到 document.body
+              // 彻底阻断 Docsify 在移动端无差别监听 body click 导致的抽屉误收缩！
+              sidebar.addEventListener('click', function(e) {
+                e.stopPropagation();
+
+                var link = e.target && e.target.closest('a');
+                if (link && window.innerWidth <= 768) {
+                  // 仅当用户真正点击了跳转文章或页面的 <a> 链接时，才延迟收起侧边栏抽屉
+                  setTimeout(function() {
+                    document.body.classList.remove('close');
+                  }, 120);
+                }
+              });
+
+              sidebar.addEventListener('touchend', function(e) {
+                e.stopPropagation();
+              }, { passive: true });
+            }
+          }
+
+          // DOM 就绪时第一时间挂载遮罩并初始化侧边栏事件防护
           hook.ready(function() {
             var backdrop = document.getElementById('mobile-sidebar-backdrop');
             var mainEl = document.querySelector('main');
@@ -1637,6 +1782,10 @@
             if (backdrop && mainEl && sidebarEl && backdrop.parentNode !== mainEl) {
               mainEl.insertBefore(backdrop, sidebarEl);
             }
+            setupMobileSidebarInteraction();
+            setupCollapsibleGlobalSidebar();
+            setTimeout(setupCollapsibleGlobalSidebar, 150);
+            setTimeout(setupCollapsibleGlobalSidebar, 500);
           });
 
           // 1. 在渲染前解析 frontmatter 并为博客文章注入文章元数据
@@ -1991,81 +2140,8 @@
             updateProgress();
 
             // 4. 全站侧边栏折叠分组与层级样式统一联动
-            function setupCollapsibleGlobalSidebar() {
-              var sidebarNav = document.querySelector('aside.sidebar .sidebar-nav');
-              if (!sidebarNav) return;
-
-              // 1. 处理一级分类折叠
-              var topItems = sidebarNav.querySelectorAll(':scope > ul > li');
-              Array.prototype.forEach.call(topItems, function(item) {
-                var trigger = item.querySelector(':scope > p');
-                var childList = item.querySelector(':scope > ul');
-                if (!trigger || !childList) return;
-
-                item.classList.add('sidebar-group');
-                if (!trigger.getAttribute('tabindex')) trigger.setAttribute('tabindex', '0');
-                trigger.setAttribute('role', 'button');
-
-                var hasActiveChild = Boolean(item.querySelector('p.active, li.active, a.active'));
-                if (hasActiveChild) item.classList.add('expanded');
-
-                if (!trigger._sidebarCollapseBound) {
-                  trigger._sidebarCollapseBound = true;
-                  trigger.addEventListener('click', function(e) {
-                    if (e.target && e.target.closest('a')) return;
-                    item.classList.toggle('expanded');
-                  });
-                  trigger.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      item.classList.toggle('expanded');
-                    }
-                  });
-                }
-              });
-
-              // 2. 处理二级分类折叠（例如：高中数学各分册、技术分类子专栏）
-              var subItems = sidebarNav.querySelectorAll('.sidebar-group > ul > li');
-              Array.prototype.forEach.call(subItems, function(subItem) {
-                var subTrigger = subItem.querySelector(':scope > p');
-                var subChildList = subItem.querySelector(':scope > ul');
-                if (!subTrigger || !subChildList) return;
-
-                subItem.classList.add('sidebar-subgroup');
-                if (!subTrigger.getAttribute('tabindex')) subTrigger.setAttribute('tabindex', '0');
-                subTrigger.setAttribute('role', 'button');
-
-                var hasActiveChild = Boolean(subItem.querySelector('p.active, li.active, a.active'));
-                if (hasActiveChild) {
-                  subItem.classList.add('expanded');
-                  var parentGroup = subItem.closest('.sidebar-group');
-                  if (parentGroup) parentGroup.classList.add('expanded');
-                }
-
-                if (!subTrigger._sidebarCollapseBound) {
-                  subTrigger._sidebarCollapseBound = true;
-                  subTrigger.addEventListener('click', function(e) {
-                    if (e.target && e.target.closest('a')) return;
-                    subItem.classList.toggle('expanded');
-                  });
-                  subTrigger.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      subItem.classList.toggle('expanded');
-                    }
-                  });
-                }
-              });
-
-              // 3. 自动展开当前激活页面所在的父级分组
-              var activeLink = sidebarNav.querySelector('a.active, li.active > a');
-              if (activeLink) {
-                var currentSub = activeLink.closest('.sidebar-subgroup');
-                if (currentSub) currentSub.classList.add('expanded');
-                var currentGroup = activeLink.closest('.sidebar-group');
-                if (currentGroup) currentGroup.classList.add('expanded');
-              }
-            }
+            setupCollapsibleGlobalSidebar();
+            setTimeout(setupCollapsibleGlobalSidebar, 150);
 
             function mountVisitorComments() {
               var shouldShowComments = isBlogPage || normPath === '/guestbook';
@@ -2170,52 +2246,6 @@
             }
 
             // 5. 移动端抽屉遮罩与点击直达收起增强
-            function setupMobileSidebarInteraction() {
-              var backdrop = document.getElementById('mobile-sidebar-backdrop');
-              var mainEl = document.querySelector('main');
-              var sidebarEl = document.querySelector('aside.sidebar');
-
-              // 关键架构修复：将遮罩挂载到 <main> 内部、<aside.sidebar> 之前
-              // 彻底杜绝 WebKit 堆叠上下文隔离 bug，确保侧边栏 z-index 永远压制在遮罩之上且可自由点击！
-              if (backdrop && mainEl && sidebarEl && backdrop.parentNode !== mainEl) {
-                mainEl.insertBefore(backdrop, sidebarEl);
-              }
-
-              if (backdrop && !backdrop._mobileBound) {
-                backdrop._mobileBound = true;
-                function closeDrawer(e) {
-                  if (e && e.type === 'touchend') e.preventDefault();
-                  document.body.classList.remove('close');
-                }
-                backdrop.addEventListener('click', closeDrawer);
-                backdrop.addEventListener('touchend', closeDrawer, { passive: false });
-              }
-
-              if (!window._mobileEscBound) {
-                window._mobileEscBound = true;
-                window.addEventListener('keydown', function(e) {
-                  if (e.key === 'Escape' && window.innerWidth <= 768 && document.body.classList.contains('close')) {
-                    document.body.classList.remove('close');
-                  }
-                });
-              }
-
-              var sidebar = document.querySelector('aside.sidebar');
-              if (sidebar && !sidebar._mobileLinkBound) {
-                sidebar._mobileLinkBound = true;
-                sidebar.addEventListener('click', function(e) {
-                  var link = e.target && e.target.closest('a');
-                  if (link && window.innerWidth <= 768) {
-                    setTimeout(function() {
-                      document.body.classList.remove('close');
-                    }, 120);
-                  }
-                });
-              }
-            }
-
-            setupCollapsibleGlobalSidebar();
-            mountVisitorComments();
             setupMobileSidebarInteraction();
 
             function setupSidebarArticleToc(retryCount) {
@@ -2298,6 +2328,7 @@
                 Array.prototype.forEach.call(buttons, function(btn) {
                   btn.onclick = function(e) {
                     e.preventDefault();
+                    e.stopPropagation();
                     setSidebarMode(this.getAttribute('data-sidebar-mode'));
                   };
                 });
@@ -2508,6 +2539,9 @@
                   if (this.value && this.value.trim().length > 0) {
                     setSidebarMode('global');
                   }
+                });
+                searchInput.addEventListener('click', function(e) {
+                  e.stopPropagation();
                 });
               }
             }
