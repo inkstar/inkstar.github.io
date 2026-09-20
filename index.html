@@ -705,6 +705,34 @@
       from { opacity: 0; transform: translateY(4px); }
       to { opacity: 1; transform: translateY(0); }
     }
+    .sidebar-toc-quick-nav {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 10px;
+      margin: 4px 2px 10px 2px;
+      padding: 6px 10px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 0.8rem;
+    }
+    .sidebar-toc-quick-link {
+      color: #2563eb !important;
+      text-decoration: none !important;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .sidebar-toc-quick-link:hover {
+      color: #1d4ed8 !important;
+      text-decoration: underline !important;
+    }
+    .sidebar-toc-quick-sep {
+      color: #cbd5e1;
+      font-size: 0.75rem;
+    }
     .sidebar-toc-article-heading {
       font-size: 0.88rem;
       font-weight: 700;
@@ -1352,6 +1380,16 @@
             return normPath.replace(/[^a-zA-Z0-9]/g, '_').replace(/^_+|_+$/g, '') || 'page';
           }
 
+          // DOM 就绪时第一时间将遮罩挂载至 <main> 内，确保移动端层级与手势完全正确
+          hook.ready(function() {
+            var backdrop = document.getElementById('mobile-sidebar-backdrop');
+            var mainEl = document.querySelector('main');
+            var sidebarEl = document.querySelector('aside.sidebar');
+            if (backdrop && mainEl && sidebarEl && backdrop.parentNode !== mainEl) {
+              mainEl.insertBefore(backdrop, sidebarEl);
+            }
+          });
+
           // 1. 在渲染前解析 frontmatter 并为博客文章注入文章元数据
           hook.beforeEach(function(content) {
             content = content.replace(/^\uFEFF/, '');
@@ -1825,7 +1863,8 @@
                 // 直接绑定已有 Issue #1 访客留言
                 script.setAttribute('issue-number', '1');
               } else {
-                script.setAttribute('issue-term', 'pathname');
+                // 关键：基于每篇文章唯一的规范化路径隔离 GitHub Issue，杜绝整站共用相同评论区
+                script.setAttribute('issue-term', normPath);
               }
               script.setAttribute('label', 'comments');
               script.setAttribute('theme', 'github-light');
@@ -1869,6 +1908,15 @@
             // 5. 移动端抽屉遮罩与点击直达收起增强
             function setupMobileSidebarInteraction() {
               var backdrop = document.getElementById('mobile-sidebar-backdrop');
+              var mainEl = document.querySelector('main');
+              var sidebarEl = document.querySelector('aside.sidebar');
+
+              // 关键架构修复：将遮罩挂载到 <main> 内部、<aside.sidebar> 之前
+              // 彻底杜绝 WebKit 堆叠上下文隔离 bug，确保侧边栏 z-index 永远压制在遮罩之上且可自由点击！
+              if (backdrop && mainEl && sidebarEl && backdrop.parentNode !== mainEl) {
+                mainEl.insertBefore(backdrop, sidebarEl);
+              }
+
               if (backdrop && !backdrop._mobileBound) {
                 backdrop._mobileBound = true;
                 function closeDrawer(e) {
@@ -2068,6 +2116,11 @@
 
               // 构建大纲 HTML 结构
               var tocHtml = [
+                '<div class="sidebar-toc-quick-nav">',
+                '  <a href="#/" class="sidebar-toc-quick-link">🏠 网站首页</a>',
+                '  <span class="sidebar-toc-quick-sep">/</span>',
+                '  <a href="#/README" class="sidebar-toc-quick-link">📑 专栏总览</a>',
+                '</div>',
                 '<div class="sidebar-toc-article-heading" title="' + escapeHtml(articleTitle) + '">' + escapeHtml(articleTitle) + '</div>',
                 '<div class="sidebar-toc-section-title">文章章节</div>',
                 '<ul class="article-toc-nav">'
@@ -2103,11 +2156,12 @@
               tocContainer.setAttribute('data-ready', 'true');
               tocContainer.innerHTML = tocHtml.join('\n');
 
-              // 换文章时默认展示本文目录；同一篇文章内保留用户刚刚选择的模式。
+              // 换文章时：在移动端始终默认展示全站核心导航目录（首页、专栏、所有文章），避免误切到单篇大纲导致用户找不到首页
               var prevTocPath = sidebar.getAttribute('data-current-toc-path');
-              var currentMode = prevTocPath === normPath ? sidebar.getAttribute('data-sidebar-mode') : 'article';
+              var isMobile = window.innerWidth <= 768;
+              var currentMode = isMobile ? 'global' : (prevTocPath === normPath ? (sidebar.getAttribute('data-sidebar-mode') || 'global') : 'global');
               sidebar.setAttribute('data-current-toc-path', normPath);
-              setSidebarMode(currentMode === 'global' ? 'global' : 'article');
+              setSidebarMode(currentMode);
 
               // 交互：点击大纲章节平滑滚动定位
               var tocLinks = tocContainer.querySelectorAll('.article-toc-link');
@@ -2135,8 +2189,10 @@
                     }
                   });
 
-                  if (window.innerWidth < 768) {
-                    document.body.classList.add('close');
+                  if (window.innerWidth <= 768) {
+                    setTimeout(function() {
+                      document.body.classList.remove('close');
+                    }, 120);
                   }
                 };
               });
