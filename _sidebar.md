@@ -1,8 +1,9 @@
 * [🏠 网站首页 / 封面](/)
 * [📑 博客目录与概览](README.md)
-* [💬 访客留言](guestbook.md)
+* [💬 访客留言板](guestbook.md)
 * [📜 站点更新日志](CHANGELOG.md)
 * <a href="writer.html" target="_blank" rel="noopener">✍️ 随笔在线发布台 ↗</a>
+* [👤 关于作者](about.md)
 
 * **☕ 灵感随笔专栏**
   * [我就是想随便写写生活感受之类的](blog/essay-20260920-我就是想随便写写生活感受之类的.md)
@@ -31,6 +32,7 @@
   * **📗 必修第二册（高一下）**
     * [三角比、三角函数与解三角形建模](blog/highschool-trigonometry-guide.md)
     * [平面向量、数量积与动态极值转化](blog/highschool-vectors-guide.md)
+    * [复数几何意义、向量对应与模长度量解析](blog/highschool-complex-numbers-guide.md)
   * **📙 选择性必修第一册（高二上）**
     * [空间几何体、立体几何与空间向量](blog/highschool-solid-geometry-guide.md)
     * [平面解析几何与圆锥曲线综合探究](blog/highschool-conic-sections-guide.md)
@@ -60,6 +62,3 @@
 
 * **🧪 实验演练与测试**
   * [LaTeX 公式演练与测试](blog/blog01.md)
-
-* **👤 关于**
-  * [关于我](about.md)
