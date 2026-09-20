@@ -1093,7 +1093,13 @@
               script.setAttribute('crossorigin', 'anonymous');
               script.async = true;
               box.appendChild(script);
-              article.appendChild(box);
+
+              var footer = article.querySelector('.site-global-footer');
+              if (footer && footer.parentNode) {
+                footer.parentNode.insertBefore(box, footer);
+              } else {
+                article.appendChild(box);
+              }
             }
 
             setupCollapsibleGlobalSidebar();
