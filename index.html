@@ -867,24 +867,25 @@
     /* =========================================================
        移动设备全方位自适应规范 (Comprehensive Mobile Responsive)
        ========================================================= */
-    /* 移动端侧边栏抽屉遮罩层 */
+    /* 移动端侧边栏抽屉遮罩层：纯净半透明遮罩，彻底杜绝毛玻璃模糊与层级穿透 */
     #mobile-sidebar-backdrop {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(15, 23, 42, 0.45);
-      backdrop-filter: blur(3px);
-      -webkit-backdrop-filter: blur(3px);
-      z-index: 9999;
+      background: rgba(15, 23, 42, 0.48);
+      z-index: 9998 !important;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      touch-action: none;
+      transition: opacity 0.24s ease;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
     }
     body.close #mobile-sidebar-backdrop {
-      opacity: 1;
-      pointer-events: auto;
+      opacity: 1 !important;
+      pointer-events: auto !important;
     }
     @media screen and (min-width: 769px) {
       #mobile-sidebar-backdrop {
@@ -893,7 +894,16 @@
     }
 
     @media screen and (max-width: 768px) {
-      /* 1. 核心布局：严禁平移主内容区，避免产生横向晃动与右侧大白边 */
+      /* 1. 核心层级与布局穿透修复：解除 Docsify vue.css main { position: relative; z-index: 0 } 导致的堆叠上下文困局 */
+      #app {
+        position: static !important;
+        z-index: auto !important;
+      }
+      main {
+        position: static !important;
+        z-index: auto !important;
+        overflow-x: hidden !important;
+      }
       html, body {
         overflow-x: hidden !important;
         -webkit-overflow-scrolling: touch;
@@ -909,24 +919,36 @@
         transform: none !important;
       }
 
-      /* 2. 侧边栏抽屉式滑出与阴影 */
+      /* 2. 侧边栏抽屉式滑出：高对比纯白实体背景，绝对置顶层级 (z-index: 10000) */
       aside.sidebar {
+        position: fixed !important;
+        top: 0 !important;
+        bottom: 0 !important;
+        height: 100vh !important;
+        height: 100dvh !important;
         width: 290px !important;
         max-width: 82vw !important;
         left: -320px !important;
-        box-shadow: 6px 0 28px rgba(15, 23, 42, 0.18) !important;
+        background: #ffffff !important;
+        background-color: #ffffff !important;
+        opacity: 1 !important;
+        box-shadow: 6px 0 28px rgba(15, 23, 42, 0.22) !important;
         z-index: 10000 !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
         transition: transform 0.26s cubic-bezier(0.33, 1, 0.68, 1) !important;
       }
       body.close aside.sidebar {
         transform: translateX(320px) !important;
       }
       aside.sidebar .app-name {
-        margin: 16px 14px 6px 14px !important;
-        font-size: 1.1rem !important;
+        margin: 18px 14px 8px 14px !important;
+        font-size: 1.15rem !important;
+        font-weight: 700 !important;
+        color: #0f172a !important;
       }
       aside.sidebar .sidebar-nav {
-        padding: 4px 10px 80px 10px !important;
+        padding: 4px 10px 90px 10px !important;
       }
       aside.sidebar .sidebar-nav > ul > li:not(.sidebar-group) > a {
         min-height: 38px;
@@ -937,7 +959,7 @@
         padding: 8px 28px 8px 10px !important;
       }
 
-      /* 3. 现代化悬浮圆形汉堡菜单按钮 */
+      /* 3. 现代化悬浮圆形汉堡与关闭切换按钮 (z-index: 10001) */
       .sidebar-toggle {
         position: fixed !important;
         bottom: calc(18px + env(safe-area-inset-bottom, 0px)) !important;
@@ -947,9 +969,7 @@
         height: 44px !important;
         padding: 0 !important;
         margin: 0 !important;
-        background: rgba(255, 255, 255, 0.95) !important;
-        backdrop-filter: blur(12px) !important;
-        -webkit-backdrop-filter: blur(12px) !important;
+        background: #ffffff !important;
         border: 1px solid #e2e8f0 !important;
         border-radius: 50% !important;
         box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12) !important;
@@ -959,7 +979,7 @@
         cursor: pointer !important;
         z-index: 10001 !important;
         touch-action: manipulation;
-        transition: transform 0.2s ease, background-color 0.2s ease, left 0.26s cubic-bezier(0.33, 1, 0.68, 1) !important;
+        transition: transform 0.2s ease, left 0.26s cubic-bezier(0.33, 1, 0.68, 1), box-shadow 0.2s ease !important;
       }
       .sidebar-toggle:active {
         transform: scale(0.92);
@@ -971,15 +991,35 @@
         margin-bottom: 3.5px !important;
         border-radius: 2px !important;
         display: block !important;
+        transition: transform 0.22s ease, opacity 0.22s ease, margin 0.22s ease !important;
       }
       .sidebar-toggle span:last-child {
         margin-bottom: 0 !important;
       }
-      /* 侧边栏展开时，按钮随抽屉移动 */
+      /* 侧边栏展开时，按钮随抽屉滑至内侧边缘，形态变换为关闭叉号 (X) */
       body.close .sidebar-toggle {
-        left: 236px !important;
+        left: calc(min(290px, 82vw) - 52px) !important;
+        width: 44px !important;
+        height: 44px !important;
+        padding: 0 !important;
         background: #ffffff !important;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15) !important;
+      }
+      body.close .sidebar-toggle span:nth-child(1) {
+        transform: translateY(6px) rotate(45deg) !important;
+      }
+      body.close .sidebar-toggle span:nth-child(2) {
+        opacity: 0 !important;
+      }
+      body.close .sidebar-toggle span:nth-child(3) {
+        transform: translateY(-6px) rotate(-45deg) !important;
+      }
+
+      /* 侧边栏抽屉展开时，隐藏悬浮阅读胶囊，保持界面纯净专注 */
+      body.close .reading-dock {
+        opacity: 0 !important;
+        pointer-events: none !important;
+        transform: translateY(20px) !important;
       }
 
       /* 4. 封面页 (Cover Page) 移动端优化 */
@@ -1831,8 +1871,20 @@
               var backdrop = document.getElementById('mobile-sidebar-backdrop');
               if (backdrop && !backdrop._mobileBound) {
                 backdrop._mobileBound = true;
-                backdrop.addEventListener('click', function() {
+                function closeDrawer(e) {
+                  if (e && e.type === 'touchend') e.preventDefault();
                   document.body.classList.remove('close');
+                }
+                backdrop.addEventListener('click', closeDrawer);
+                backdrop.addEventListener('touchend', closeDrawer, { passive: false });
+              }
+
+              if (!window._mobileEscBound) {
+                window._mobileEscBound = true;
+                window.addEventListener('keydown', function(e) {
+                  if (e.key === 'Escape' && window.innerWidth <= 768 && document.body.classList.contains('close')) {
+                    document.body.classList.remove('close');
+                  }
                 });
               }
 
