@@ -2039,82 +2039,109 @@
               });
             }
 
-            // Mermaid 图表渲染与统一尺寸自适应归一化
-            if (window.mermaid) {
-              try {
-                window.mermaid.initialize({
-                  startOnLoad: false,
-                  theme: 'neutral',
-                  securityLevel: 'loose',
-                  flowchart: {
-                    useMaxWidth: false, // 禁用内部强制 100% 占满，由外层智能自适应接管
-                    htmlLabels: true,
-                    curve: 'basis',
-                    nodeSpacing: 42,
-                    rankSpacing: 38,
-                    padding: 12
-                  },
-                  themeVariables: {
-                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif',
-                    fontSize: '13.5px',
-                    primaryColor: '#f0f9ff',
-                    primaryTextColor: '#0369a1',
-                    primaryBorderColor: '#7dd3fc',
-                    lineColor: '#64748b',
-                    secondaryColor: '#f0fdf4',
-                    secondaryTextColor: '#15803d',
-                    secondaryBorderColor: '#86efac',
-                    tertiaryColor: '#f8fafc',
-                    tertiaryTextColor: '#334155',
-                    tertiaryBorderColor: '#cbd5e1',
-                    clusterBkg: '#f8fafc',
-                    clusterBorder: '#e2e8f0',
-                    edgeLabelBackground: '#ffffff'
-                  }
-                });
+            // Mermaid 图表渲染与统一尺寸自适应归一化（带异步重试保障）
+            function renderMermaidWithRetry(retriesLeft) {
+              if (typeof retriesLeft !== 'number') retriesLeft = 25;
 
-                // 核心归一化函数：根据 SVG 自身 viewBox 自然尺寸计算合理上限，防止少节点图被放大成巨无霸
-                var normalizeMermaidSvgSize = function() {
-                  var containers = document.querySelectorAll('.mermaid');
-                  containers.forEach(function(container) {
-                    var svg = container.querySelector('svg');
-                    if (!svg) return;
-                    var vb = svg.getAttribute('viewBox');
-                    if (vb) {
-                      var parts = vb.trim().split(/[\s,]+/).map(Number);
-                      if (parts.length === 4) {
-                        var naturalWidth = parts[2];
-                        if (naturalWidth && naturalWidth > 0) {
-                          // 限制最大宽度不能超过自身自然尺寸，以 1:1 原生比例呈现，保持与正文字号一致
-                          svg.style.maxWidth = Math.ceil(naturalWidth) + 'px';
-                          svg.style.width = '100%';
-                          svg.style.height = 'auto';
-                        }
-                      }
+              var containers = document.querySelectorAll('.mermaid');
+              if (containers.length === 0) return;
+
+              if (window.mermaid) {
+                try {
+                  window.mermaid.initialize({
+                    startOnLoad: false,
+                    theme: 'neutral',
+                    securityLevel: 'loose',
+                    flowchart: {
+                      useMaxWidth: false, // 禁用内部强制 100% 占满，由外层智能自适应接管
+                      htmlLabels: true,
+                      curve: 'basis',
+                      nodeSpacing: 42,
+                      rankSpacing: 38,
+                      padding: 12
+                    },
+                    sequence: {
+                      useMaxWidth: false
+                    },
+                    gantt: {
+                      useMaxWidth: false
+                    },
+                    themeVariables: {
+                      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif',
+                      fontSize: '13.5px',
+                      primaryColor: '#f0f9ff',
+                      primaryTextColor: '#0369a1',
+                      primaryBorderColor: '#7dd3fc',
+                      lineColor: '#64748b',
+                      secondaryColor: '#f0fdf4',
+                      secondaryTextColor: '#15803d',
+                      secondaryBorderColor: '#86efac',
+                      tertiaryColor: '#f8fafc',
+                      tertiaryTextColor: '#334155',
+                      tertiaryBorderColor: '#cbd5e1',
+                      clusterBkg: '#f8fafc',
+                      clusterBorder: '#e2e8f0',
+                      edgeLabelBackground: '#ffffff'
                     }
                   });
-                };
 
-                var unrendered = document.querySelectorAll('.mermaid:not([data-processed="true"])');
-                if (unrendered.length > 0) {
-                  window.mermaid.run({
-                    nodes: unrendered,
-                    suppressErrors: false
-                  }).then(function() {
-                    normalizeMermaidSvgSize();
-                  }).catch(function(err) {
-                    console.warn('Mermaid rendering error:', err);
+                  // 核心归一化函数：根据 SVG 自身 viewBox 自然尺寸计算合理上限，防止少节点图被放大成巨无霸
+                  var normalizeMermaidSvgSize = function() {
+                    var allContainers = document.querySelectorAll('.mermaid');
+                    allContainers.forEach(function(container) {
+                      var svg = container.querySelector('svg');
+                      if (!svg) return;
+                      var vb = svg.getAttribute('viewBox');
+                      if (vb) {
+                        var parts = vb.trim().split(/[\s,]+/).map(Number);
+                        if (parts.length === 4) {
+                          var naturalWidth = parts[2];
+                          if (naturalWidth && naturalWidth > 0) {
+                            // 限制最大宽度不能超过自身自然尺寸，以 1:1 原生比例呈现，保持与正文字号一致
+                            svg.style.maxWidth = Math.ceil(naturalWidth) + 'px';
+                            svg.style.width = '100%';
+                            svg.style.height = 'auto';
+                          }
+                        }
+                      }
+                    });
+                  };
+
+                  var unrendered = [];
+                  containers.forEach(function(c) {
+                    if (!c.getAttribute('data-processed') || !c.querySelector('svg')) {
+                      c.removeAttribute('data-processed');
+                      unrendered.push(c);
+                    }
                   });
+
+                  if (unrendered.length > 0) {
+                    window.mermaid.run({
+                      nodes: unrendered,
+                      suppressErrors: true
+                    }).then(function() {
+                      normalizeMermaidSvgSize();
+                    }).catch(function(err) {
+                      console.warn('Mermaid rendering error:', err);
+                    });
+                  }
+                  // 异步与二次重绘双重兜底
+                  setTimeout(normalizeMermaidSvgSize, 120);
+                  setTimeout(normalizeMermaidSvgSize, 400);
+                } catch (err) {
+                  console.warn('Mermaid init error:', err);
                 }
-                // 异步与二次重绘双重兜底
-                setTimeout(normalizeMermaidSvgSize, 120);
-                setTimeout(normalizeMermaidSvgSize, 400);
-              } catch (err) {
-                console.warn('Mermaid init error:', err);
+              } else if (retriesLeft > 0) {
+                // 若首次 doneEach 时 Mermaid 外部脚本仍在加载，延迟 200ms 自动重试
+                setTimeout(function() {
+                  renderMermaidWithRetry(retriesLeft - 1);
+                }, 200);
+              } else {
+                console.error('Mermaid runtime unavailable after retries: check the script tag and network response.');
               }
-            } else if (document.querySelector('.mermaid')) {
-              console.error('Mermaid runtime unavailable: check the pinned script and network response.');
             }
+
+            renderMermaidWithRetry(25);
             // 沉浸阅读控制器与阅读进度条初始化
             var isBlogPage = isBlogRoute(normPath);
             var dock = document.getElementById('reading-dock');
@@ -2597,8 +2624,8 @@
     }
   </script>
 
-  <!-- 必须先于 Docsify 加载，避免首次 doneEach 时引擎尚未就绪。 -->
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.3/dist/mermaid.min.js"></script>
+  <!-- Mermaid 10 矢量排版引擎（前置加载，自带多 CDN 灾备高可用兜底） -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.3/dist/mermaid.min.js" onerror="this.onerror=null;var s=document.createElement('script');s.src='https://unpkg.com/mermaid@10.9.3/dist/mermaid.min.js';document.head.appendChild(s);"></script>
   <script>
     if (window.mermaid) window.mermaid.initialize({ startOnLoad: false });
   </script>
