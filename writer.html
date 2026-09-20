@@ -718,8 +718,8 @@
       <input type="text" id="post-title" class="title-input" placeholder="输入随笔标题 (如：在算法洪流里，重拾慢思考的乐趣)..." oninput="window.onTitleChange()">
       
       <div class="slug-wrapper">
-        <span>文件名:</span>
-        <input type="text" id="post-slug" class="slug-input" placeholder="essay-YYYYMMDD-slug.md" title="将存入仓库 blog/ 目录的文件名">
+        <span>文件名 / Slug:</span>
+        <input type="text" id="post-slug" class="slug-input" placeholder="essay-YYYYMMDD-HHmm.md" title="将存入仓库 blog/ 目录的文件名 (纯小写英文、数字与短横线，无中文)">
       </div>
     </div>
 
@@ -955,7 +955,7 @@
       }
     };
 
-    // 2. Slug 与标题联动
+    // 2. Slug 与标题联动（时间戳 + 英文/数字智能提取，纯 ASCII 绝不含中文）
     window.onTitleChange = function() {
       var title = document.getElementById('post-title').value.trim();
       var slugInput = document.getElementById('post-slug');
@@ -966,17 +966,20 @@
         var y = now.getFullYear();
         var m = String(now.getMonth() + 1).padStart(2, '0');
         var d = String(now.getDate()).padStart(2, '0');
+        var hh = String(now.getHours()).padStart(2, '0');
+        var mm = String(now.getMinutes()).padStart(2, '0');
         var datePrefix = 'essay-' + y + m + d;
 
-        // 提取简要拼音或英文单词
-        var cleanSlug = title
-          .toLowerCase()
-          .replace(/[^\w\u4e00-\u9fa5]/g, '-')
-          .replace(/-+/g, '-')
-          .replace(/^-|-$/g, '')
-          .slice(0, 30);
-        
-        slugInput.value = datePrefix + (cleanSlug ? ('-' + cleanSlug) : '') + '.md';
+        // 提取标题中的纯英文单词或数字
+        var enMatches = title.toLowerCase().match(/[a-z0-9]+/g);
+        var enSlug = '';
+        if (enMatches && enMatches.length > 0) {
+          enSlug = enMatches.slice(0, 4).join('-');
+        }
+
+        // 如果提取出英文/数字核心词，拼在日期后；若为纯中文无英文，则追加时分时间戳 (如 essay-20260921-1430.md)
+        var finalSlug = enSlug ? (datePrefix + '-' + enSlug) : (datePrefix + '-' + hh + mm);
+        slugInput.value = finalSlug + '.md';
       }
 
       window.onMetaChange();
@@ -984,6 +987,11 @@
 
     document.getElementById('post-slug').addEventListener('input', function() {
       this.setAttribute('data-customized', 'true');
+      // 实时清洗用户手动输入的字符：严格只允许小写英文字母、数字、短横线与点
+      var sanitized = this.value.toLowerCase().replace(/[^a-z0-9.-]/g, '-').replace(/-+/g, '-');
+      if (this.value !== sanitized) {
+        this.value = sanitized;
+      }
       window.onMetaChange();
     });
 
@@ -1177,8 +1185,18 @@
         window.onTitleChange();
         slug = document.getElementById('post-slug').value.trim();
       }
+      // 严格清洗 slug，杜绝任何中文字符混入
+      slug = slug.toLowerCase().replace(/[^a-z0-9.-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
       if (!slug.endsWith('.md')) {
         slug += '.md';
+      }
+      if (slug === '.md' || slug === '') {
+        var now = new Date();
+        slug = 'essay-' + now.getFullYear() + 
+          String(now.getMonth() + 1).padStart(2, '0') + 
+          String(now.getDate()).padStart(2, '0') + '-' + 
+          String(now.getHours()).padStart(2, '0') + 
+          String(now.getMinutes()).padStart(2, '0') + '.md';
       }
 
       var tags = tagsRaw.split(',').map(function(t) { return t.trim(); }).filter(Boolean);

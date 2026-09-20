@@ -6,8 +6,8 @@
 * [👤 关于作者](about.md)
 
 * **☕ 灵感随笔专栏**
-  * [和 GPT 的日常对话（1）你觉得我最像哪一个人物](blog/essay-20260921-和-gpt-的日常对话-1-你觉得我最像哪一个人物.md)
-  * [我就是想随便写写生活感受之类的](blog/essay-20260920-我就是想随便写写生活感受之类的.md)
+  * [和 GPT 的日常对话（1）你觉得我最像哪一个人物](blog/essay-20260921-gpt-1.md)
+  * [我就是想随便写写生活感受之类的](blog/essay-20260920-2143.md)
   * [为什么要搭建这个独立数字花园：关于沉淀与表达的碎碎念](blog/essay-digital-garden-manifesto.md)
   * [在算法洪流的时代，重拾慢思考与手写笔记的乐趣](blog/essay-slow-thinking-in-ai-era.md)
 
