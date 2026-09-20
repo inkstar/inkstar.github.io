@@ -522,6 +522,69 @@
       font-weight: 700;
       border-left-color: #16a34a;
     }
+
+    /* 全站侧边栏分组折叠：默认收起内容，当前分组或点击后展开 */
+    aside.sidebar .sidebar-nav > ul > li.sidebar-group > p {
+      position: relative;
+      margin: 6px 8px 4px 8px;
+      padding: 7px 26px 7px 10px;
+      border-radius: 7px;
+      cursor: pointer;
+      color: #334155;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      user-select: none;
+    }
+    aside.sidebar .sidebar-nav > ul > li.sidebar-group > p:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+    aside.sidebar .sidebar-nav > ul > li.sidebar-group > p::after {
+      content: "›";
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%) rotate(0deg);
+      color: #94a3b8;
+      font-size: 1rem;
+      transition: transform 0.15s ease;
+    }
+    aside.sidebar .sidebar-nav > ul > li.sidebar-group > ul {
+      display: none;
+      margin: 4px 0 8px 8px !important;
+      padding-left: 12px !important;
+      border-left: 1px solid #e2e8f0;
+    }
+    aside.sidebar .sidebar-nav > ul > li.sidebar-group.expanded > p {
+      background: #ecfdf5;
+      color: #047857;
+      border-color: #bbf7d0;
+    }
+    aside.sidebar .sidebar-nav > ul > li.sidebar-group.expanded > p::after {
+      transform: translateY(-50%) rotate(90deg);
+      color: #10b981;
+    }
+    aside.sidebar .sidebar-nav > ul > li.sidebar-group.expanded > ul {
+      display: block;
+    }
+
+    .visitor-comments {
+      margin-top: 42px;
+      padding-top: 22px;
+      border-top: 1px dashed #e2e8f0;
+    }
+    .visitor-comments-heading {
+      margin: 0 0 14px 0;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #1e293b;
+    }
+    .visitor-comments-note {
+      margin: 0 0 18px 0;
+      color: #64748b;
+      font-size: 0.9rem;
+      line-height: 1.7;
+    }
   </style>
 
   <!-- MathJax 3 配置 -->
@@ -538,7 +601,7 @@
     };
   </script>
 </head>
-<body>
+  <body class="close">
   <!-- 沉浸式阅读顶部进度条 -->
   <div id="reading-progress-bar"></div>
 
@@ -970,7 +1033,72 @@
             window.addEventListener('scroll', updateProgress, { passive: true });
             updateProgress();
 
-            // 4. 左侧边栏文章结构大纲智能切换与 ScrollSpy 联动
+            // 4. 全站侧边栏折叠分组、文章结构大纲与 ScrollSpy 联动
+            function setupCollapsibleGlobalSidebar() {
+              var sidebarNav = document.querySelector('aside.sidebar .sidebar-nav');
+              if (!sidebarNav) return;
+
+              var topItems = sidebarNav.querySelectorAll(':scope > ul > li');
+              Array.prototype.forEach.call(topItems, function(item) {
+                var trigger = item.querySelector(':scope > p');
+                var childList = item.querySelector(':scope > ul');
+                if (!trigger || !childList) return;
+
+                item.classList.add('sidebar-group');
+                if (!trigger.getAttribute('tabindex')) trigger.setAttribute('tabindex', '0');
+                trigger.setAttribute('role', 'button');
+
+                var hasActiveChild = Boolean(item.querySelector('p.active, li.active, a.active'));
+                if (hasActiveChild) item.classList.add('expanded');
+
+                if (!trigger._sidebarCollapseBound) {
+                  trigger._sidebarCollapseBound = true;
+                  trigger.addEventListener('click', function(e) {
+                    if (e.target && e.target.closest('a')) return;
+                    item.classList.toggle('expanded');
+                  });
+                  trigger.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      item.classList.toggle('expanded');
+                    }
+                  });
+                }
+              });
+            }
+
+            function mountVisitorComments() {
+              var shouldShowComments = isBlogPage || normPath === '/guestbook';
+              var oldComments = document.getElementById('visitor-comments');
+              if (oldComments) oldComments.parentNode.removeChild(oldComments);
+              if (!shouldShowComments) return;
+
+              var article = document.querySelector('.markdown-section');
+              if (!article) return;
+
+              var box = document.createElement('section');
+              box.id = 'visitor-comments';
+              box.className = 'visitor-comments';
+              box.innerHTML = [
+                '<h2 class="visitor-comments-heading">访客留言</h2>',
+                '<p class="visitor-comments-note">留言基于 GitHub Issues，首次留言需要登录 GitHub。你可以在这里留下问题、建议或读后反馈。</p>'
+              ].join('');
+
+              var script = document.createElement('script');
+              script.src = 'https://utteranc.es/client.js';
+              script.setAttribute('repo', 'inkstar/inkstar.github.io');
+              script.setAttribute('issue-term', normPath === '/guestbook' ? 'title' : 'pathname');
+              script.setAttribute('label', 'comments');
+              script.setAttribute('theme', 'github-light');
+              script.setAttribute('crossorigin', 'anonymous');
+              script.async = true;
+              box.appendChild(script);
+              article.appendChild(box);
+            }
+
+            setupCollapsibleGlobalSidebar();
+            mountVisitorComments();
+
             function setupSidebarArticleToc(retryCount) {
               retryCount = retryCount || 0;
               function escapeHtml(str) {
@@ -1013,6 +1141,15 @@
                   el.setAttribute('id', tid);
                 }
                 return tid;
+              }
+
+              function getArticleHeadings() {
+                return Array.prototype.filter.call(
+                  document.querySelectorAll('.markdown-section h2, .markdown-section h3'),
+                  function(h) {
+                    return !h.closest('#visitor-comments');
+                  }
+                );
               }
 
               var sidebar = document.querySelector('aside.sidebar');
@@ -1080,7 +1217,7 @@
               }
 
               // 检索正文中的二级和三级标题 (H2, H3)
-              var headings = document.querySelectorAll('.markdown-section h2, .markdown-section h3');
+              var headings = getArticleHeadings();
               if (!headings || headings.length < 2) {
                 if (retryCount < 12) {
                   setTimeout(function() {
@@ -1199,7 +1336,7 @@
 
               // ScrollSpy 滚动监听与高亮联动
               function updateTocScrollSpy() {
-                var headingElements = document.querySelectorAll('.markdown-section h2, .markdown-section h3');
+                var headingElements = getArticleHeadings();
                 if (!headingElements.length) return;
                 var scrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
                 var currentActiveId = '';
