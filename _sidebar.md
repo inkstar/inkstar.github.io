@@ -22,6 +22,8 @@
   * **🎨 Web 开发与前端工程**
     * [Mermaid 图表渲染深度避坑指南](blog/docsify-mermaid-guide.md)
     * [Web 数学公式渲染避坑深度指南](blog/math-rendering-guide.md)
+  * **📈 搜索优化与增长工程**
+    * [服务业本地 SEO 与 AI 搜索可见性增长指南](blog/local-seo-ai-search-visibility-guide.md)
   * **🛠️ 站务建设与工程实践**
     * [2026 搭建博客指南](blog/setup.md)
 

@@ -1,7 +1,7 @@
 ---
 title: Inkstar's Space
 date: 2026-02-18
-updated: 2026-09-19
+updated: 2026-09-21
 ---
 
 # Inkstar's Space
@@ -123,6 +123,10 @@ updated: 2026-09-19
   从 Marked 编译管道、Mermaid 10 断崖升级、HTML 实体字符转义，到 SPA 路由重绘生命周期与自适应容器工程化全套解法。
 - 📐 **[Web 现代数学公式渲染避坑深度指南](blog/math-rendering-guide.md)**  
   从排版原理、KaTeX vs MathJax 深度选型对比，到定界符失效、隐藏 Tab 几何尺寸为零、SPA 异步渲染时序脱节、JS 反斜杠转义黑洞等五大深坑与完整解法。
+
+### 📈 搜索优化与增长工程
+- 🧭 **[服务业本地 SEO 与 AI 搜索可见性增长指南](blog/local-seo-ai-search-visibility-guide.md)**
+  从搜索意图、本地排名三要素、商家资料与评价体系，到服务页结构、AI 摘要适配、四阶段执行路线和可落地的 10 步搜索可见性增长闭环。
 
 ### 🛠️ 站务建设与工程实践
 - 🚀 **[2026 搭建博客指南](blog/setup.md)**  
