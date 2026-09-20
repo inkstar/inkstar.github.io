@@ -569,7 +569,8 @@
       loadSidebar: true,
       loadNavbar: false,
       coverpage: true,
-      subMaxLevel: 3,
+      // 关闭 Docsify 自动把当前页面标题混入全局侧边栏；文章页目录由自定义双标签组件接管。
+      subMaxLevel: 0,
       auto2top: true,
       alias: {
         '/.*/_sidebar.md': '/_sidebar.md'
