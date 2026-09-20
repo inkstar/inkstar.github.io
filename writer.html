@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>✍️ 随笔写作与在线发布台 - Inkstar's Space</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    :root {
+      --primary: #10b981;
+      --primary-dark: #059669;
+      --primary-light: #ecfdf5;
+      --primary-border: #a7f3d0;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --bg-page: #f8fafc;
+      --bg-card: #ffffff;
+      --border-color: #e2e8f0;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg-page);
+      color: var(--text-main);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* 顶部导航控制栏 */
+    .topbar {
+      height: 56px;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      flex-shrink: 0;
+      z-index: 20;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #0f172a;
+      text-decoration: none;
+    }
+    .brand-badge {
+      font-size: 0.75rem;
+      padding: 2px 7px;
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      border: 1px solid var(--primary-border);
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    .btn-back-home {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 10px;
+      font-size: 0.82rem;
+      color: #475569;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-back-home:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .topbar-center {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .draft-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .draft-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10b981;
+    }
+    .draft-dot.unsaved {
+      background: #f59e0b;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-badge {
+      font-size: 0.82rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: #f1f5f9;
+      border-radius: 20px;
+      border: 1px solid #e2e8f0;
+      color: #334155;
+    }
+    .btn-auth-action {
+      background: none;
+      border: none;
+      color: #64748b;
+      cursor: pointer;
+      font-size: 0.78rem;
+      text-decoration: underline;
+    }
+    .btn-auth-action:hover {
+      color: #dc2626;
+    }
+
+    .btn-view-toggle {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 10px;
+      font-size: 0.82rem;
+      color: #334155;
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .btn-publish {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #ffffff;
+      border: none;
+      padding: 7px 16px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(16, 185, 129, 0.25);
+      transition: all 0.2s;
+    }
+    .btn-publish:hover {
+      background: linear-gradient(135deg, #059669, #047857);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(16, 185, 129, 0.35);
+    }
+    .btn-publish:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* 元信息配置栏 */
+    .meta-bar {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-color);
+      padding: 10px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .meta-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .title-input {
+      flex: 1;
+      font-size: 1.15rem;
+      font-weight: 700;
+      border: 1px solid transparent;
+      padding: 6px 10px;
+      border-radius: 6px;
+      outline: none;
+      background: #f8fafc;
+      transition: all 0.2s;
+    }
+    .title-input:focus {
+      background: #ffffff;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+    }
+
+    .slug-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.82rem;
+      color: #64748b;
+    }
+    .slug-input {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      padding: 4px 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 5px;
+      outline: none;
+      width: 260px;
+      background: #ffffff;
+    }
+    .slug-input:focus {
+      border-color: var(--primary);
+    }
+
+    .meta-sub-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 0.82rem;
+    }
+    .tags-input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+    }
+    .tags-input {
+      flex: 1;
+      padding: 4px 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 5px;
+      font-size: 0.82rem;
+      outline: none;
+    }
+    .tags-input:focus {
+      border-color: var(--primary);
+    }
+    .quick-chips {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .chip-btn {
+      padding: 2px 7px;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      color: #475569;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .chip-btn:hover {
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      border-color: var(--primary-border);
+    }
+
+    /* 编辑器工具栏 */
+    .toolbar {
+      height: 38px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .tool-btn {
+      padding: 4px 8px;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      color: #475569;
+      font-size: 0.82rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+    .tool-btn:hover {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+      color: #0f172a;
+    }
+    .tool-divider {
+      width: 1px;
+      height: 16px;
+      background: #e2e8f0;
+      margin: 0 4px;
+    }
+
+    /* 主工作区分栏 */
+    .workspace {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .editor-pane {
+      flex: 1;
+      height: 100%;
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      background: #ffffff;
+    }
+
+    .editor-textarea {
+      flex: 1;
+      width: 100%;
+      padding: 16px 20px;
+      border: none;
+      outline: none;
+      resize: none;
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      line-height: 1.65;
+      color: #1e293b;
+      background: #ffffff;
+    }
+
+    .editor-statusbar {
+      height: 28px;
+      background: #f8fafc;
+      border-top: 1px solid var(--border-color);
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.76rem;
+      color: #64748b;
+      flex-shrink: 0;
+    }
+
+    .preview-pane {
+      flex: 1;
+      height: 100%;
+      overflow-y: auto;
+      padding: 24px 32px;
+      background: #ffffff;
+    }
+
+    /* 预览容器样式（还原 Docsify 风格） */
+    .preview-header-card {
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px dashed var(--border-color);
+    }
+    .preview-breadcrumb {
+      font-size: 0.8rem;
+      color: #64748b;
+      margin-bottom: 10px;
+    }
+    .preview-title {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.35;
+      margin-bottom: 12px;
+    }
+    .preview-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.82rem;
+      color: #64748b;
+      flex-wrap: wrap;
+    }
+    .preview-tag {
+      padding: 2px 7px;
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      border: 1px solid var(--primary-border);
+      border-radius: 4px;
+      font-size: 0.74rem;
+      font-weight: 600;
+    }
+
+    .preview-content {
+      font-size: 1rem;
+      line-height: 1.8;
+      color: #334155;
+    }
+    .preview-content h1, .preview-content h2, .preview-content h3 {
+      color: #0f172a;
+      margin-top: 1.4em;
+      margin-bottom: 0.6em;
+      font-weight: 700;
+    }
+    .preview-content h2 {
+      font-size: 1.35rem;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .preview-content h3 {
+      font-size: 1.15rem;
+    }
+    .preview-content p {
+      margin-bottom: 1em;
+    }
+    .preview-content blockquote {
+      margin: 1.2em 0;
+      padding: 12px 18px;
+      border-left: 4px solid var(--primary);
+      background: #f0fdf4;
+      color: #166534;
+      border-radius: 0 8px 8px 0;
+    }
+    .preview-content ul, .preview-content ol {
+      margin: 1em 0;
+      padding-left: 24px;
+    }
+    .preview-content li {
+      margin-bottom: 0.4em;
+    }
+    .preview-content code {
+      font-family: var(--font-mono);
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.88em;
+      color: #0f172a;
+    }
+    .preview-content pre {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 14px 18px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 1.2em 0;
+    }
+    .preview-content pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+    }
+    .preview-content hr {
+      border: none;
+      height: 1px;
+      background: var(--border-color);
+      margin: 2em 0;
+    }
+
+    /* 鉴权登录弹窗 */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .auth-card {
+      background: #ffffff;
+      border-radius: 12px;
+      width: 480px;
+      max-width: 92vw;
+      padding: 28px 30px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      animation: modalFadeIn 0.2s ease-out;
+    }
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .auth-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .auth-icon {
+      font-size: 1.8rem;
+    }
+    .auth-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .auth-desc {
+      font-size: 0.85rem;
+      color: #64748b;
+      line-height: 1.5;
+      margin-bottom: 18px;
+    }
+    .auth-input-group {
+      margin-bottom: 14px;
+    }
+    .auth-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 6px;
+    }
+    .auth-input-wrap {
+      position: relative;
+    }
+    .auth-input {
+      width: 100%;
+      padding: 9px 12px;
+      padding-right: 40px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      outline: none;
+    }
+    .auth-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+    }
+    .auth-toggle-pwd {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+      color: #94a3b8;
+    }
+    .auth-help {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 0.78rem;
+      color: #475569;
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+    .auth-help a {
+      color: var(--primary-dark);
+      font-weight: 600;
+      text-decoration: underline;
+    }
+    .auth-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    .btn-auth-submit {
+      padding: 8px 18px;
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-auth-submit:hover {
+      background: var(--primary-dark);
+    }
+
+    /* 发布进度与成功提示弹窗 */
+    .status-modal {
+      background: #ffffff;
+      border-radius: 12px;
+      width: 440px;
+      max-width: 90vw;
+      padding: 26px 28px;
+      text-align: center;
+    }
+    .status-icon {
+      font-size: 2.8rem;
+      margin-bottom: 12px;
+    }
+    .status-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+    .status-desc {
+      font-size: 0.85rem;
+      color: #64748b;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+    .status-steps {
+      text-align: left;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      font-size: 0.82rem;
+      color: #334155;
+    }
+    .status-step-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 6px 0;
+    }
+    .status-buttons {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+    .btn-outline {
+      padding: 8px 16px;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      color: #334155;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .btn-outline:hover {
+      background: #f1f5f9;
+    }
+
+    /* 响应式适配 */
+    @media (max-width: 768px) {
+      .topbar {
+        padding: 0 12px;
+      }
+      .brand-badge, .topbar-center, .slug-wrapper {
+        display: none;
+      }
+      .workspace {
+        flex-direction: column;
+      }
+      .workspace.view-edit .preview-pane {
+        display: none;
+      }
+      .workspace.view-preview .editor-pane {
+        display: none;
+      }
+      .meta-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 顶部状态栏 -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <a href="index.html" class="brand-logo">
+        <span>✍️ Inkstar Writer</span>
+        <span class="brand-badge">随笔发布台</span>
+      </a>
+      <a href="index.html" class="btn-back-home">← 博客首页</a>
+    </div>
+
+    <div class="topbar-center">
+      <div class="draft-indicator">
+        <span id="draft-dot" class="draft-dot"></span>
+        <span id="draft-status-text">草稿已自动保存</span>
+      </div>
+    </div>
+
+    <div class="topbar-right">
+      <div id="user-badge-wrap" class="user-badge">
+        <span id="user-name">🔒 待认证</span>
+        <button id="btn-auth-toggle" class="btn-auth-action" onclick="window.openAuthModal()">登录</button>
+      </div>
+
+      <button id="btn-view-toggle" class="btn-view-toggle" onclick="window.toggleEditorView()" title="切换分栏视图">
+        <span>切换视图</span>
+      </button>
+
+      <button id="btn-publish" class="btn-publish" onclick="window.handlePublish()">
+        <span>🚀 一键发布随笔</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- 文章元数据输入栏 -->
+  <section class="meta-bar">
+    <div class="meta-row">
+      <input type="text" id="post-title" class="title-input" placeholder="输入随笔标题 (如：在算法洪流里，重拾慢思考的乐趣)..." oninput="window.onTitleChange()">
+      
+      <div class="slug-wrapper">
+        <span>文件名:</span>
+        <input type="text" id="post-slug" class="slug-input" placeholder="essay-YYYYMMDD-slug.md" title="将存入仓库 blog/ 目录的文件名">
+      </div>
+    </div>
+
+    <div class="meta-sub-row">
+      <div class="tags-input-wrap">
+        <span style="color: #64748b;">🏷️ 标签:</span>
+        <input type="text" id="post-tags" class="tags-input" placeholder="随笔, 慢思考, 生活感悟 (逗号隔开)" oninput="window.onMetaChange()">
+      </div>
+
+      <div class="quick-chips">
+        <span style="color: #64748b; font-size: 0.75rem;">常用:</span>
+        <button type="button" class="chip-btn" onclick="window.appendTag('随笔')">+随笔</button>
+        <button type="button" class="chip-btn" onclick="window.appendTag('生活感悟')">+生活感悟</button>
+        <button type="button" class="chip-btn" onclick="window.appendTag('慢思考')">+慢思考</button>
+        <button type="button" class="chip-btn" onclick="window.appendTag('读书笔记')">+读书笔记</button>
+        <button type="button" class="chip-btn" onclick="window.appendTag('灵感火花')">+灵感火花</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 快捷排版工具栏 -->
+  <nav class="toolbar">
+    <button type="button" class="tool-btn" onclick="window.insertFormat('**', '**', '粗体文字')" title="粗体"><b>B</b></button>
+    <button type="button" class="tool-btn" onclick="window.insertFormat('*', '*', '斜体文字')" title="斜体"><i>I</i></button>
+    <div class="tool-divider"></div>
+    <button type="button" class="tool-btn" onclick="window.insertPrefix('## ')" title="二级标题">H2</button>
+    <button type="button" class="tool-btn" onclick="window.insertPrefix('### ')" title="三级标题">H3</button>
+    <div class="tool-divider"></div>
+    <button type="button" class="tool-btn" onclick="window.insertPrefix('> ')" title="引用段落">引用</button>
+    <button type="button" class="tool-btn" onclick="window.insertPrefix('> [!NOTE]\n> ')" title="重点提示卡片">提示框</button>
+    <button type="button" class="tool-btn" onclick="window.insertPrefix('- ')" title="无序列表">• 列表</button>
+    <button type="button" class="tool-btn" onclick="window.insertPrefix('1. ')" title="有序列表">1. 列表</button>
+    <div class="tool-divider"></div>
+    <button type="button" class="tool-btn" onclick="window.insertFormat('`', '`', 'code')" title="行内代码">&lt;/&gt;</button>
+    <button type="button" class="tool-btn" onclick="window.insertFormat('```\n', '\n```', '代码内容')" title="代码块">代码块</button>
+    <button type="button" class="tool-btn" onclick="window.insertFormat('$', '$', 'x^2 + y^2 = 1')" title="数学公式">公式</button>
+    <div class="tool-divider"></div>
+    <button type="button" class="tool-btn" onclick="window.insertFormat('[', '](https://)', '链接说明')" title="链接">🔗 链接</button>
+    <button type="button" class="tool-btn" onclick="window.insertPrefix('---\n')" title="水平分割线">— 分割线</button>
+    <div style="flex: 1;"></div>
+    <button type="button" class="tool-btn" onclick="window.clearDraftPrompt()" style="color: #ef4444;" title="清空编辑器">🗑️ 清空草稿</button>
+  </nav>
+
+  <!-- 工作区分栏 -->
+  <main id="workspace" class="workspace">
+    <!-- 左侧 Markdown 编辑区 -->
+    <div class="editor-pane">
+      <textarea id="editor-textarea" class="editor-textarea" placeholder="在这里写下你的灵感随笔...&#10;&#10;支持标准 Markdown 语法，包括：&#10;- 粗体、斜体、引用段落&#10;- 数学公式 $E = mc^2$&#10;- 代码高亮与列表&#10;&#10;输入内容将自动保存在当前浏览器草稿箱中。" oninput="window.onEditorInput()"></textarea>
+      
+      <footer class="editor-statusbar">
+        <div><span>字数统计: </span><b id="stat-words">0</b> 字 · 预计阅读: <span id="stat-read-time">1</span> 分钟</div>
+        <div><span>最后保存: </span><span id="stat-save-time">从未</span></div>
+      </footer>
+    </div>
+
+    <!-- 右侧实时渲染预览区 -->
+    <div class="preview-pane">
+      <div class="preview-header-card">
+        <div class="preview-breadcrumb">🏠 网站首页 / ☕ 灵感随笔专栏 / <span id="preview-breadcrumb-title">随笔标题</span></div>
+        <h1 id="preview-title" class="preview-title">随笔标题预览</h1>
+        <div class="preview-meta-row">
+          <span>📅 <span id="preview-date">2026-09-20</span></span>
+          <span>✍️ 作者: Inkstar</span>
+          <span id="preview-tags-wrap"></span>
+        </div>
+      </div>
+      
+      <div id="preview-content" class="preview-content"></div>
+    </div>
+  </main>
+
+  <!-- 鉴权登录浮层 -->
+  <div id="auth-modal" class="modal-backdrop" style="display: none;">
+    <div class="auth-card">
+      <div class="auth-header">
+        <span class="auth-icon">🔐</span>
+        <h3 class="auth-title">博主权限认证</h3>
+      </div>
+      <p class="auth-desc">此写作台直接对接 GitHub REST API。请输入博主本人的 GitHub 个人访问令牌 (Personal Access Token)，验证通过后即可在线向仓库发布文章。</p>
+
+      <div class="auth-input-group">
+        <label class="auth-label" for="auth-token-input">GitHub 访问令牌 (PAT)</label>
+        <div class="auth-input-wrap">
+          <input type="password" id="auth-token-input" class="auth-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+          <button type="button" class="auth-toggle-pwd" onclick="window.togglePwdVisible()">👁️</button>
+        </div>
+      </div>
+
+      <div class="auth-help">
+        <b>💡 30 秒获取 Token 指引：</b><br>
+        1. 访问 <a href="https://github.com/settings/tokens/new?scopes=repo&description=Inkstar+Writer+Token" target="_blank" rel="noopener">GitHub Token 新增页面 ↗</a>；<br>
+        2. Note 填写 <code>Inkstar Writer</code>，勾选 <b>repo</b>（完全读写仓库权限）；<br>
+        3. 点击页面最下方 <b>Generate token</b>，复制粘贴至上方即可。<br>
+        <i>* 密钥仅保存在当前设备浏览器的 localStorage 中，绝不经过任何第三方服务器。</i>
+      </div>
+
+      <div class="auth-actions">
+        <button type="button" class="btn-outline" onclick="window.closeAuthModal()">取消</button>
+        <button type="button" id="btn-auth-verify" class="btn-auth-submit" onclick="window.verifyAndSaveToken()">验证并保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 发布进度与结果弹窗 -->
+  <div id="publish-modal" class="modal-backdrop" style="display: none;">
+    <div class="status-modal">
+      <div id="status-icon" class="status-icon">🚀</div>
+      <h3 id="status-title" class="status-title">正在发布随笔...</h3>
+      <p id="status-desc" class="status-desc">请稍候，正在将文章与目录同步提交至 GitHub 仓库。</p>
+
+      <div class="status-steps">
+        <div id="step-1" class="status-step-item"><span>⏳</span> <span>正在准备 Markdown 正文与元数据</span></div>
+        <div id="step-2" class="status-step-item"><span>⏳</span> <span>正在将文章提交至 blog/ 目录</span></div>
+        <div id="step-3" class="status-step-item"><span>⏳</span> <span>正在更新侧边栏导航 (_sidebar.md)</span></div>
+        <div id="step-4" class="status-step-item"><span>⏳</span> <span>正在同步全站目录大纲 (README.md)</span></div>
+      </div>
+
+      <div id="status-actions" class="status-buttons" style="display: none;">
+        <button type="button" class="btn-outline" onclick="window.closePublishModal()">关闭</button>
+        <a id="btn-view-published" href="#" target="_blank" class="btn-publish" style="text-decoration: none;">📖 访问新文章</a>
+        <button type="button" class="btn-outline" onclick="window.resetEditorForNext()">✍️ 继续写下一篇</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // GitHub 仓库配置
+    var GITHUB_OWNER = 'inkstar';
+    var GITHUB_REPO = 'inkstar.github.io';
+    var STORAGE_TOKEN_KEY = 'inkstar_writer_pat';
+    var STORAGE_DRAFT_KEY = 'inkstar_writer_draft';
+
+    var currentViewMode = 'split'; // 'split', 'edit', 'preview'
+    var draftSaveTimer = null;
+
+    // 页面初始化
+    window.addEventListener('DOMContentLoaded', function() {
+      checkAuthStatus();
+      loadDraft();
+      updatePreview();
+    });
+
+    // 1. 鉴权与 Token 管理
+    function checkAuthStatus() {
+      var token = localStorage.getItem(STORAGE_TOKEN_KEY);
+      var userBadge = document.getElementById('user-name');
+      var actionBtn = document.getElementById('btn-auth-toggle');
+
+      if (token) {
+        userBadge.textContent = '👤 @' + GITHUB_OWNER + ' (已授权)';
+        userBadge.style.color = '#059669';
+        actionBtn.textContent = '退出';
+        actionBtn.onclick = function() {
+          if (confirm('确定要退出登录并清除本地保存的访问令牌吗？')) {
+            localStorage.removeItem(STORAGE_TOKEN_KEY);
+            checkAuthStatus();
+          }
+        };
+      } else {
+        userBadge.textContent = '🔒 未登录';
+        userBadge.style.color = '#64748b';
+        actionBtn.textContent = '登录认证';
+        actionBtn.onclick = window.openAuthModal;
+      }
+    }
+
+    window.openAuthModal = function() {
+      var token = localStorage.getItem(STORAGE_TOKEN_KEY) || '';
+      document.getElementById('auth-token-input').value = token;
+      document.getElementById('auth-modal').style.display = 'flex';
+    };
+
+    window.closeAuthModal = function() {
+      document.getElementById('auth-modal').style.display = 'none';
+    };
+
+    window.togglePwdVisible = function() {
+      var input = document.getElementById('auth-token-input');
+      input.type = input.type === 'password' ? 'text' : 'password';
+    };
+
+    window.verifyAndSaveToken = async function() {
+      var input = document.getElementById('auth-token-input');
+      var token = input.value.trim();
+      var btn = document.getElementById('btn-auth-verify');
+
+      if (!token) {
+        alert('请输入有效的 GitHub 访问令牌 (PAT)！');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = '正在验证...';
+
+      try {
+        // 验证用户身份
+        var userRes = await fetch('https://api.github.com/user', {
+          headers: {
+            'Authorization': 'token ' + token,
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        });
+        if (!userRes.ok) {
+          throw new Error('Token 无效或已过期 (HTTP ' + userRes.status + ')');
+        }
+        var userData = await userRes.json();
+
+        // 验证对本博客仓库的写权限
+        var repoRes = await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO, {
+          headers: {
+            'Authorization': 'token ' + token,
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        });
+        if (!repoRes.ok) {
+          throw new Error('无法访问仓库 ' + GITHUB_OWNER + '/' + GITHUB_REPO + '，请确认 Token 是否勾选了 repo 权限！');
+        }
+        var repoData = await repoRes.json();
+        if (!repoData.permissions || !repoData.permissions.push) {
+          throw new Error('当前 Token 对此仓库无写（Push）权限，请勾选 repo 权限范围！');
+        }
+
+        // 保存到本地
+        localStorage.setItem(STORAGE_TOKEN_KEY, token);
+        alert('🎉 身份验证成功！欢迎回来，@' + userData.login);
+        window.closeAuthModal();
+        checkAuthStatus();
+      } catch (err) {
+        alert('❌ 验证失败：' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '验证并保存';
+      }
+    };
+
+    // 2. Slug 与标题联动
+    window.onTitleChange = function() {
+      var title = document.getElementById('post-title').value.trim();
+      var slugInput = document.getElementById('post-slug');
+
+      // 仅在 slug 未被手动自定义时自动生成
+      if (!slugInput.getAttribute('data-customized')) {
+        var now = new Date();
+        var y = now.getFullYear();
+        var m = String(now.getMonth() + 1).padStart(2, '0');
+        var d = String(now.getDate()).padStart(2, '0');
+        var datePrefix = 'essay-' + y + m + d;
+
+        // 提取简要拼音或英文单词
+        var cleanSlug = title
+          .toLowerCase()
+          .replace(/[^\w\u4e00-\u9fa5]/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-|-$/g, '')
+          .slice(0, 30);
+        
+        slugInput.value = datePrefix + (cleanSlug ? ('-' + cleanSlug) : '') + '.md';
+      }
+
+      window.onMetaChange();
+    };
+
+    document.getElementById('post-slug').addEventListener('input', function() {
+      this.setAttribute('data-customized', 'true');
+      window.onMetaChange();
+    });
+
+    window.appendTag = function(tag) {
+      var input = document.getElementById('post-tags');
+      var cur = input.value.split(',').map(function(t) { return t.trim(); }).filter(Boolean);
+      if (cur.indexOf(tag) === -1) {
+        cur.push(tag);
+        input.value = cur.join(', ');
+        window.onMetaChange();
+      }
+    };
+
+    // 3. 编辑与实时预览
+    window.onEditorInput = function() {
+      scheduleSaveDraft();
+      updatePreview();
+      updateWordCount();
+    };
+
+    window.onMetaChange = function() {
+      scheduleSaveDraft();
+      updatePreview();
+    };
+
+    function updatePreview() {
+      var title = document.getElementById('post-title').value.trim() || '随笔标题预览';
+      var tags = document.getElementById('post-tags').value.split(',').map(function(t) { return t.trim(); }).filter(Boolean);
+      var content = document.getElementById('editor-textarea').value;
+
+      document.getElementById('preview-breadcrumb-title').textContent = title;
+      document.getElementById('preview-title').textContent = title;
+
+      var tagsWrap = document.getElementById('preview-tags-wrap');
+      if (tags.length > 0) {
+        tagsWrap.innerHTML = '· 🏷️ ' + tags.map(function(t) { return '<span class="preview-tag">' + t + '</span>'; }).join(' ');
+      } else {
+        tagsWrap.innerHTML = '· 🏷️ <span class="preview-tag">随笔</span>';
+      }
+
+      var now = new Date();
+      document.getElementById('preview-date').textContent = now.getFullYear() + '-' + 
+        String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+        String(now.getDate()).padStart(2, '0') + ' ' + 
+        String(now.getHours()).padStart(2, '0') + ':' + 
+        String(now.getMinutes()).padStart(2, '0');
+
+      if (window.marked) {
+        document.getElementById('preview-content').innerHTML = marked.parse(content || '*正文实时渲染预览区域...*');
+      }
+    }
+
+    function updateWordCount() {
+      var content = document.getElementById('editor-textarea').value;
+      var clean = content.replace(/```[\s\S]*?```/g, '').replace(/<[^>]+>/g, '').replace(/[#*`~>\[\]()_\\-]/g, '');
+      var cnWords = (clean.match(/[\u4e00-\u9fa5]/g) || []).length;
+      var enWords = (clean.match(/[a-zA-Z0-9_]+/g) || []).length;
+      var total = cnWords + enWords;
+
+      document.getElementById('stat-words').textContent = total.toLocaleString();
+      document.getElementById('stat-read-time').textContent = Math.max(1, Math.ceil(total / 350));
+    }
+
+    // 4. 草稿自动保存机制
+    function scheduleSaveDraft() {
+      document.getElementById('draft-dot').classList.add('unsaved');
+      document.getElementById('draft-status-text').textContent = '有未保存改动...';
+
+      clearTimeout(draftSaveTimer);
+      draftSaveTimer = setTimeout(saveDraftNow, 600);
+    }
+
+    function saveDraftNow() {
+      var draft = {
+        title: document.getElementById('post-title').value,
+        slug: document.getElementById('post-slug').value,
+        tags: document.getElementById('post-tags').value,
+        content: document.getElementById('editor-textarea').value,
+        updated: new Date().toLocaleTimeString()
+      };
+      localStorage.setItem(STORAGE_DRAFT_KEY, JSON.stringify(draft));
+
+      document.getElementById('draft-dot').classList.remove('unsaved');
+      document.getElementById('draft-status-text').textContent = '草稿已保存';
+      document.getElementById('stat-save-time').textContent = draft.updated;
+    }
+
+    function loadDraft() {
+      var raw = localStorage.getItem(STORAGE_DRAFT_KEY);
+      if (!raw) return;
+      try {
+        var d = JSON.parse(raw);
+        if (d.title) document.getElementById('post-title').value = d.title;
+        if (d.slug) document.getElementById('post-slug').value = d.slug;
+        if (d.tags) document.getElementById('post-tags').value = d.tags;
+        if (d.content) document.getElementById('editor-textarea').value = d.content;
+        if (d.updated) document.getElementById('stat-save-time').textContent = d.updated;
+        updateWordCount();
+      } catch (e) {
+        console.warn('Draft load error:', e);
+      }
+    }
+
+    window.clearDraftPrompt = function() {
+      if (confirm('确定要清空当前的标题与正文草稿吗？此操作无法撤销。')) {
+        document.getElementById('post-title').value = '';
+        document.getElementById('post-slug').value = '';
+        document.getElementById('post-slug').removeAttribute('data-customized');
+        document.getElementById('post-tags').value = '';
+        document.getElementById('editor-textarea').value = '';
+        localStorage.removeItem(STORAGE_DRAFT_KEY);
+        updatePreview();
+        updateWordCount();
+        document.getElementById('stat-save-time').textContent = '已清空';
+      }
+    };
+
+    // 5. 格式化工具栏辅助
+    window.insertFormat = function(before, after, defaultText) {
+      var tx = document.getElementById('editor-textarea');
+      var start = tx.selectionStart;
+      var end = tx.selectionEnd;
+      var selected = tx.value.substring(start, end) || defaultText;
+      var replacement = before + selected + after;
+
+      tx.value = tx.value.substring(0, start) + replacement + tx.value.substring(end);
+      tx.focus();
+      tx.selectionStart = start + before.length;
+      tx.selectionEnd = start + before.length + selected.length;
+      window.onEditorInput();
+    };
+
+    window.insertPrefix = function(prefix) {
+      var tx = document.getElementById('editor-textarea');
+      var start = tx.selectionStart;
+      var end = tx.selectionEnd;
+
+      tx.value = tx.value.substring(0, start) + prefix + tx.value.substring(end);
+      tx.focus();
+      tx.selectionStart = tx.selectionEnd = start + prefix.length;
+      window.onEditorInput();
+    };
+
+    // 6. 视图切换（分栏 / 仅编辑 / 仅预览）
+    window.toggleEditorView = function() {
+      var ws = document.getElementById('workspace');
+      if (currentViewMode === 'split') {
+        currentViewMode = 'edit';
+        ws.className = 'workspace view-edit';
+      } else if (currentViewMode === 'edit') {
+        currentViewMode = 'preview';
+        ws.className = 'workspace view-preview';
+      } else {
+        currentViewMode = 'split';
+        ws.className = 'workspace';
+      }
+    };
+
+    // 7. 发布引擎与 GitHub API 交互
+    function utf8ToBase64(str) {
+      return window.btoa(unescape(encodeURIComponent(str)));
+    }
+    function base64ToUtf8(str) {
+      return decodeURIComponent(escape(window.atob(str)));
+    }
+
+    window.handlePublish = async function() {
+      var token = localStorage.getItem(STORAGE_TOKEN_KEY);
+      if (!token) {
+        alert('⚠️ 请先点击右上角【登录认证】输入您的 GitHub 访问令牌 (PAT)！');
+        window.openAuthModal();
+        return;
+      }
+
+      var title = document.getElementById('post-title').value.trim();
+      var slug = document.getElementById('post-slug').value.trim();
+      var tagsRaw = document.getElementById('post-tags').value.trim();
+      var content = document.getElementById('editor-textarea').value.trim();
+
+      if (!title) {
+        alert('请输入随笔标题！');
+        document.getElementById('post-title').focus();
+        return;
+      }
+      if (!content) {
+        alert('随笔正文不能为空！');
+        document.getElementById('editor-textarea').focus();
+        return;
+      }
+      if (!slug) {
+        window.onTitleChange();
+        slug = document.getElementById('post-slug').value.trim();
+      }
+      if (!slug.endsWith('.md')) {
+        slug += '.md';
+      }
+
+      var tags = tagsRaw.split(',').map(function(t) { return t.trim(); }).filter(Boolean);
+      if (tags.length === 0) tags = ['随笔'];
+
+      if (!confirm('确定要将随笔《' + title + '》发布到 GitHub 仓库并同步全网吗？')) {
+        return;
+      }
+
+      // 打开发布进度面板
+      var modal = document.getElementById('publish-modal');
+      var statusIcon = document.getElementById('status-icon');
+      var statusTitle = document.getElementById('status-title');
+      var statusDesc = document.getElementById('status-desc');
+      var actions = document.getElementById('status-actions');
+
+      modal.style.display = 'flex';
+      statusIcon.textContent = '🚀';
+      statusTitle.textContent = '正在发布随笔...';
+      statusDesc.textContent = '正在与 GitHub 仓库安全通信，请勿关闭窗口...';
+      actions.style.display = 'none';
+
+      var setStep = function(id, text, state) {
+        var el = document.getElementById(id);
+        var icon = state === 'done' ? '✅' : (state === 'error' ? '❌' : '⏳');
+        el.innerHTML = '<span>' + icon + '</span> <span>' + text + '</span>';
+        if (state === 'error') el.style.color = '#ef4444';
+      };
+
+      setStep('step-1', '正在格式化 Markdown 正文与 Frontmatter', 'running');
+
+      try {
+        var now = new Date();
+        var dateStr = now.getFullYear() + '-' + 
+          String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+          String(now.getDate()).padStart(2, '0') + ' ' + 
+          String(now.getHours()).padStart(2, '0') + ':' + 
+          String(now.getMinutes()).padStart(2, '0');
+
+        // 构造 Markdown 源码（带 YAML Frontmatter）
+        var mdBody = [
+          '---',
+          'title: ' + title,
+          'date: ' + dateStr,
+          'updated: ' + dateStr,
+          'tags: [' + tags.join(', ') + ']',
+          'author: Inkstar',
+          '---',
+          '',
+          '# ' + title,
+          '',
+          content,
+          ''
+        ].join('\n');
+
+        setStep('step-1', 'Markdown 正文与 Frontmatter 准备就绪', 'done');
+
+        // Step 2: 上传文章至 blog/{slug}
+        setStep('step-2', '正在上传文件至 blog/' + slug, 'running');
+        var articlePath = 'blog/' + slug;
+        var existingSha = null;
+
+        // 检查文件是否已存在（编辑场景）
+        try {
+          var getRes = await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/' + articlePath, {
+            headers: {
+              'Authorization': 'token ' + token,
+              'Accept': 'application/vnd.github.v3+json'
+            }
+          });
+          if (getRes.ok) {
+            var getJson = await getRes.json();
+            existingSha = getJson.sha;
+          }
+        } catch (_) {}
+
+        var putPayload = {
+          message: 'feat(essay): 发布随笔《' + title + '》',
+          content: utf8ToBase64(mdBody)
+        };
+        if (existingSha) putPayload.sha = existingSha;
+
+        var putRes = await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/' + articlePath, {
+          method: 'PUT',
+          headers: {
+            'Authorization': 'token ' + token,
+            'Content-Type': 'application/json',
+            'Accept': 'application/vnd.github.v3+json'
+          },
+          body: JSON.stringify(putPayload)
+        });
+
+        if (!putRes.ok) {
+          var errJson = await putRes.json();
+          throw new Error('上传文章失败: ' + (errJson.message || putRes.status));
+        }
+        setStep('step-2', '文章已成功提交至 blog/' + slug, 'done');
+
+        // Step 3: 更新 _sidebar.md 侧边栏
+        setStep('step-3', '正在读取并更新侧边栏目录 (_sidebar.md)', 'running');
+        var sbRes = await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/_sidebar.md', {
+          headers: {
+            'Authorization': 'token ' + token,
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        });
+        if (!sbRes.ok) throw new Error('读取 _sidebar.md 失败');
+        var sbJson = await sbRes.json();
+        var sbContent = base64ToUtf8(sbJson.content);
+        var sbSha = sbJson.sha;
+
+        // 如果目录里还没有这篇文章的链接，则追加
+        var linkLine = '  * [' + title + '](blog/' + slug + ')';
+        if (sbContent.indexOf('blog/' + slug) === -1) {
+          var essaySecIdx = sbContent.indexOf('* **☕ 灵感随笔专栏**');
+          if (essaySecIdx !== -1) {
+            var afterHeader = essaySecIdx + '* **☕ 灵感随笔专栏**'.length;
+            sbContent = sbContent.slice(0, afterHeader) + '\n' + linkLine + sbContent.slice(afterHeader);
+          } else {
+            sbContent = sbContent + '\n\n* **☕ 灵感随笔专栏**\n' + linkLine;
+          }
+
+          // 提交更新后的 _sidebar.md
+          var updateSbRes = await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/_sidebar.md', {
+            method: 'PUT',
+            headers: {
+              'Authorization': 'token ' + token,
+              'Content-Type': 'application/json',
+              'Accept': 'application/vnd.github.v3+json'
+            },
+            body: JSON.stringify({
+              message: 'chore(sidebar): 随笔《' + title + '》加入侧边栏目录',
+              content: utf8ToBase64(sbContent),
+              sha: sbSha
+            })
+          });
+          if (!updateSbRes.ok) throw new Error('更新 _sidebar.md 失败');
+        }
+        setStep('step-3', '侧边栏目录已成功自动追加', 'done');
+
+        // Step 4: 更新 README.md 目录
+        setStep('step-4', '正在更新全站概览大纲 (README.md)', 'running');
+        try {
+          var rdRes = await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/README.md', {
+            headers: {
+              'Authorization': 'token ' + token,
+              'Accept': 'application/vnd.github.v3+json'
+            }
+          });
+          if (rdRes.ok) {
+            var rdJson = await rdRes.json();
+            var rdContent = base64ToUtf8(rdJson.content);
+            var rdSha = rdJson.sha;
+
+            var rdEntry = '- ☕ **[' + title + '](blog/' + slug + ')**\n  ' + content.slice(0, 80).replace(/[\r\n#*`]/g, '') + '...';
+            if (rdContent.indexOf('blog/' + slug) === -1) {
+              var targetHeader = '## ☕ 灵感随笔与碎碎念专栏';
+              var rdIdx = rdContent.indexOf(targetHeader);
+              if (rdIdx !== -1) {
+                var insertPos = rdContent.indexOf('\n', rdIdx + targetHeader.length) + 1;
+                // 跳过说明段落插入到首个列表前
+                var listIdx = rdContent.indexOf('- ', insertPos);
+                if (listIdx !== -1) insertPos = listIdx;
+                rdContent = rdContent.slice(0, insertPos) + rdEntry + '\n' + rdContent.slice(insertPos);
+
+                await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/README.md', {
+                  method: 'PUT',
+                  headers: {
+                    'Authorization': 'token ' + token,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/vnd.github.v3+json'
+                  },
+                  body: JSON.stringify({
+                    message: 'chore(readme): 随笔《' + title + '》加入全站大纲',
+                    content: utf8ToBase64(rdContent),
+                    sha: rdSha
+                  })
+                });
+              }
+            }
+          }
+        } catch (e) {
+          console.warn('README update optional failed:', e);
+        }
+        setStep('step-4', '全站大纲与索引已同步', 'done');
+
+        // 全部成功
+        statusIcon.textContent = '🎉';
+        statusTitle.textContent = '发布成功！全网正在同步';
+        statusDesc.textContent = '随笔《' + title + '》已成功提交至 GitHub 仓库。GitHub Pages 正在自动构建，预计 20~30 秒后全网生效。';
+        actions.style.display = 'flex';
+
+        var articleUrl = 'index.html#/blog/' + slug.replace(/\.md$/, '');
+        document.getElementById('btn-view-published').href = articleUrl;
+
+        // 清除已发布草稿
+        localStorage.removeItem(STORAGE_DRAFT_KEY);
+
+      } catch (err) {
+        statusIcon.textContent = '❌';
+        statusTitle.textContent = '发布失败';
+        statusDesc.textContent = err.message;
+        actions.style.display = 'flex';
+      }
+    };
+
+    window.closePublishModal = function() {
+      document.getElementById('publish-modal').style.display = 'none';
+    };
+
+    window.resetEditorForNext = function() {
+      document.getElementById('post-title').value = '';
+      document.getElementById('post-slug').value = '';
+      document.getElementById('post-slug').removeAttribute('data-customized');
+      document.getElementById('post-tags').value = '';
+      document.getElementById('editor-textarea').value = '';
+      updatePreview();
+      updateWordCount();
+      window.closePublishModal();
+    };
+  </script>
+</body>
+</html>

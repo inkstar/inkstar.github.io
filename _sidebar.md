@@ -2,6 +2,11 @@
 * [📑 博客目录与概览](README.md)
 * [💬 访客留言](guestbook.md)
 * [📜 站点更新日志](CHANGELOG.md)
+* <a href="writer.html" target="_blank" rel="noopener">✍️ 随笔在线发布台 ↗</a>
+
+* **☕ 灵感随笔专栏**
+  * [为什么要搭建这个独立数字花园：关于沉淀与表达的碎碎念](blog/essay-digital-garden-manifesto.md)
+  * [在算法洪流的时代，重拾慢思考与手写笔记的乐趣](blog/essay-slow-thinking-in-ai-era.md)
 
 * **📝 技术博客专栏**
   * **🗄️ 数据库与后端架构**
