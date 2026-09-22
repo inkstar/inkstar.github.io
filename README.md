@@ -123,6 +123,8 @@ updated: 2026-09-22
   深入浅出解析 Model Context Protocol 协议、服务适配器以及 Vercel/Stripe/Supabase 常见启动与超时排查。
 
 ### 🎨 Web 开发与前端工程
+- ⚡ **[无服务器静态博客的动态突围：文章在线可编辑性与页面留言性能优化深度剖析](blog/serverless-blog-editing-and-comments-optimization-guide.md)**
+  从 Git 对象存储模型、SHA-1 乐观并发锁，到双向逆向编辑台架构；深度剖析 Utterances 评论串行网络瀑布流与 Rate Limit 瓶颈，实装基于 `IntersectionObserver` 的毫秒级视口懒加载与连接预热。
 - 📊 **[Web Markdown 与 Docsify 中 Mermaid 图表渲染深度避坑指南](blog/docsify-mermaid-guide.md)**  
   从 Marked 编译管道、Mermaid 10 断崖升级、HTML 实体字符转义，到 SPA 路由重绘生命周期与自适应容器工程化全套解法。
 - 📐 **[Web 现代数学公式渲染避坑深度指南](blog/math-rendering-guide.md)**  

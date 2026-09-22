@@ -25,6 +25,10 @@
   <meta name="twitter:description" content="Inkstar 的个人项目展示与技术博客，涵盖高中数学深度解析、现代化工程架构与思考随笔。">
   <meta name="twitter:image" content="https://www.inkstar.org/images/share-cover.png">
 
+  <link rel="dns-prefetch" href="https://utteranc.es">
+  <link rel="preconnect" href="https://utteranc.es" crossorigin>
+  <link rel="dns-prefetch" href="https://api.github.com">
+
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
   <style>
     :root {
@@ -273,6 +277,25 @@
     .btn-back-catalog:hover {
       background: #f1f5f9;
       color: #1e293b !important;
+      transform: translateY(-1px);
+    }
+    .btn-back-edit {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-decoration: none !important;
+      transition: all 0.2s ease;
+      background: #eff6ff;
+      color: #1d4ed8 !important;
+      border: 1px solid #bfdbfe;
+    }
+    .btn-back-edit:hover {
+      background: #dbeafe;
+      border-color: #93c5fd;
       transform: translateY(-1px);
     }
 
@@ -1454,7 +1477,8 @@
         padding-top: 14px !important;
       }
       .article-nav-back .btn-back-home,
-      .article-nav-back .btn-back-catalog {
+      .article-nav-back .btn-back-catalog,
+      .article-nav-back .btn-back-edit {
         width: 100% !important;
         box-sizing: border-box !important;
         justify-content: center !important;
@@ -1876,11 +1900,14 @@
                 '</div>'
               ].filter(Boolean).join('\n');
 
+              var editTargetFile = normPath.replace(/^\//, '') + '.md';
+              var editUrl = 'writer.html?edit=' + encodeURIComponent(editTargetFile);
               var backNavHtml = [
                 '<div class="article-nav-back">',
                 '  <div class="nav-back-links">',
                 '    <a href="#/" class="btn-back-home">🏠 返回网站首页</a>',
                 '    <a href="#/README" class="btn-back-catalog">📑 返回博客专栏目录</a>',
+                '    <a href="' + editUrl + '" target="_blank" rel="noopener" class="btn-back-edit" title="在线编辑并同步本文">✍️ 在线编辑此文</a>',
                 '  </div>',
                 '  <div class="nav-back-shares">',
                 '    <button type="button" class="btn-back-share" onclick="window.generateArticleSharePoster()" title="生成朋友圈高清分享海报">📱 生成精美海报</button>',
@@ -2269,7 +2296,24 @@
                 observer.observe(mountPoint, { childList: true, subtree: true });
               }
 
-              mountPoint.appendChild(script);
+              var injectUtterancesScript = function() {
+                if (mountPoint.getAttribute('data-loaded')) return;
+                mountPoint.setAttribute('data-loaded', 'true');
+                mountPoint.appendChild(script);
+              };
+
+              // 视口懒加载优化：非独立留言板页面当且仅当访客滚动接近底部时才加载 iframe 与 API
+              if ('IntersectionObserver' in window && !isGuestbook) {
+                var scrollObserver = new IntersectionObserver(function(entries) {
+                  if (entries[0] && entries[0].isIntersecting) {
+                    scrollObserver.disconnect();
+                    injectUtterancesScript();
+                  }
+                }, { rootMargin: '400px 0px' });
+                scrollObserver.observe(box);
+              } else {
+                injectUtterancesScript();
+              }
             }
 
             // 移动端路由切换时自动关闭侧边栏

@@ -854,13 +854,139 @@
 
     var currentViewMode = 'split'; // 'split', 'edit', 'preview'
     var draftSaveTimer = null;
+    var isEditMode = false;
+    var editArticlePath = '';
+    var existingFileSha = null;
 
     // 页面初始化
     window.addEventListener('DOMContentLoaded', function() {
       checkAuthStatus();
-      loadDraft();
-      updatePreview();
+      var urlParams = new URLSearchParams(window.location.search);
+      var editParam = urlParams.get('edit');
+      if (editParam) {
+        initEditMode(editParam);
+      } else {
+        loadDraft();
+        updatePreview();
+      }
     });
+
+    // 0. 在线编辑模式初始化
+    async function initEditMode(targetPath) {
+      targetPath = targetPath.replace(/^\//, '');
+      isEditMode = true;
+      editArticlePath = targetPath;
+
+      // 更新顶部标识
+      var badge = document.querySelector('.brand-badge');
+      if (badge) {
+        badge.textContent = '📝 在线编辑模式';
+        badge.style.background = '#e0f2fe';
+        badge.style.color = '#0284c7';
+        badge.style.borderColor = '#7dd3fc';
+      }
+      var pubBtn = document.getElementById('btn-publish');
+      if (pubBtn) {
+        pubBtn.innerHTML = '<span>💾 保存修改并同步</span>';
+        pubBtn.style.background = 'linear-gradient(135deg, #0284c7, #0369a1)';
+      }
+
+      // 锁定 Slug，杜绝在编辑模式下重命名导致外链失效
+      var slugInput = document.getElementById('post-slug');
+      var filename = targetPath.split('/').pop();
+      slugInput.value = filename;
+      slugInput.setAttribute('data-customized', 'true');
+      slugInput.setAttribute('readonly', 'true');
+      slugInput.style.backgroundColor = '#f1f5f9';
+      slugInput.style.cursor = 'not-allowed';
+      slugInput.title = '编辑模式下文章文件名保持锁定，确保站内外链接持久有效';
+
+      document.getElementById('draft-status-text').textContent = '正在从远程拉取文章内容...';
+      document.getElementById('draft-dot').classList.add('unsaved');
+
+      try {
+        var rawContent = '';
+        var token = localStorage.getItem(STORAGE_TOKEN_KEY);
+        // 1. 优先尝试 GitHub REST API 获取最新 SHA 与内容
+        if (token) {
+          try {
+            var apiRes = await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/' + targetPath, {
+              headers: {
+                'Authorization': 'token ' + token,
+                'Accept': 'application/vnd.github.v3+json'
+              }
+            });
+            if (apiRes.ok) {
+              var apiData = await apiRes.json();
+              existingFileSha = apiData.sha;
+              rawContent = base64ToUtf8(apiData.content);
+            }
+          } catch (e) {
+            console.warn('GitHub API fetch failed in edit mode, fallback to static:', e);
+          }
+        }
+        // 2. 若 API 未能读取，则降级直接拉取同源静态 Markdown 文件
+        if (!rawContent) {
+          var staticRes = await fetch(targetPath);
+          if (staticRes.ok) {
+            rawContent = await staticRes.text();
+          } else {
+            throw new Error('未找到目标文章: ' + targetPath);
+          }
+        }
+
+        // 3. 逆向解析 YAML Frontmatter 与 Markdown 正文
+        var title = '';
+        var tags = '';
+        var body = rawContent;
+        var fmMatch = rawContent.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
+        if (fmMatch) {
+          var fm = fmMatch[1];
+          body = fmMatch[2];
+          var tm = fm.match(/^title:\s*([^\r\n]+)/m);
+          if (tm) title = tm[1].trim().replace(/^['"]|['"]$/g, '');
+          var tg = fm.match(/^tags:\s*\[?(.*?)\]?$/m);
+          if (tg) tags = tg[1].replace(/['"]/g, '').trim();
+        }
+
+        // 剥离正文首行可能冗余的一级标题
+        if (title) {
+          var escapedTitle = title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          body = body.replace(new RegExp('^#\\s+' + escapedTitle + '\\r?\\n+', 'm'), '');
+        } else {
+          var h1Match = body.match(/^#\s+([^\r\n]+)/m);
+          if (h1Match) {
+            title = h1Match[1].trim();
+            body = body.replace(h1Match[0], '').trim();
+          }
+        }
+
+        var titleInput = document.getElementById('post-title');
+        titleInput.value = title || filename.replace(/\.md$/, '');
+        titleInput.setAttribute('value', titleInput.value);
+
+        var tagsInput = document.getElementById('post-tags');
+        tagsInput.value = tags || '随笔';
+        tagsInput.setAttribute('value', tagsInput.value);
+
+        var textarea = document.getElementById('editor-textarea');
+        textarea.value = body.trim();
+        textarea.textContent = body.trim();
+
+        slugInput.value = filename;
+        slugInput.setAttribute('value', filename);
+
+        document.getElementById('draft-status-text').textContent = '已就绪 (编辑模式)';
+        document.getElementById('draft-dot').classList.remove('unsaved');
+
+        updatePreview();
+        updateWordCount();
+      } catch (err) {
+        console.error('Init edit mode error:', err);
+        alert('无法加载目标文章进行编辑: ' + err.message);
+        document.getElementById('draft-status-text').textContent = '加载失败';
+      }
+    }
 
     // 1. 鉴权与 Token 管理
     function checkAuthStatus() {
@@ -1203,7 +1329,10 @@
       var tags = tagsRaw.split(',').map(function(t) { return t.trim(); }).filter(Boolean);
       if (tags.length === 0) tags = ['随笔'];
 
-      if (!confirm('确定要将随笔《' + title + '》发布到 GitHub 仓库并同步全网吗？')) {
+      var confirmMsg = isEditMode
+        ? ('确定要保存对《' + title + '》的修改并同步提交到 GitHub 仓库吗？')
+        : ('确定要将随笔《' + title + '》发布到 GitHub 仓库并同步全网吗？');
+      if (!confirm(confirmMsg)) {
         return;
       }
 
@@ -1215,8 +1344,8 @@
       var actions = document.getElementById('status-actions');
 
       modal.style.display = 'flex';
-      statusIcon.textContent = '🚀';
-      statusTitle.textContent = '正在发布随笔...';
+      statusIcon.textContent = isEditMode ? '💾' : '🚀';
+      statusTitle.textContent = isEditMode ? '正在保存修改...' : '正在发布随笔...';
       statusDesc.textContent = '正在与 GitHub 仓库安全通信，请勿关闭窗口...';
       actions.style.display = 'none';
 
@@ -1255,27 +1384,32 @@
 
         setStep('step-1', 'Markdown 正文与 Frontmatter 准备就绪', 'done');
 
-        // Step 2: 上传文章至 blog/{slug}
-        setStep('step-2', '正在上传文件至 blog/' + slug, 'running');
-        var articlePath = 'blog/' + slug;
-        var existingSha = null;
+        // Step 2: 上传文章至目标路径
+        var articlePath = isEditMode && editArticlePath ? editArticlePath : ('blog/' + slug);
+        setStep('step-2', '正在上传文件至 ' + articlePath, 'running');
+        var existingSha = existingFileSha || null;
 
-        // 检查文件是否已存在（编辑场景）
-        try {
-          var getRes = await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/' + articlePath, {
-            headers: {
-              'Authorization': 'token ' + token,
-              'Accept': 'application/vnd.github.v3+json'
+        // 检查文件是否已存在（编辑场景获取最新 SHA 校验锁）
+        if (!existingSha) {
+          try {
+            var getRes = await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/' + articlePath, {
+              headers: {
+                'Authorization': 'token ' + token,
+                'Accept': 'application/vnd.github.v3+json'
+              }
+            });
+            if (getRes.ok) {
+              var getJson = await getRes.json();
+              existingSha = getJson.sha;
             }
-          });
-          if (getRes.ok) {
-            var getJson = await getRes.json();
-            existingSha = getJson.sha;
-          }
-        } catch (_) {}
+          } catch (_) {}
+        }
 
+        var commitMsg = isEditMode
+          ? ('docs(update): 更新文章《' + title + '》')
+          : ('feat(essay): 发布随笔《' + title + '》');
         var putPayload = {
-          message: 'feat(essay): 发布随笔《' + title + '》',
+          message: commitMsg,
           content: utf8ToBase64(mdBody)
         };
         if (existingSha) putPayload.sha = existingSha;
@@ -1294,107 +1428,116 @@
           var errJson = await putRes.json();
           throw new Error('上传文章失败: ' + (errJson.message || putRes.status));
         }
-        setStep('step-2', '文章已成功提交至 blog/' + slug, 'done');
+        setStep('step-2', isEditMode ? '文章已成功更新至 ' + articlePath : '文章已成功提交至 ' + articlePath, 'done');
 
-        // Step 3: 更新 _sidebar.md 侧边栏
-        setStep('step-3', '正在读取并更新侧边栏目录 (_sidebar.md)', 'running');
-        var sbRes = await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/_sidebar.md', {
-          headers: {
-            'Authorization': 'token ' + token,
-            'Accept': 'application/vnd.github.v3+json'
-          }
-        });
-        if (!sbRes.ok) throw new Error('读取 _sidebar.md 失败');
-        var sbJson = await sbRes.json();
-        var sbContent = base64ToUtf8(sbJson.content);
-        var sbSha = sbJson.sha;
-
-        // 如果目录里还没有这篇文章的链接，则追加
-        var linkLine = '  * [' + title + '](blog/' + slug + ')';
-        if (sbContent.indexOf('blog/' + slug) === -1) {
-          var essaySecIdx = sbContent.indexOf('* **☕ 灵感随笔专栏**');
-          if (essaySecIdx !== -1) {
-            var afterHeader = essaySecIdx + '* **☕ 灵感随笔专栏**'.length;
-            sbContent = sbContent.slice(0, afterHeader) + '\n' + linkLine + sbContent.slice(afterHeader);
-          } else {
-            sbContent = sbContent + '\n\n* **☕ 灵感随笔专栏**\n' + linkLine;
-          }
-
-          // 提交更新后的 _sidebar.md
-          var updateSbRes = await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/_sidebar.md', {
-            method: 'PUT',
-            headers: {
-              'Authorization': 'token ' + token,
-              'Content-Type': 'application/json',
-              'Accept': 'application/vnd.github.v3+json'
-            },
-            body: JSON.stringify({
-              message: 'chore(sidebar): 随笔《' + title + '》加入侧边栏目录',
-              content: utf8ToBase64(sbContent),
-              sha: sbSha
-            })
-          });
-          if (!updateSbRes.ok) throw new Error('更新 _sidebar.md 失败');
-        }
-        setStep('step-3', '侧边栏目录已成功自动追加', 'done');
-
-        // Step 4: 更新 README.md 目录
-        setStep('step-4', '正在更新全站概览大纲 (README.md)', 'running');
-        try {
-          var rdRes = await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/README.md', {
+        if (isEditMode) {
+          setStep('step-3', '文章在侧边栏已就绪，保持原有结构', 'done');
+          setStep('step-4', '全站大纲与索引保持原有结构', 'done');
+        } else {
+          // Step 3: 更新 _sidebar.md 侧边栏
+          setStep('step-3', '正在读取并更新侧边栏目录 (_sidebar.md)', 'running');
+          var sbRes = await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/_sidebar.md', {
             headers: {
               'Authorization': 'token ' + token,
               'Accept': 'application/vnd.github.v3+json'
             }
           });
-          if (rdRes.ok) {
-            var rdJson = await rdRes.json();
-            var rdContent = base64ToUtf8(rdJson.content);
-            var rdSha = rdJson.sha;
+          if (!sbRes.ok) throw new Error('读取 _sidebar.md 失败');
+          var sbJson = await sbRes.json();
+          var sbContent = base64ToUtf8(sbJson.content);
+          var sbSha = sbJson.sha;
 
-            var rdEntry = '- ☕ **[' + title + '](blog/' + slug + ')**\n  ' + content.slice(0, 80).replace(/[\r\n#*`]/g, '') + '...';
-            if (rdContent.indexOf('blog/' + slug) === -1) {
-              var targetHeader = '## ☕ 灵感随笔与碎碎念专栏';
-              var rdIdx = rdContent.indexOf(targetHeader);
-              if (rdIdx !== -1) {
-                var insertPos = rdContent.indexOf('\n', rdIdx + targetHeader.length) + 1;
-                // 跳过说明段落插入到首个列表前
-                var listIdx = rdContent.indexOf('- ', insertPos);
-                if (listIdx !== -1) insertPos = listIdx;
-                rdContent = rdContent.slice(0, insertPos) + rdEntry + '\n' + rdContent.slice(insertPos);
+          // 如果目录里还没有这篇文章的链接，则追加
+          var linkLine = '  * [' + title + '](blog/' + slug + ')';
+          if (sbContent.indexOf('blog/' + slug) === -1) {
+            var essaySecIdx = sbContent.indexOf('* **☕ 灵感随笔专栏**');
+            if (essaySecIdx !== -1) {
+              var afterHeader = essaySecIdx + '* **☕ 灵感随笔专栏**'.length;
+              sbContent = sbContent.slice(0, afterHeader) + '\n' + linkLine + sbContent.slice(afterHeader);
+            } else {
+              sbContent = sbContent + '\n\n* **☕ 灵感随笔专栏**\n' + linkLine;
+            }
 
-                await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/README.md', {
-                  method: 'PUT',
-                  headers: {
-                    'Authorization': 'token ' + token,
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/vnd.github.v3+json'
-                  },
-                  body: JSON.stringify({
-                    message: 'chore(readme): 随笔《' + title + '》加入全站大纲',
-                    content: utf8ToBase64(rdContent),
-                    sha: rdSha
-                  })
-                });
+            // 提交更新后的 _sidebar.md
+            var updateSbRes = await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/_sidebar.md', {
+              method: 'PUT',
+              headers: {
+                'Authorization': 'token ' + token,
+                'Content-Type': 'application/json',
+                'Accept': 'application/vnd.github.v3+json'
+              },
+              body: JSON.stringify({
+                message: 'chore(sidebar): 随笔《' + title + '》加入侧边栏目录',
+                content: utf8ToBase64(sbContent),
+                sha: sbSha
+              })
+            });
+            if (!updateSbRes.ok) throw new Error('更新 _sidebar.md 失败');
+          }
+          setStep('step-3', '侧边栏目录已成功自动追加', 'done');
+
+          // Step 4: 更新 README.md 目录
+          setStep('step-4', '正在更新全站概览大纲 (README.md)', 'running');
+          try {
+            var rdRes = await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/README.md', {
+              headers: {
+                'Authorization': 'token ' + token,
+                'Accept': 'application/vnd.github.v3+json'
+              }
+            });
+            if (rdRes.ok) {
+              var rdJson = await rdRes.json();
+              var rdContent = base64ToUtf8(rdJson.content);
+              var rdSha = rdJson.sha;
+
+              var rdEntry = '- ☕ **[' + title + '](blog/' + slug + ')**\n  ' + content.slice(0, 80).replace(/[\r\n#*`]/g, '') + '...';
+              if (rdContent.indexOf('blog/' + slug) === -1) {
+                var targetHeader = '## ☕ 灵感随笔与碎碎念专栏';
+                var rdIdx = rdContent.indexOf(targetHeader);
+                if (rdIdx !== -1) {
+                  var insertPos = rdContent.indexOf('\n', rdIdx + targetHeader.length) + 1;
+                  var listIdx = rdContent.indexOf('- ', insertPos);
+                  if (listIdx !== -1) insertPos = listIdx;
+                  rdContent = rdContent.slice(0, insertPos) + rdEntry + '\n' + rdContent.slice(insertPos);
+
+                  await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/README.md', {
+                    method: 'PUT',
+                    headers: {
+                      'Authorization': 'token ' + token,
+                      'Content-Type': 'application/json',
+                      'Accept': 'application/vnd.github.v3+json'
+                    },
+                    body: JSON.stringify({
+                      message: 'chore(readme): 随笔《' + title + '》加入全站大纲',
+                      content: utf8ToBase64(rdContent),
+                      sha: rdSha
+                    })
+                  });
+                }
               }
             }
+          } catch (e) {
+            console.warn('README update optional failed:', e);
           }
-        } catch (e) {
-          console.warn('README update optional failed:', e);
+          setStep('step-4', '全站大纲与索引已同步', 'done');
         }
-        setStep('step-4', '全站大纲与索引已同步', 'done');
 
         // 全部成功
         statusIcon.textContent = '🎉';
-        statusTitle.textContent = '发布成功！全网正在同步';
-        statusDesc.textContent = '随笔《' + title + '》已成功提交至 GitHub 仓库。GitHub Pages 正在自动构建，预计 20~30 秒后全网生效。';
+        statusTitle.textContent = isEditMode ? '修改保存成功！全网正在同步' : '发布成功！全网正在同步';
+        statusDesc.textContent = isEditMode
+          ? ('文章《' + title + '》的修改已成功提交至 GitHub 仓库。GitHub Pages 正在自动构建，预计 20~30 秒后全网生效。')
+          : ('随笔《' + title + '》已成功提交至 GitHub 仓库。GitHub Pages 正在自动构建，预计 20~30 秒后全网生效。');
         actions.style.display = 'flex';
 
-        var articleUrl = 'index.html#/blog/' + slug.replace(/\.md$/, '');
+        var articleUrl = 'index.html#/' + articlePath.replace(/\.md$/, '');
         document.getElementById('btn-view-published').href = articleUrl;
+        document.getElementById('btn-view-published').textContent = '👀 立即前往查看最新内容';
 
-        // 清除已发布草稿
-        localStorage.removeItem(STORAGE_DRAFT_KEY);
+        // 清除草稿
+        if (!isEditMode) {
+          localStorage.removeItem(STORAGE_DRAFT_KEY);
+        }
 
       } catch (err) {
         statusIcon.textContent = '❌';
