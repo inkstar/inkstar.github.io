@@ -1,7 +1,7 @@
 ---
 title: Inkstar's Space
 date: 2026-02-18
-updated: 2026-09-21
+updated: 2026-09-22
 ---
 
 # Inkstar's Space
@@ -113,6 +113,8 @@ updated: 2026-09-21
 ### 🤖 人工智能与前沿技术
 - 🤖 **[如何成为一名卓越的 AI Agent 开发者：核心架构与实战路径](blog/ai-agent-developer-guide.md)**  
   从 Chatbot 缸中之脑痛点溯源、Agent 底层四大黄金支柱（LLM + Planning + Memory + Tools），到主流框架选型（LangGraph / CrewAI / MCP）、四阶段进阶路线与零依赖手写 ReAct 循环实战。
+- 🧩 **[模式识别核心概念深度解析与系统化学习路径](blog/pattern-recognition-guide.md)**
+  从样本、特征、距离度量、决策边界与泛化评估出发，系统拆解 KNN、朴素贝叶斯、SVM、随机森林与神经网络在现代 AI 感知系统中的定位，并提供纯 Python 最近邻分类最小闭环。
 - 🤖 **[人工智能基础核心概念深度解析与系统化学习路径](blog/ai-fundamentals-guide.md)**  
   从软件 1.0 向 2.0 思维跃迁、前向传播与梯度下降底层动力学，到 AI/ML/DL/LLM 同心圆模型解构、四阶段系统进阶路线与 25 行纯 Python/NumPy 手写神经网络自闭环实战。
 - 🧠 **[向量数据库核心概念深度解析与系统化学习路径](blog/vector-database-guide.md)**  
