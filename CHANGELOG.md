@@ -4,6 +4,13 @@
 
 ## [2026-09-22]
 
+### 🧩 Codex 插件生态与效能提升指南上线
+- 新增技术文章 **[《Codex 插件生态与工作效能提升指南》](blog/codex-plugins-productivity-guide.md)**：
+  - 基于 OpenAI 官方插件与技能文档，说明 Codex 插件由 Skills、MCP Server、组合工作流与生命周期钩子构成，并明确“没有官方中国大陆热度榜”的证据边界。
+  - 面向中国大陆开发者、产品、设计、运营、教育和跨境团队，梳理 GitHub、Figma、Notion、Google Drive、Slack/Teams、邮件日程、Spreadsheets/Data Analytics、Supabase 等插件的效能提升场景。
+  - 提供插件 ROI 计算模型、角色选型矩阵、安装优先级与飞书/企微/钉钉/语雀等本土系统的 MCP 替代路径。
+- 同步更新 `_sidebar.md` 与首页精选技术博客入口，将文章收录至 **🤖 人工智能与前沿技术** 分类。
+
 ### 🌐 TCP/IP 与 HTTP 系统学习指南上线
 - 新增技术文章 **[《TCP/IP 与 HTTP 核心概念深度解析与系统化学习路径》](blog/tcp-ip-http-guide.md)**：
   - 基于 `new_know` 认知解构规范，系统拆解 DNS、IP、端口、TCP 三次握手、可靠传输、拥塞控制、TLS/HTTPS、HTTP 方法、状态码、缓存、CORS 与 HTTP/1.1 到 HTTP/3 的版本演进。

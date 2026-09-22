@@ -17,6 +17,7 @@
     * [TCP/IP 与 HTTP 核心概念与系统学习指南](blog/tcp-ip-http-guide.md)
     * [PostgreSQL 核心概念与系统学习指南](blog/postgresql-guide.md)
   * **🤖 人工智能与前沿技术**
+    * [Codex 插件生态与工作效能提升指南](blog/codex-plugins-productivity-guide.md)
     * [如何成为 AI Agent 开发者：核心架构与实战路径](blog/ai-agent-developer-guide.md)
     * [模式识别核心概念与系统学习路径](blog/pattern-recognition-guide.md)
     * [人工智能基础核心概念与系统学习路径](blog/ai-fundamentals-guide.md)

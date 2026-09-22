@@ -113,6 +113,8 @@ updated: 2026-09-22
   从多进程模型、8KB 数据页解剖、MVCC 堆表更新机制与 Autovacuum 运维，到 B-Tree/GIN/BRIN 索引原理、WAL 预写日志与四阶段系统进阶路线图。
 
 ### 🤖 人工智能与前沿技术
+- 🧩 **[Codex 插件生态与工作效能提升指南](blog/codex-plugins-productivity-guide.md)**<br>
+  面向中国大陆开发者、跨境团队与本土企业工作流，系统梳理 GitHub、Figma、Notion、Drive、Slack/Teams、邮件日程、数据分析等 Codex 插件的适用场景、效能提升模型与本土化 MCP 替代路径。
 - 🤖 **[如何成为一名卓越的 AI Agent 开发者：核心架构与实战路径](blog/ai-agent-developer-guide.md)**  
   从 Chatbot 缸中之脑痛点溯源、Agent 底层四大黄金支柱（LLM + Planning + Memory + Tools），到主流框架选型（LangGraph / CrewAI / MCP）、四阶段进阶路线与零依赖手写 ReAct 循环实战。
 - 🧩 **[模式识别核心概念深度解析与系统化学习路径](blog/pattern-recognition-guide.md)**
