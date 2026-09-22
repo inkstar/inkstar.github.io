@@ -24,6 +24,7 @@
     * [向量数据库核心概念与系统学习路径](blog/vector-database-guide.md)
     * [MCP 架构与常见告警排查指南](blog/mcp.md)
   * **🎨 Web 开发与前端工程**
+    * [钩子 Hooks 核心概念与系统学习路径](blog/hooks-core-concepts-guide.md)
     * [无服务器静态博客在线编辑与留言性能优化](blog/serverless-blog-editing-and-comments-optimization-guide.md)
     * [Mermaid 图表渲染深度避坑指南](blog/docsify-mermaid-guide.md)
     * [Web 数学公式渲染避坑深度指南](blog/math-rendering-guide.md)

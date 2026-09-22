@@ -127,6 +127,8 @@ updated: 2026-09-22
   深入浅出解析 Model Context Protocol 协议、服务适配器以及 Vercel/Stripe/Supabase 常见启动与超时排查。
 
 ### 🎨 Web 开发与前端工程
+- 🪝 **[钩子 Hooks 核心概念深度解析与系统化学习路径](blog/hooks-core-concepts-guide.md)**<br>
+  从“主流程预留扩展插槽”的心智模型出发，串联 Git Hooks、React Hooks、Vue 生命周期、构建工具插件与后端中间件，帮助读者理解钩子如何完成流程扩展、状态接入与插件化架构。
 - ⚡ **[无服务器静态博客的动态突围：文章在线可编辑性与页面留言性能优化深度剖析](blog/serverless-blog-editing-and-comments-optimization-guide.md)**
   从 Git 对象存储模型、SHA-1 乐观并发锁，到双向逆向编辑台架构；深度剖析 Utterances 评论串行网络瀑布流与 Rate Limit 瓶颈，实装基于 `IntersectionObserver` 的毫秒级视口懒加载与连接预热。
 - 📊 **[Web Markdown 与 Docsify 中 Mermaid 图表渲染深度避坑指南](blog/docsify-mermaid-guide.md)**  
