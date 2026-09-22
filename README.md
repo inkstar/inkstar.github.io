@@ -107,6 +107,8 @@ updated: 2026-09-22
 ## 📝 精选技术博客专栏
 
 ### 🗄️ 数据库与后端架构
+- 🌐 **[TCP/IP 与 HTTP 核心概念深度解析与系统化学习路径](blog/tcp-ip-http-guide.md)**<br>
+  从 DNS、IP、端口、TCP 三次握手、拥塞控制、TLS 到 HTTP/1.1、HTTP/2、HTTP/3 演进，系统建立“从浏览器输入 URL 到服务端响应返回”的完整网络协议心智模型。
 - 🐘 **[PostgreSQL 核心概念深度解析与系统化学习路径](blog/postgresql-guide.md)**  
   从多进程模型、8KB 数据页解剖、MVCC 堆表更新机制与 Autovacuum 运维，到 B-Tree/GIN/BRIN 索引原理、WAL 预写日志与四阶段系统进阶路线图。
 

@@ -14,6 +14,7 @@
 
 * **📝 技术博客专栏**
   * **🗄️ 数据库与后端架构**
+    * [TCP/IP 与 HTTP 核心概念与系统学习指南](blog/tcp-ip-http-guide.md)
     * [PostgreSQL 核心概念与系统学习指南](blog/postgresql-guide.md)
   * **🤖 人工智能与前沿技术**
     * [如何成为 AI Agent 开发者：核心架构与实战路径](blog/ai-agent-developer-guide.md)
