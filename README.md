@@ -131,12 +131,16 @@ updated: 2026-09-22
 ### 🎨 Web 开发与前端工程
 - 🪝 **[钩子 Hooks 核心概念深度解析与系统化学习路径](blog/hooks-core-concepts-guide.md)**<br>
   从“主流程预留扩展插槽”的心智模型出发，串联 Git Hooks、React Hooks、Vue 生命周期、构建工具插件与后端中间件，帮助读者理解钩子如何完成流程扩展、状态接入与插件化架构。
+- 🔄 **[生命周期钩子 Lifecycle Hooks 核心机制深度解析与系统化学习路径](blog/lifecycle-hooks-guide.md)**<br>
+  从有限状态机（FSM）、控制反转（IoC）与好莱坞原则底层动力学出发，系统解构 Vue/React/Docsify 前端组件与 Node.js/NestJS/Kubernetes 后端系统的生命周期钩子运转机制，剖析内存泄漏、异步竞态与清理陷阱，并提供手写轻量级生命周期引擎最小自闭环实战。
 - ⚡ **[无服务器静态博客的动态突围：文章在线可编辑性与页面留言性能优化深度剖析](blog/serverless-blog-editing-and-comments-optimization-guide.md)**
   从 Git 对象存储模型、SHA-1 乐观并发锁，到双向逆向编辑台架构；深度剖析 Utterances 评论串行网络瀑布流与 Rate Limit 瓶颈，实装基于 `IntersectionObserver` 的毫秒级视口懒加载与连接预热。
 - 📊 **[Web Markdown 与 Docsify 中 Mermaid 图表渲染深度避坑指南](blog/docsify-mermaid-guide.md)**  
   从 Marked 编译管道、Mermaid 10 断崖升级、HTML 实体字符转义，到 SPA 路由重绘生命周期与自适应容器工程化全套解法。
 - 📐 **[Web 现代数学公式渲染避坑深度指南](blog/math-rendering-guide.md)**  
   从排版原理、KaTeX vs MathJax 深度选型对比，到定界符失效、隐藏 Tab 几何尺寸为零、SPA 异步渲染时序脱节、JS 反斜杠转义黑洞等五大深坑与完整解法。
+- 🎨 **[TikZ 科学绘图全景深度解析与 Web 矢量渲染落地指南](blog/tikz-drawing-and-web-rendering-guide.md)**<br>
+  从 PGF 底层架构、四维坐标寻址、节点锚点到四阶段进阶路线；深度剖析预编译矢量 SVG 管道（pdflatex + pdftocairo）、客户端 WASM 运行时（TikZJax）与 CI/CD 自动化落地方案，实现物理力学、深度学习与微积分在现代 Web 站点的无损秒开渲染。
 
 ### 📈 搜索优化与增长工程
 - 🧭 **[服务业本地 SEO 与 AI 搜索可见性增长指南](blog/local-seo-ai-search-visibility-guide.md)**

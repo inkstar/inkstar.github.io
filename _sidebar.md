@@ -26,9 +26,11 @@
     * [MCP 架构与常见告警排查指南](blog/mcp.md)
   * **🎨 Web 开发与前端工程**
     * [钩子 Hooks 核心概念与系统学习路径](blog/hooks-core-concepts-guide.md)
+    * [生命周期钩子 Lifecycle Hooks 核心机制与系统学习路径](blog/lifecycle-hooks-guide.md)
     * [无服务器静态博客在线编辑与留言性能优化](blog/serverless-blog-editing-and-comments-optimization-guide.md)
     * [Mermaid 图表渲染深度避坑指南](blog/docsify-mermaid-guide.md)
     * [Web 数学公式渲染避坑深度指南](blog/math-rendering-guide.md)
+    * [TikZ 科学绘图全景指南与 Web 矢量渲染落地](blog/tikz-drawing-and-web-rendering-guide.md)
   * **📈 搜索优化与增长工程**
     * [服务业本地 SEO 与 AI 搜索可见性增长指南](blog/local-seo-ai-search-visibility-guide.md)
   * **🛠️ 站务建设与工程实践**
