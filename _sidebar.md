@@ -35,8 +35,7 @@
   * **📈 搜索优化与增长工程**
     * [服务业本地 SEO 与 AI 搜索可见性增长指南](blog/local-seo-ai-search-visibility-guide.md)
   * **🪙 Web3 与加密金融**
-    * [加密货币交易机制全景拆解：闪兑、现货、合约、DEX、策略交易、交易广场与期权](blog/crypto-trading-concepts-guide.md)
-  * **🛠️ 站务建设与工程实践**
+* **🛠️ 站务建设与工程实践**
     * [2026 搭建博客指南](blog/setup.md)
 
 * **📐 高中数学精讲专栏（沪教版同步体系）**
