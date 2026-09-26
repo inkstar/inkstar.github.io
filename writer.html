@@ -280,6 +280,62 @@
       color: var(--primary-dark);
       border-color: var(--primary-border);
     }
+    .visibility-control {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+      color: #64748b;
+      font-size: 0.82rem;
+    }
+    .visibility-segment {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      padding: 2px;
+      border: 1px solid #cbd5e1;
+      border-radius: 7px;
+      background: #f8fafc;
+    }
+    .visibility-btn {
+      border: none;
+      border-radius: 5px;
+      padding: 4px 10px;
+      background: transparent;
+      color: #475569;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 700;
+      transition: all 0.15s;
+    }
+    .visibility-btn:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+    .visibility-btn.active[data-status="public"] {
+      background: #dcfce7;
+      color: #047857;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+    }
+    .visibility-btn.active[data-status="private"] {
+      background: #fee2e2;
+      color: #b91c1c;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+    }
+    .visibility-select {
+      display: none;
+      padding: 4px 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 5px;
+      background: #ffffff;
+      color: #334155;
+      font-size: 0.82rem;
+      outline: none;
+    }
+    .visibility-select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+    }
 
     /* 编辑器工具栏 */
     .toolbar {
@@ -737,6 +793,18 @@
         <button type="button" class="chip-btn" onclick="window.appendTag('读书笔记')">+读书笔记</button>
         <button type="button" class="chip-btn" onclick="window.appendTag('灵感火花')">+灵感火花</button>
       </div>
+
+      <label class="visibility-control" for="post-status">
+        <span>可见性:</span>
+        <span class="visibility-segment" role="group" aria-label="文章可见性">
+          <button type="button" class="visibility-btn active" data-status="public" onclick="window.setPostStatus('public')">🌐 Public</button>
+          <button type="button" class="visibility-btn" data-status="private" onclick="window.setPostStatus('private')">🔒 Private</button>
+        </span>
+        <select id="post-status" class="visibility-select" onchange="window.syncPostStatusButtons(); window.onMetaChange()">
+          <option value="public">Public</option>
+          <option value="private">Private</option>
+        </select>
+      </label>
     </div>
   </section>
 
@@ -849,20 +917,25 @@
     // GitHub 仓库配置
     var GITHUB_OWNER = 'inkstar';
     var GITHUB_REPO = 'inkstar.github.io';
+    var PRIVATE_GITHUB_REPO = 'inkstar-private-blog';
     var STORAGE_TOKEN_KEY = 'inkstar_writer_pat';
+    var STORAGE_LOGIN_KEY = 'inkstar_github_login';
     var STORAGE_DRAFT_KEY = 'inkstar_writer_draft';
 
     var currentViewMode = 'split'; // 'split', 'edit', 'preview'
     var draftSaveTimer = null;
     var isEditMode = false;
     var editArticlePath = '';
+    var editRepoMode = 'public';
     var existingFileSha = null;
 
     // 页面初始化
     window.addEventListener('DOMContentLoaded', function() {
       checkAuthStatus();
+      window.syncPostStatusButtons();
       var urlParams = new URLSearchParams(window.location.search);
       var editParam = urlParams.get('edit');
+      editRepoMode = urlParams.get('repo') === 'private' ? 'private' : 'public';
       if (editParam) {
         initEditMode(editParam);
       } else {
@@ -910,7 +983,8 @@
         // 1. 优先尝试 GitHub REST API 获取最新 SHA 与内容
         if (token) {
           try {
-            var apiRes = await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/' + targetPath, {
+            var sourceRepo = editRepoMode === 'private' ? PRIVATE_GITHUB_REPO : GITHUB_REPO;
+            var apiRes = await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + sourceRepo + '/contents/' + targetPath, {
               headers: {
                 'Authorization': 'token ' + token,
                 'Accept': 'application/vnd.github.v3+json'
@@ -947,7 +1021,18 @@
           if (tm) title = tm[1].trim().replace(/^['"]|['"]$/g, '');
           var tg = fm.match(/^tags:\s*\[?(.*?)\]?$/m);
           if (tg) tags = tg[1].replace(/['"]/g, '').trim();
+          var sm = fm.match(/^(status|visibility):\s*([^\r\n]+)/m);
+          if (sm) {
+            var parsedStatus = sm[2].trim().replace(/^['"]|['"]$/g, '').toLowerCase();
+            if (parsedStatus === 'private') {
+              document.getElementById('post-status').value = 'private';
+            }
+          }
         }
+        if (editRepoMode === 'private') {
+          document.getElementById('post-status').value = 'private';
+        }
+        window.syncPostStatusButtons();
 
         // 剥离正文首行可能冗余的一级标题
         if (title) {
@@ -1068,8 +1153,19 @@
           throw new Error('当前 Token 对此仓库无写（Push）权限，请勾选 repo 权限范围！');
         }
 
+        var privateRepoRes = await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + PRIVATE_GITHUB_REPO, {
+          headers: {
+            'Authorization': 'token ' + token,
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        });
+        if (!privateRepoRes.ok) {
+          throw new Error('无法访问私有仓库 ' + GITHUB_OWNER + '/' + PRIVATE_GITHUB_REPO + '。请先在 GitHub 创建这个 Private 仓库，并确认 Token 勾选 repo 权限。');
+        }
+
         // 保存到本地
         localStorage.setItem(STORAGE_TOKEN_KEY, token);
+        localStorage.setItem(STORAGE_LOGIN_KEY, userData.login);
         alert('🎉 身份验证成功！欢迎回来，@' + userData.login);
         window.closeAuthModal();
         checkAuthStatus();
@@ -1132,6 +1228,22 @@
       }
     };
 
+    window.syncPostStatusButtons = function() {
+      var statusInput = document.getElementById('post-status');
+      var status = statusInput ? statusInput.value : 'public';
+      document.querySelectorAll('.visibility-btn[data-status]').forEach(function(btn) {
+        btn.classList.toggle('active', btn.getAttribute('data-status') === status);
+      });
+    };
+
+    window.setPostStatus = function(status) {
+      var statusInput = document.getElementById('post-status');
+      if (!statusInput) return;
+      statusInput.value = status === 'private' ? 'private' : 'public';
+      window.syncPostStatusButtons();
+      window.onMetaChange();
+    };
+
     // 3. 编辑与实时预览
     window.onEditorInput = function() {
       scheduleSaveDraft();
@@ -1148,15 +1260,16 @@
       var title = document.getElementById('post-title').value.trim() || '随笔标题预览';
       var tags = document.getElementById('post-tags').value.split(',').map(function(t) { return t.trim(); }).filter(Boolean);
       var content = document.getElementById('editor-textarea').value;
+      var status = document.getElementById('post-status').value || 'public';
 
       document.getElementById('preview-breadcrumb-title').textContent = title;
       document.getElementById('preview-title').textContent = title;
 
       var tagsWrap = document.getElementById('preview-tags-wrap');
       if (tags.length > 0) {
-        tagsWrap.innerHTML = '· 🏷️ ' + tags.map(function(t) { return '<span class="preview-tag">' + t + '</span>'; }).join(' ');
+        tagsWrap.innerHTML = '· 🏷️ ' + tags.map(function(t) { return '<span class="preview-tag">' + t + '</span>'; }).join(' ') + ' · ' + (status === 'private' ? '🔒 Private' : '🌐 Public');
       } else {
-        tagsWrap.innerHTML = '· 🏷️ <span class="preview-tag">随笔</span>';
+        tagsWrap.innerHTML = '· 🏷️ <span class="preview-tag">随笔</span> · ' + (status === 'private' ? '🔒 Private' : '🌐 Public');
       }
 
       var now = new Date();
@@ -1196,6 +1309,7 @@
         title: document.getElementById('post-title').value,
         slug: document.getElementById('post-slug').value,
         tags: document.getElementById('post-tags').value,
+        status: document.getElementById('post-status').value,
         content: document.getElementById('editor-textarea').value,
         updated: new Date().toLocaleTimeString()
       };
@@ -1214,6 +1328,8 @@
         if (d.title) document.getElementById('post-title').value = d.title;
         if (d.slug) document.getElementById('post-slug').value = d.slug;
         if (d.tags) document.getElementById('post-tags').value = d.tags;
+        if (d.status === 'private' || d.status === 'public') document.getElementById('post-status').value = d.status;
+        window.syncPostStatusButtons();
         if (d.content) document.getElementById('editor-textarea').value = d.content;
         if (d.updated) document.getElementById('stat-save-time').textContent = d.updated;
         updateWordCount();
@@ -1228,6 +1344,8 @@
         document.getElementById('post-slug').value = '';
         document.getElementById('post-slug').removeAttribute('data-customized');
         document.getElementById('post-tags').value = '';
+        document.getElementById('post-status').value = 'public';
+        window.syncPostStatusButtons();
         document.getElementById('editor-textarea').value = '';
         localStorage.removeItem(STORAGE_DRAFT_KEY);
         updatePreview();
@@ -1284,6 +1402,121 @@
     function base64ToUtf8(str) {
       return decodeURIComponent(escape(window.atob(str)));
     }
+    function escapeRegExp(str) {
+      return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    async function fetchRepoFile(token, repo, path) {
+      var res = await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + repo + '/contents/' + path, {
+        headers: {
+          'Authorization': 'token ' + token,
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      });
+      if (!res.ok) return null;
+      var json = await res.json();
+      return {
+        sha: json.sha,
+        content: base64ToUtf8(json.content || '')
+      };
+    }
+
+    async function putRepoFile(token, repo, path, content, message, sha) {
+      var payload = {
+        message: message,
+        content: utf8ToBase64(content)
+      };
+      if (sha) payload.sha = sha;
+      var res = await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + repo + '/contents/' + path, {
+        method: 'PUT',
+        headers: {
+          'Authorization': 'token ' + token,
+          'Content-Type': 'application/json',
+          'Accept': 'application/vnd.github.v3+json'
+        },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        var errJson = await res.json();
+        throw new Error('写入 ' + repo + '/' + path + ' 失败: ' + (errJson.message || res.status));
+      }
+      return res.json();
+    }
+
+    async function deleteRepoFile(token, repo, path, message, sha) {
+      var res = await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + repo + '/contents/' + path, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': 'token ' + token,
+          'Content-Type': 'application/json',
+          'Accept': 'application/vnd.github.v3+json'
+        },
+        body: JSON.stringify({
+          message: message,
+          sha: sha
+        })
+      });
+      if (!res.ok) {
+        var errJson = await res.json();
+        throw new Error('删除 ' + repo + '/' + path + ' 失败: ' + (errJson.message || res.status));
+      }
+    }
+
+    async function removePublicExposure(token, articlePath, title) {
+      var articleLinkPath = articlePath.replace(/^\/+/, '');
+
+      var sbFile = await fetchRepoFile(token, GITHUB_REPO, '_sidebar.md');
+      if (sbFile) {
+        var sbContent = sbFile.content;
+        var nextSbContent = sbContent.replace(new RegExp('^\\s*\\*\\s*\\[[^\\]]+\\]\\(' + escapeRegExp(articleLinkPath) + '\\)\\s*\\r?\\n?', 'm'), '');
+        if (nextSbContent !== sbContent) {
+          await putRepoFile(token, GITHUB_REPO, '_sidebar.md', nextSbContent, 'chore(sidebar): 随笔《' + title + '》设为私密', sbFile.sha);
+        }
+      }
+
+      var rdFile = await fetchRepoFile(token, GITHUB_REPO, 'README.md');
+      if (rdFile) {
+        var rdContent = rdFile.content;
+        var nextRdContent = rdContent.replace(new RegExp('^-\\s*☕\\s*\\*\\*\\[[^\\]]+\\]\\(' + escapeRegExp(articleLinkPath) + '\\)\\*\\*\\r?\\n(?:\\s{2,}.*\\r?\\n?)?', 'm'), '');
+        if (nextRdContent !== rdContent) {
+          await putRepoFile(token, GITHUB_REPO, 'README.md', nextRdContent, 'chore(readme): 随笔《' + title + '》设为私密', rdFile.sha);
+        }
+      }
+
+      if (isEditMode && editRepoMode === 'public') {
+        var publicArticle = await fetchRepoFile(token, GITHUB_REPO, articlePath);
+        if (publicArticle) {
+          await deleteRepoFile(token, GITHUB_REPO, articlePath, 'chore(blog): 迁移私密文章《' + title + '》', publicArticle.sha);
+        }
+      }
+    }
+
+    async function syncPrivateIndex(token, slug, title, tags, dateStr, content) {
+      var indexFile = await fetchRepoFile(token, PRIVATE_GITHUB_REPO, 'posts.json');
+      var posts = [];
+      if (indexFile && indexFile.content.trim()) {
+        try {
+          var parsed = JSON.parse(indexFile.content);
+          posts = Array.isArray(parsed.posts) ? parsed.posts : [];
+        } catch (e) {
+          posts = [];
+        }
+      }
+      var summary = content.slice(0, 120).replace(/[\r\n#*`]/g, '').trim();
+      var item = {
+        title: title,
+        slug: slug,
+        path: 'blog/' + slug,
+        date: dateStr,
+        updated: dateStr,
+        tags: tags,
+        summary: summary
+      };
+      posts = posts.filter(function(p) { return p && p.path !== item.path; });
+      posts.unshift(item);
+      var nextContent = JSON.stringify({ posts: posts }, null, 2) + '\n';
+      await putRepoFile(token, PRIVATE_GITHUB_REPO, 'posts.json', nextContent, 'chore(index): 更新私密博客索引', indexFile && indexFile.sha);
+    }
 
     window.handlePublish = async function() {
       var token = localStorage.getItem(STORAGE_TOKEN_KEY);
@@ -1296,6 +1529,7 @@
       var title = document.getElementById('post-title').value.trim();
       var slug = document.getElementById('post-slug').value.trim();
       var tagsRaw = document.getElementById('post-tags').value.trim();
+      var status = document.getElementById('post-status').value === 'private' ? 'private' : 'public';
       var content = document.getElementById('editor-textarea').value.trim();
 
       if (!title) {
@@ -1330,8 +1564,8 @@
       if (tags.length === 0) tags = ['随笔'];
 
       var confirmMsg = isEditMode
-        ? ('确定要保存对《' + title + '》的修改并同步提交到 GitHub 仓库吗？')
-        : ('确定要将随笔《' + title + '》发布到 GitHub 仓库并同步全网吗？');
+        ? ('确定要保存对《' + title + '》的修改并设为 ' + status.toUpperCase() + ' 吗？')
+        : ('确定要将随笔《' + title + '》以 ' + status.toUpperCase() + ' 状态发布到 GitHub 仓库吗？');
       if (!confirm(confirmMsg)) {
         return;
       }
@@ -1372,6 +1606,7 @@
           'title: ' + title,
           'date: ' + dateStr,
           'updated: ' + dateStr,
+          'status: ' + status,
           'tags: [' + tags.join(', ') + ']',
           'author: Inkstar',
           '---',
@@ -1386,13 +1621,14 @@
 
         // Step 2: 上传文章至目标路径
         var articlePath = isEditMode && editArticlePath ? editArticlePath : ('blog/' + slug);
-        setStep('step-2', '正在上传文件至 ' + articlePath, 'running');
+        var targetRepo = status === 'private' ? PRIVATE_GITHUB_REPO : GITHUB_REPO;
+        setStep('step-2', '正在上传文件至 ' + targetRepo + '/' + articlePath, 'running');
         var existingSha = existingFileSha || null;
 
         // 检查文件是否已存在（编辑场景获取最新 SHA 校验锁）
         if (!existingSha) {
           try {
-            var getRes = await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/' + articlePath, {
+            var getRes = await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + targetRepo + '/contents/' + articlePath, {
               headers: {
                 'Authorization': 'token ' + token,
                 'Accept': 'application/vnd.github.v3+json'
@@ -1414,7 +1650,7 @@
         };
         if (existingSha) putPayload.sha = existingSha;
 
-        var putRes = await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/' + articlePath, {
+        var putRes = await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + targetRepo + '/contents/' + articlePath, {
           method: 'PUT',
           headers: {
             'Authorization': 'token ' + token,
@@ -1428,98 +1664,119 @@
           var errJson = await putRes.json();
           throw new Error('上传文章失败: ' + (errJson.message || putRes.status));
         }
-        setStep('step-2', isEditMode ? '文章已成功更新至 ' + articlePath : '文章已成功提交至 ' + articlePath, 'done');
+        setStep('step-2', isEditMode ? '文章已成功更新至 ' + targetRepo + '/' + articlePath : '文章已成功提交至 ' + targetRepo + '/' + articlePath, 'done');
 
-        if (isEditMode) {
-          setStep('step-3', '文章在侧边栏已就绪，保持原有结构', 'done');
-          setStep('step-4', '全站大纲与索引保持原有结构', 'done');
+        if (status === 'private') {
+          setStep('step-3', '正在更新私有仓库文章索引 posts.json', 'running');
+          await syncPrivateIndex(token, slug, title, tags, dateStr, content);
+          setStep('step-3', '私有仓库索引已同步', 'done');
+          setStep('step-4', '正在清理公开仓库中的目录与旧文件', 'running');
+          await removePublicExposure(token, articlePath, title);
+          setStep('step-4', '公开目录已清理，Private 内容仅保留在私有仓库', 'done');
         } else {
-          // Step 3: 更新 _sidebar.md 侧边栏
-          setStep('step-3', '正在读取并更新侧边栏目录 (_sidebar.md)', 'running');
-          var sbRes = await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/_sidebar.md', {
+
+        // Step 3: 根据 public/private 状态同步 _sidebar.md
+        setStep('step-3', status === 'private' ? '正在从公开侧边栏移除 Private 文章' : '正在同步侧边栏目录 (_sidebar.md)', 'running');
+        var sbRes = await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/_sidebar.md', {
+          headers: {
+            'Authorization': 'token ' + token,
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        });
+        if (!sbRes.ok) throw new Error('读取 _sidebar.md 失败');
+        var sbJson = await sbRes.json();
+        var sbContent = base64ToUtf8(sbJson.content);
+        var sbSha = sbJson.sha;
+        var originalSbContent = sbContent;
+        var articleLinkPath = articlePath.replace(/^\/+/, '');
+        var linkLine = '  * [' + title + '](' + articleLinkPath + ')';
+        var sidebarLinkRe = new RegExp('^\\s*\\*\\s*\\[[^\\]]+\\]\\(' + escapeRegExp(articleLinkPath) + '\\)\\s*\\r?\\n?', 'm');
+
+        if (status === 'private') {
+          sbContent = sbContent.replace(sidebarLinkRe, '');
+        } else if (sbContent.indexOf(articleLinkPath) === -1) {
+          var essaySecIdx = sbContent.indexOf('* **☕ 灵感随笔专栏**');
+          if (essaySecIdx !== -1) {
+            var afterHeader = essaySecIdx + '* **☕ 灵感随笔专栏**'.length;
+            sbContent = sbContent.slice(0, afterHeader) + '\n' + linkLine + sbContent.slice(afterHeader);
+          } else {
+            sbContent = sbContent + '\n\n* **☕ 灵感随笔专栏**\n' + linkLine;
+          }
+        }
+
+        if (sbContent !== originalSbContent) {
+          var updateSbRes = await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/_sidebar.md', {
+            method: 'PUT',
+            headers: {
+              'Authorization': 'token ' + token,
+              'Content-Type': 'application/json',
+              'Accept': 'application/vnd.github.v3+json'
+            },
+            body: JSON.stringify({
+              message: status === 'private'
+                ? 'chore(sidebar): 随笔《' + title + '》设为私密'
+                : 'chore(sidebar): 随笔《' + title + '》加入侧边栏目录',
+              content: utf8ToBase64(sbContent),
+              sha: sbSha
+            })
+          });
+          if (!updateSbRes.ok) throw new Error('更新 _sidebar.md 失败');
+        }
+        setStep('step-3', status === 'private' ? 'Private 文章已从公开侧边栏移除' : '侧边栏目录已同步', 'done');
+
+        // Step 4: 根据 public/private 状态同步 README.md
+        setStep('step-4', status === 'private' ? '正在从全站概览移除 Private 文章' : '正在同步全站概览大纲 (README.md)', 'running');
+        try {
+          var rdRes = await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/README.md', {
             headers: {
               'Authorization': 'token ' + token,
               'Accept': 'application/vnd.github.v3+json'
             }
           });
-          if (!sbRes.ok) throw new Error('读取 _sidebar.md 失败');
-          var sbJson = await sbRes.json();
-          var sbContent = base64ToUtf8(sbJson.content);
-          var sbSha = sbJson.sha;
+          if (rdRes.ok) {
+            var rdJson = await rdRes.json();
+            var rdContent = base64ToUtf8(rdJson.content);
+            var rdSha = rdJson.sha;
+            var originalRdContent = rdContent;
+            var rdEntry = '- ☕ **[' + title + '](' + articleLinkPath + ')**\n  ' + content.slice(0, 80).replace(/[\r\n#*`]/g, '') + '...';
+            var readmeLinkRe = new RegExp('^-\\s*☕\\s*\\*\\*\\[[^\\]]+\\]\\(' + escapeRegExp(articleLinkPath) + '\\)\\*\\*\\r?\\n(?:\\s{2,}.*\\r?\\n?)?', 'm');
 
-          // 如果目录里还没有这篇文章的链接，则追加
-          var linkLine = '  * [' + title + '](blog/' + slug + ')';
-          if (sbContent.indexOf('blog/' + slug) === -1) {
-            var essaySecIdx = sbContent.indexOf('* **☕ 灵感随笔专栏**');
-            if (essaySecIdx !== -1) {
-              var afterHeader = essaySecIdx + '* **☕ 灵感随笔专栏**'.length;
-              sbContent = sbContent.slice(0, afterHeader) + '\n' + linkLine + sbContent.slice(afterHeader);
-            } else {
-              sbContent = sbContent + '\n\n* **☕ 灵感随笔专栏**\n' + linkLine;
-            }
-
-            // 提交更新后的 _sidebar.md
-            var updateSbRes = await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/_sidebar.md', {
-              method: 'PUT',
-              headers: {
-                'Authorization': 'token ' + token,
-                'Content-Type': 'application/json',
-                'Accept': 'application/vnd.github.v3+json'
-              },
-              body: JSON.stringify({
-                message: 'chore(sidebar): 随笔《' + title + '》加入侧边栏目录',
-                content: utf8ToBase64(sbContent),
-                sha: sbSha
-              })
-            });
-            if (!updateSbRes.ok) throw new Error('更新 _sidebar.md 失败');
-          }
-          setStep('step-3', '侧边栏目录已成功自动追加', 'done');
-
-          // Step 4: 更新 README.md 目录
-          setStep('step-4', '正在更新全站概览大纲 (README.md)', 'running');
-          try {
-            var rdRes = await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/README.md', {
-              headers: {
-                'Authorization': 'token ' + token,
-                'Accept': 'application/vnd.github.v3+json'
-              }
-            });
-            if (rdRes.ok) {
-              var rdJson = await rdRes.json();
-              var rdContent = base64ToUtf8(rdJson.content);
-              var rdSha = rdJson.sha;
-
-              var rdEntry = '- ☕ **[' + title + '](blog/' + slug + ')**\n  ' + content.slice(0, 80).replace(/[\r\n#*`]/g, '') + '...';
-              if (rdContent.indexOf('blog/' + slug) === -1) {
-                var targetHeader = '## ☕ 灵感随笔与碎碎念专栏';
-                var rdIdx = rdContent.indexOf(targetHeader);
-                if (rdIdx !== -1) {
-                  var insertPos = rdContent.indexOf('\n', rdIdx + targetHeader.length) + 1;
-                  var listIdx = rdContent.indexOf('- ', insertPos);
-                  if (listIdx !== -1) insertPos = listIdx;
-                  rdContent = rdContent.slice(0, insertPos) + rdEntry + '\n' + rdContent.slice(insertPos);
-
-                  await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/README.md', {
-                    method: 'PUT',
-                    headers: {
-                      'Authorization': 'token ' + token,
-                      'Content-Type': 'application/json',
-                      'Accept': 'application/vnd.github.v3+json'
-                    },
-                    body: JSON.stringify({
-                      message: 'chore(readme): 随笔《' + title + '》加入全站大纲',
-                      content: utf8ToBase64(rdContent),
-                      sha: rdSha
-                    })
-                  });
-                }
+            if (status === 'private') {
+              rdContent = rdContent.replace(readmeLinkRe, '');
+            } else if (rdContent.indexOf(articleLinkPath) === -1) {
+              var targetHeader = '## ☕ 灵感随笔与碎碎念专栏';
+              var rdIdx = rdContent.indexOf(targetHeader);
+              if (rdIdx !== -1) {
+                var insertPos = rdContent.indexOf('\n', rdIdx + targetHeader.length) + 1;
+                var listIdx = rdContent.indexOf('- ', insertPos);
+                if (listIdx !== -1) insertPos = listIdx;
+                rdContent = rdContent.slice(0, insertPos) + rdEntry + '\n' + rdContent.slice(insertPos);
               }
             }
-          } catch (e) {
-            console.warn('README update optional failed:', e);
+
+            if (rdContent !== originalRdContent) {
+              var updateRdRes = await fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/README.md', {
+                method: 'PUT',
+                headers: {
+                  'Authorization': 'token ' + token,
+                  'Content-Type': 'application/json',
+                  'Accept': 'application/vnd.github.v3+json'
+                },
+                body: JSON.stringify({
+                  message: status === 'private'
+                    ? 'chore(readme): 随笔《' + title + '》设为私密'
+                    : 'chore(readme): 随笔《' + title + '》加入全站大纲',
+                  content: utf8ToBase64(rdContent),
+                  sha: rdSha
+                })
+              });
+              if (!updateRdRes.ok) throw new Error('更新 README.md 失败');
+            }
           }
-          setStep('step-4', '全站大纲与索引已同步', 'done');
+        } catch (e) {
+          console.warn('README update optional failed:', e);
+        }
+        setStep('step-4', status === 'private' ? 'Private 文章已从全站概览移除' : '全站大纲与索引已同步', 'done');
         }
 
         // 全部成功
@@ -1530,7 +1787,9 @@
           : ('随笔《' + title + '》已成功提交至 GitHub 仓库。GitHub Pages 正在自动构建，预计 20~30 秒后全网生效。');
         actions.style.display = 'flex';
 
-        var articleUrl = 'index.html#/' + articlePath.replace(/\.md$/, '');
+        var articleUrl = status === 'private'
+          ? ('private.html?post=' + encodeURIComponent(slug))
+          : ('index.html#/' + articlePath.replace(/\.md$/, ''));
         document.getElementById('btn-view-published').href = articleUrl;
         document.getElementById('btn-view-published').textContent = '👀 立即前往查看最新内容';
 
@@ -1556,6 +1815,8 @@
       document.getElementById('post-slug').value = '';
       document.getElementById('post-slug').removeAttribute('data-customized');
       document.getElementById('post-tags').value = '';
+      document.getElementById('post-status').value = 'public';
+      window.syncPostStatusButtons();
       document.getElementById('editor-textarea').value = '';
       updatePreview();
       updateWordCount();

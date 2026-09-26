@@ -115,6 +115,8 @@ updated: 2026-09-22
   从多进程模型、8KB 数据页解剖、MVCC 堆表更新机制与 Autovacuum 运维，到 B-Tree/GIN/BRIN 索引原理、WAL 预写日志与四阶段系统进阶路线图。
 
 ### 🤖 人工智能与前沿技术
+- 🧮 **[AI Token 价格影响因素深度解析与成本结构研究](blog/ai-token-pricing-factors-guide.md)**<br>
+  从输入/输出 token、推理成本、上下文窗口与边际成本出发，拆解 AI token 价格背后的算力硬件、模型复杂度、推理优化、服务质量、研发摊销与商业策略，并给出一套可用于判断 API 成本结构的比例模型。
 - 🧩 **[Codex 插件生态与工作效能提升指南](blog/codex-plugins-productivity-guide.md)**<br>
   面向中国大陆开发者、跨境团队与本土企业工作流，系统梳理 GitHub、Figma、Notion、Drive、Slack/Teams、邮件日程、数据分析等 Codex 插件的适用场景、效能提升模型与本土化 MCP 替代路径。
 - 🤖 **[如何成为一名卓越的 AI Agent 开发者：核心架构与实战路径](blog/ai-agent-developer-guide.md)**  
@@ -145,6 +147,10 @@ updated: 2026-09-22
 ### 📈 搜索优化与增长工程
 - 🧭 **[服务业本地 SEO 与 AI 搜索可见性增长指南](blog/local-seo-ai-search-visibility-guide.md)**
   从搜索意图、本地排名三要素、商家资料与评价体系，到服务页结构、AI 摘要适配、四阶段执行路线和可落地的 10 步搜索可见性增长闭环。
+
+### 🪙 Web3 与加密金融
+- 🪙 **[加密货币交易核心机制全景拆解：闪兑、现货、合约、DEX、策略交易、交易广场与期权深度指南](blog/crypto-trading-concepts-guide.md)**<br>
+  从资产权属、订单簿撮合与保证金杠杆出发，系统拆解闪兑（RFQ）、现货、永续合约（资金费率与强平）、DEX（Uniswap AMM 恒定乘积与无常损失）、策略交易（网格与马丁）、跟单广场（回撤与风控猫腻）与期权（希腊字母与非线性 Payoff），附纯 Python 自闭环仿真引擎与权威拓展学习渠道。
 
 ### 🛠️ 站务建设与工程实践
 - 🚀 **[2026 搭建博客指南](blog/setup.md)**  

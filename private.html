@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>私密博客 - Inkstar's Space</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    :root {
+      --theme-color: #42b983;
+      --text-main: #1e293b;
+      --text-dim: #64748b;
+      --border-color: #e2e8f0;
+      --bg-page: #f8fafc;
+      --bg-card: #ffffff;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: var(--bg-page);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      line-height: 1.75;
+    }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      min-height: 56px;
+      padding: 0 18px;
+      background: rgba(255, 255, 255, 0.94);
+      border-bottom: 1px solid var(--border-color);
+      backdrop-filter: blur(8px);
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: #0f172a;
+      text-decoration: none;
+      font-weight: 800;
+    }
+    .badge {
+      padding: 2px 8px;
+      border: 1px solid #a7f3d0;
+      border-radius: 6px;
+      background: #ecfdf5;
+      color: #047857;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-dim);
+      font-size: 0.84rem;
+    }
+    button,
+    .link-btn {
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #334155;
+      border-radius: 6px;
+      padding: 6px 11px;
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 0.84rem;
+      font-weight: 650;
+    }
+    button:hover,
+    .link-btn:hover {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+      color: #047857;
+    }
+    .shell {
+      width: min(880px, calc(100vw - 32px));
+      margin: 28px auto 48px;
+    }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 26px;
+      box-shadow: 0 4px 18px rgba(15, 23, 42, 0.05);
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      margin: 10px 0 24px;
+      color: var(--text-dim);
+      font-size: 0.88rem;
+      border-bottom: 1px dashed var(--border-color);
+      padding-bottom: 16px;
+    }
+    .content h1,
+    .content h2,
+    .content h3 {
+      line-height: 1.35;
+      color: #0f172a;
+    }
+    .content h1 {
+      font-size: 2rem;
+      margin-top: 0;
+    }
+    .content h2 {
+      margin-top: 1.8em;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #eef2f7;
+    }
+    .content blockquote {
+      margin: 1.2em 0;
+      padding: 12px 18px;
+      border-left: 4px solid var(--theme-color);
+      background: #f0fdf4;
+      color: #166534;
+      border-radius: 0 8px 8px 0;
+    }
+    .content code {
+      background: #f1f5f9;
+      border-radius: 4px;
+      padding: 2px 5px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    .content pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      border-radius: 8px;
+      background: #0f172a;
+      color: #f8fafc;
+    }
+    .content pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+    }
+    .auth-panel {
+      max-width: 560px;
+      margin: 80px auto;
+    }
+    .auth-panel input {
+      width: 100%;
+      margin: 12px 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    @media (max-width: 720px) {
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 12px 14px;
+      }
+      .actions {
+        flex-wrap: wrap;
+      }
+      .card {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html#/README">
+      <span>Inkstar's Space</span>
+      <span class="badge">Private</span>
+    </a>
+    <div class="actions">
+      <span id="auth-label">🔒 未登录</span>
+      <a id="edit-link" class="link-btn" href="#" target="_blank" rel="noopener" style="display:none;">编辑</a>
+      <a class="link-btn" href="index.html#/README">返回博客</a>
+      <button id="auth-button" type="button">GitHub 登录</button>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section id="auth-panel" class="card auth-panel" style="display:none;">
+      <h1>🔒 私密博客登录</h1>
+      <p>请输入站点主人的 GitHub Personal Access Token。验证为 @inkstar 后，浏览器会直接从私有仓库读取这篇文章。</p>
+      <input id="token-input" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+      <button id="verify-button" type="button">验证并阅读</button>
+    </section>
+
+    <article id="article-card" class="card" style="display:none;">
+      <div id="article-meta" class="meta"></div>
+      <div id="article-content" class="content"></div>
+    </article>
+
+    <section id="status-card" class="card">
+      正在准备私密文章...
+    </section>
+  </main>
+
+  <script>
+    var OWNER = 'inkstar';
+    var PRIVATE_REPO = 'inkstar-private-blog';
+    var TOKEN_KEY = 'inkstar_writer_pat';
+    var LOGIN_KEY = 'inkstar_github_login';
+
+    function getToken() {
+      return localStorage.getItem(TOKEN_KEY) || '';
+    }
+
+    function getPostSlug() {
+      var params = new URLSearchParams(window.location.search);
+      var slug = params.get('post') || '';
+      slug = slug.replace(/^\//, '').replace(/^blog\//, '').replace(/[^a-zA-Z0-9._-]/g, '');
+      if (!slug.endsWith('.md')) slug += '.md';
+      return slug;
+    }
+
+    function base64ToUtf8(str) {
+      return decodeURIComponent(escape(window.atob(str)));
+    }
+
+    function parseFrontMatter(raw) {
+      var meta = {};
+      var body = raw;
+      var match = raw.replace(/^\uFEFF/, '').match(/^---\s*[\r\n]+([\s\S]*?)[\r\n]+---\s*[\r\n]*/);
+      if (match) {
+        match[1].split('\n').forEach(function(line) {
+          var idx = line.indexOf(':');
+          if (idx > 0) {
+            meta[line.slice(0, idx).trim()] = line.slice(idx + 1).trim().replace(/^['"]|['"]$/g, '');
+          }
+        });
+        body = raw.slice(match[0].length);
+      }
+      return { meta: meta, body: body };
+    }
+
+    function refreshAuthUI() {
+      var label = document.getElementById('auth-label');
+      var button = document.getElementById('auth-button');
+      var loggedIn = Boolean(getToken()) && localStorage.getItem(LOGIN_KEY) === OWNER;
+      label.textContent = loggedIn ? ('👤 @' + OWNER) : '🔒 未登录';
+      label.style.color = loggedIn ? '#059669' : '#64748b';
+      button.textContent = loggedIn ? '退出' : 'GitHub 登录';
+      button.onclick = loggedIn ? function() {
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(LOGIN_KEY);
+        location.reload();
+      } : showAuthPanel;
+    }
+
+    function showStatus(text) {
+      document.getElementById('status-card').style.display = 'block';
+      document.getElementById('status-card').textContent = text;
+      document.getElementById('auth-panel').style.display = 'none';
+      document.getElementById('article-card').style.display = 'none';
+    }
+
+    function showAuthPanel() {
+      document.getElementById('status-card').style.display = 'none';
+      document.getElementById('article-card').style.display = 'none';
+      document.getElementById('auth-panel').style.display = 'block';
+      document.getElementById('token-input').value = getToken();
+    }
+
+    async function verifyToken(token) {
+      var res = await fetch('https://api.github.com/user', {
+        headers: {
+          'Authorization': 'token ' + token,
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      });
+      if (!res.ok) throw new Error('Token 无效或已过期');
+      var user = await res.json();
+      if (!user || user.login !== OWNER) {
+        throw new Error('当前账号 @' + (user && user.login ? user.login : 'unknown') + ' 不是 @' + OWNER);
+      }
+      localStorage.setItem(TOKEN_KEY, token);
+      localStorage.setItem(LOGIN_KEY, user.login);
+      refreshAuthUI();
+    }
+
+    async function fetchPrivateMarkdown(slug) {
+      var token = getToken();
+      var res = await fetch('https://api.github.com/repos/' + OWNER + '/' + PRIVATE_REPO + '/contents/blog/' + slug, {
+        headers: {
+          'Authorization': 'token ' + token,
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      });
+      if (!res.ok) {
+        throw new Error(res.status === 404 ? '没有找到这篇私密文章，或 Token 没有私有仓库权限。' : '读取私密文章失败：HTTP ' + res.status);
+      }
+      var json = await res.json();
+      return base64ToUtf8(json.content || '');
+    }
+
+    async function loadArticle() {
+      refreshAuthUI();
+      var slug = getPostSlug();
+      if (!slug || slug === '.md') {
+        showStatus('缺少私密文章参数。');
+        return;
+      }
+      if (!getToken() || localStorage.getItem(LOGIN_KEY) !== OWNER) {
+        showAuthPanel();
+        return;
+      }
+      showStatus('正在从私有仓库读取文章...');
+      try {
+        var raw = await fetchPrivateMarkdown(slug);
+        var parsed = parseFrontMatter(raw);
+        var tags = parsed.meta.tags ? parsed.meta.tags.replace(/[\[\]]/g, '').split(',').map(function(t) { return t.trim(); }).filter(Boolean) : [];
+        document.title = (parsed.meta.title || slug) + ' - 私密博客';
+        document.getElementById('article-meta').innerHTML = [
+          '<span>🔒 Private</span>',
+          '<span>📅 ' + (parsed.meta.date || '') + '</span>',
+          '<span>🔄 ' + (parsed.meta.updated || parsed.meta.date || '') + '</span>',
+          tags.length ? '<span>🏷️ ' + tags.join(', ') + '</span>' : ''
+        ].filter(Boolean).join('');
+        document.getElementById('article-content').innerHTML = window.marked ? marked.parse(parsed.body) : parsed.body;
+        document.getElementById('edit-link').href = 'writer.html?repo=private&edit=' + encodeURIComponent('blog/' + slug);
+        document.getElementById('edit-link').style.display = 'inline-block';
+        document.getElementById('status-card').style.display = 'none';
+        document.getElementById('auth-panel').style.display = 'none';
+        document.getElementById('article-card').style.display = 'block';
+      } catch (err) {
+        showStatus(err.message);
+      }
+    }
+
+    document.getElementById('verify-button').addEventListener('click', async function() {
+      var token = document.getElementById('token-input').value.trim();
+      if (!token) {
+        alert('请输入 GitHub Token。');
+        return;
+      }
+      this.disabled = true;
+      this.textContent = '验证中...';
+      try {
+        await verifyToken(token);
+        await loadArticle();
+      } catch (err) {
+        alert('登录失败：' + err.message);
+      } finally {
+        this.disabled = false;
+        this.textContent = '验证并阅读';
+      }
+    });
+
+    loadArticle();
+  </script>
+</body>
+</html>

@@ -37,6 +37,108 @@
       --text-dim: #64748b;
       --border-color: #e2e8f0;
     }
+    .site-auth-widget {
+      position: fixed;
+      top: 10px;
+      right: 16px;
+      z-index: 80;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08);
+      font-size: 0.82rem;
+      color: #475569;
+      backdrop-filter: blur(8px);
+    }
+    .site-auth-widget button,
+    .private-login-card button,
+    .private-auth-card button {
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      color: #334155;
+      border-radius: 6px;
+      padding: 4px 9px;
+      cursor: pointer;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    .private-login-card {
+      margin: 40px auto;
+      max-width: 560px;
+      padding: 24px;
+      border: 1px solid var(--border-color);
+      border-left: 4px solid var(--theme-color);
+      border-radius: 8px;
+      background: #ffffff;
+      box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
+    }
+    .private-login-card h1 {
+      margin-top: 0 !important;
+      font-size: 1.6rem !important;
+    }
+    .private-login-card p {
+      color: #64748b;
+    }
+    .private-auth-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 120;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(15, 23, 42, 0.58);
+      backdrop-filter: blur(4px);
+    }
+    .private-auth-card {
+      width: 460px;
+      max-width: 92vw;
+      padding: 24px;
+      background: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.18);
+    }
+    .private-auth-card h3 {
+      margin: 0 0 8px;
+      color: #0f172a;
+    }
+    .private-auth-card p {
+      margin: 0 0 14px;
+      color: #64748b;
+      font-size: 0.88rem;
+      line-height: 1.55;
+    }
+    .private-auth-card input {
+      width: 100%;
+      padding: 9px 11px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.84rem;
+      outline: none;
+    }
+    .private-auth-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .private-auth-submit {
+      background: var(--theme-color) !important;
+      border-color: var(--theme-color) !important;
+      color: #ffffff !important;
+    }
+    .private-sidebar-hidden {
+      display: none !important;
+    }
+    .private-sidebar-link::after {
+      content: " 🔒";
+      font-size: 0.78em;
+      color: #64748b;
+    }
     nav.app-nav {
       position: sticky;
     }
@@ -1557,6 +1659,21 @@
   </script>
 </head>
   <body>
+  <div id="site-auth-widget" class="site-auth-widget">
+    <span id="site-auth-label">🔒 未登录</span>
+    <button id="site-auth-button" type="button">GitHub 登录</button>
+  </div>
+  <div id="private-auth-modal" class="private-auth-modal">
+    <div class="private-auth-card">
+      <h3>GitHub 身份登录</h3>
+      <p>输入博主 GitHub Personal Access Token。验证为 @inkstar 后，本浏览器会显示标记为 private 的博客。</p>
+      <input id="private-auth-token" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+      <div class="private-auth-actions">
+        <button type="button" onclick="window.closePrivateAuthModal()">取消</button>
+        <button id="private-auth-submit" class="private-auth-submit" type="button" onclick="window.verifyPrivateReaderToken()">验证并登录</button>
+      </div>
+    </div>
+  </div>
   <!-- 微信旧版爬虫抓取首图兼容规范（300x300以上正方形封面图） -->
   <div style="display:none;font-size:0;line-height:0;" aria-hidden="true">
     <img src="images/share-cover.png" alt="Inkstar's Space" width="300" height="300" />
@@ -1589,6 +1706,188 @@
   </div>
 
   <script>
+    var INKSTAR_OWNER = 'inkstar';
+    var INKSTAR_TOKEN_KEY = 'inkstar_writer_pat';
+    var INKSTAR_LOGIN_KEY = 'inkstar_github_login';
+    var INKSTAR_PRIVATE_REPO = 'inkstar-private-blog';
+
+    function getInkstarToken() {
+      return localStorage.getItem(INKSTAR_TOKEN_KEY) || '';
+    }
+
+    function isInkstarOwnerLoggedIn() {
+      return Boolean(getInkstarToken()) && localStorage.getItem(INKSTAR_LOGIN_KEY) === INKSTAR_OWNER;
+    }
+
+    function refreshAuthWidget() {
+      var label = document.getElementById('site-auth-label');
+      var button = document.getElementById('site-auth-button');
+      if (!label || !button) return;
+      if (isInkstarOwnerLoggedIn()) {
+        label.textContent = '👤 @' + INKSTAR_OWNER;
+        label.style.color = '#059669';
+        button.textContent = '退出';
+        button.onclick = function() {
+          if (confirm('退出后本机将不再显示 private 博客，确定退出吗？')) {
+            localStorage.removeItem(INKSTAR_TOKEN_KEY);
+            localStorage.removeItem(INKSTAR_LOGIN_KEY);
+            refreshAuthWidget();
+            refreshPrivateSidebarVisibility();
+            location.reload();
+          }
+        };
+      } else {
+        label.textContent = '🔒 未登录';
+        label.style.color = '#64748b';
+        button.textContent = 'GitHub 登录';
+        button.onclick = window.openPrivateAuthModal;
+      }
+    }
+
+    window.openPrivateAuthModal = function() {
+      var modal = document.getElementById('private-auth-modal');
+      var input = document.getElementById('private-auth-token');
+      if (input) input.value = getInkstarToken();
+      if (modal) modal.style.display = 'flex';
+    };
+
+    window.closePrivateAuthModal = function() {
+      var modal = document.getElementById('private-auth-modal');
+      if (modal) modal.style.display = 'none';
+    };
+
+    window.verifyPrivateReaderToken = async function() {
+      var input = document.getElementById('private-auth-token');
+      var btn = document.getElementById('private-auth-submit');
+      var token = input ? input.value.trim() : '';
+      if (!token) {
+        alert('请输入 GitHub Token。');
+        return;
+      }
+      btn.disabled = true;
+      btn.textContent = '验证中...';
+      try {
+        var userRes = await fetch('https://api.github.com/user', {
+          headers: {
+            'Authorization': 'token ' + token,
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        });
+        if (!userRes.ok) throw new Error('Token 无效或已过期');
+        var userData = await userRes.json();
+        if (!userData || userData.login !== INKSTAR_OWNER) {
+          throw new Error('当前账号 @' + (userData && userData.login ? userData.login : 'unknown') + ' 不是站点主人 @' + INKSTAR_OWNER);
+        }
+        localStorage.setItem(INKSTAR_TOKEN_KEY, token);
+        localStorage.setItem(INKSTAR_LOGIN_KEY, userData.login);
+        window.closePrivateAuthModal();
+        refreshAuthWidget();
+        refreshPrivateSidebarVisibility();
+        location.reload();
+      } catch (err) {
+        alert('登录失败：' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '验证并登录';
+      }
+    };
+
+    function parseSimpleFrontMatter(content) {
+      var meta = {};
+      var match = content.replace(/^\uFEFF/, '').match(/^---\s*[\r\n]+([\s\S]*?)[\r\n]+---\s*[\r\n]*/);
+      if (!match) return meta;
+      match[1].split('\n').forEach(function(line) {
+        var idx = line.indexOf(':');
+        if (idx > 0) {
+          meta[line.slice(0, idx).trim()] = line.slice(idx + 1).trim().replace(/^['"]|['"]$/g, '');
+        }
+      });
+      return meta;
+    }
+
+    function isPrivateMeta(meta) {
+      var value = String((meta && (meta.status || meta.visibility)) || '').toLowerCase();
+      return value === 'private';
+    }
+
+    function privateBlockedMarkdown() {
+      return [
+        '<div class="private-login-card">',
+        '<h1>🔒 私密博客</h1>',
+        '<p>这篇文章被标记为 private。请使用站点主人的 GitHub 账户登录后查看。</p>',
+        '<button type="button" onclick="window.openPrivateAuthModal()">GitHub 登录查看</button>',
+        '</div>'
+      ].join('\n');
+    }
+
+    function refreshPrivateSidebarVisibility() {
+      var sidebarNav = document.querySelector('aside.sidebar .sidebar-nav');
+      if (!sidebarNav) return;
+      var links = sidebarNav.querySelectorAll('a[href*="blog/"]');
+      var allowPrivate = isInkstarOwnerLoggedIn();
+      Array.prototype.forEach.call(links, function(link) {
+        var href = link.getAttribute('href') || '';
+        var path = href.replace(/^#\/?/, '').replace(/^\//, '').split('?')[0];
+        if (!path) return;
+        if (!/\.md$/.test(path)) path += '.md';
+        fetch(path, { cache: 'no-store' })
+          .then(function(res) { return res.ok ? res.text() : ''; })
+          .then(function(text) {
+            if (!text) return;
+            var isPrivate = isPrivateMeta(parseSimpleFrontMatter(text));
+            link.classList.toggle('private-sidebar-link', isPrivate && allowPrivate);
+            var li = link.closest('li');
+            if (li) li.classList.toggle('private-sidebar-hidden', isPrivate && !allowPrivate);
+          })
+          .catch(function() {});
+      });
+      injectPrivatePostsSidebar();
+    }
+
+    async function fetchPrivateRepoText(path) {
+      var token = getInkstarToken();
+      if (!token) return null;
+      var res = await fetch('https://api.github.com/repos/' + INKSTAR_OWNER + '/' + INKSTAR_PRIVATE_REPO + '/contents/' + path, {
+        headers: {
+          'Authorization': 'token ' + token,
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      });
+      if (!res.ok) return null;
+      var json = await res.json();
+      return decodeURIComponent(escape(window.atob(json.content || '')));
+    }
+
+    async function injectPrivatePostsSidebar() {
+      if (!isInkstarOwnerLoggedIn()) return;
+      var sidebarNav = document.querySelector('aside.sidebar .sidebar-nav');
+      if (!sidebarNav || sidebarNav.querySelector('[data-private-posts-section="true"]')) return;
+      try {
+        var raw = await fetchPrivateRepoText('posts.json');
+        if (!raw) return;
+        var data = JSON.parse(raw);
+        var posts = Array.isArray(data.posts) ? data.posts : [];
+        if (posts.length === 0) return;
+        var rootList = sidebarNav.querySelector(':scope > ul') || sidebarNav.querySelector('ul');
+        if (!rootList) return;
+        var section = document.createElement('li');
+        section.setAttribute('data-private-posts-section', 'true');
+        section.className = 'sidebar-group expanded';
+        var items = posts.map(function(post) {
+          var title = post && post.title ? post.title : post.slug;
+          var slug = post && post.slug ? post.slug : '';
+          if (!slug) return '';
+          return '<li><a class="private-sidebar-link" href="private.html?post=' + encodeURIComponent(slug) + '" target="_blank" rel="noopener">' + title + '</a></li>';
+        }).filter(Boolean).join('');
+        section.innerHTML = '<p tabindex="0" role="button">🔒 私密博客</p><ul>' + items + '</ul>';
+        rootList.insertBefore(section, rootList.firstChild);
+      } catch (e) {
+        console.warn('Private posts index load failed:', e);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', refreshAuthWidget);
+
     window.$docsify = {
       name: 'Inkstar',
       nameLink: '/',
@@ -1811,8 +2110,10 @@
             }
             setupMobileSidebarInteraction();
             setupCollapsibleGlobalSidebar();
+            refreshPrivateSidebarVisibility();
             setTimeout(setupCollapsibleGlobalSidebar, 150);
             setTimeout(setupCollapsibleGlobalSidebar, 500);
+            setTimeout(refreshPrivateSidebarVisibility, 650);
           });
 
           // 1. 在渲染前解析 frontmatter 并为博客文章注入文章元数据
@@ -1833,6 +2134,10 @@
                   meta[key] = val;
                 }
               });
+            }
+
+            if (isPrivateMeta(meta) && !isInkstarOwnerLoggedIn()) {
+              return privateBlockedMarkdown();
             }
 
             var normPath = getNormalizedRoutePath(vm);
@@ -1975,6 +2280,8 @@
           hook.doneEach(function() {
             var normPath = getNormalizedRoutePath(vm);
             var pageSlug = getPageSlug(normPath);
+            refreshAuthWidget();
+            refreshPrivateSidebarVisibility();
 
             // 规范化标准 URL（去除 hash，确保统计后端按独立文章路径精准隔离计数）
             var canonicalOrigin = 'https://www.inkstar.org';

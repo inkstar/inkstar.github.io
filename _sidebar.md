@@ -18,6 +18,7 @@
     * [TCP/IP 与 HTTP 核心概念与系统学习指南](blog/tcp-ip-http-guide.md)
     * [PostgreSQL 核心概念与系统学习指南](blog/postgresql-guide.md)
   * **🤖 人工智能与前沿技术**
+    * [AI Token 价格影响因素深度解析与成本结构研究](blog/ai-token-pricing-factors-guide.md)
     * [Codex 插件生态与工作效能提升指南](blog/codex-plugins-productivity-guide.md)
     * [如何成为 AI Agent 开发者：核心架构与实战路径](blog/ai-agent-developer-guide.md)
     * [模式识别核心概念与系统学习路径](blog/pattern-recognition-guide.md)
@@ -33,6 +34,8 @@
     * [TikZ 科学绘图全景指南与 Web 矢量渲染落地](blog/tikz-drawing-and-web-rendering-guide.md)
   * **📈 搜索优化与增长工程**
     * [服务业本地 SEO 与 AI 搜索可见性增长指南](blog/local-seo-ai-search-visibility-guide.md)
+  * **🪙 Web3 与加密金融**
+    * [加密货币交易机制全景拆解：闪兑、现货、合约、DEX、策略交易、交易广场与期权](blog/crypto-trading-concepts-guide.md)
   * **🛠️ 站务建设与工程实践**
     * [2026 搭建博客指南](blog/setup.md)
 
