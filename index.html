@@ -1711,6 +1711,16 @@
     var INKSTAR_LOGIN_KEY = 'inkstar_github_login';
     var INKSTAR_PRIVATE_REPO = 'inkstar-private-blog';
 
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
     function getInkstarToken() {
       return localStorage.getItem(INKSTAR_TOKEN_KEY) || '';
     }
@@ -1731,6 +1741,8 @@
           if (confirm('退出后本机将不再显示 private 博客，确定退出吗？')) {
             localStorage.removeItem(INKSTAR_TOKEN_KEY);
             localStorage.removeItem(INKSTAR_LOGIN_KEY);
+            window._cachedPrivatePosts = null;
+            window._privateFrontMatterCache = {};
             refreshAuthWidget();
             refreshPrivateSidebarVisibility();
             location.reload();
@@ -1780,6 +1792,8 @@
         }
         localStorage.setItem(INKSTAR_TOKEN_KEY, token);
         localStorage.setItem(INKSTAR_LOGIN_KEY, userData.login);
+        window._cachedPrivatePosts = null;
+        window._privateFrontMatterCache = {};
         window.closePrivateAuthModal();
         refreshAuthWidget();
         refreshPrivateSidebarVisibility();
@@ -1820,26 +1834,62 @@
       ].join('\n');
     }
 
+    function cleanupPrivateSidebarGroups(sidebarNav) {
+      if (!sidebarNav) return;
+      var groups = sidebarNav.querySelectorAll('li.sidebar-subgroup, li.sidebar-group');
+      Array.prototype.forEach.call(groups, function(group) {
+        group.classList.remove('private-sidebar-hidden');
+      });
+      Array.prototype.reverse.call(Array.prototype.slice.call(groups)).forEach(function(group) {
+        var visibleLinks = Array.prototype.filter.call(group.querySelectorAll('a'), function(link) {
+          return !link.closest('.private-sidebar-hidden');
+        });
+        group.classList.toggle('private-sidebar-hidden', visibleLinks.length === 0);
+      });
+    }
+
     function refreshPrivateSidebarVisibility() {
       var sidebarNav = document.querySelector('aside.sidebar .sidebar-nav');
       if (!sidebarNav) return;
       var links = sidebarNav.querySelectorAll('a[href*="blog/"]');
       var allowPrivate = isInkstarOwnerLoggedIn();
+      var pending = links.length;
+      var finishOne = function() {
+        pending -= 1;
+        if (pending <= 0) cleanupPrivateSidebarGroups(sidebarNav);
+      };
+      if (!pending) cleanupPrivateSidebarGroups(sidebarNav);
+      window._privateFrontMatterCache = window._privateFrontMatterCache || {};
       Array.prototype.forEach.call(links, function(link) {
         var href = link.getAttribute('href') || '';
         var path = href.replace(/^#\/?/, '').replace(/^\//, '').split('?')[0];
-        if (!path) return;
+        if (!path) {
+          finishOne();
+          return;
+        }
         if (!/\.md$/.test(path)) path += '.md';
+        if (window._privateFrontMatterCache.hasOwnProperty(path)) {
+          var isPrivateCached = window._privateFrontMatterCache[path];
+          link.classList.toggle('private-sidebar-link', isPrivateCached && allowPrivate);
+          var liCached = link.closest('li');
+          if (liCached) liCached.classList.toggle('private-sidebar-hidden', isPrivateCached && !allowPrivate);
+          finishOne();
+          return;
+        }
         fetch(path, { cache: 'no-store' })
           .then(function(res) { return res.ok ? res.text() : ''; })
           .then(function(text) {
-            if (!text) return;
-            var isPrivate = isPrivateMeta(parseSimpleFrontMatter(text));
+            var isPrivate = false;
+            if (text) {
+              isPrivate = isPrivateMeta(parseSimpleFrontMatter(text));
+            }
+            window._privateFrontMatterCache[path] = isPrivate;
             link.classList.toggle('private-sidebar-link', isPrivate && allowPrivate);
             var li = link.closest('li');
             if (li) li.classList.toggle('private-sidebar-hidden', isPrivate && !allowPrivate);
           })
-          .catch(function() {});
+          .catch(function() {})
+          .finally(finishOne);
       });
       injectPrivatePostsSidebar();
     }
@@ -1858,32 +1908,66 @@
       return decodeURIComponent(escape(window.atob(json.content || '')));
     }
 
+    var _injectPrivateSidebarPromise = null;
     async function injectPrivatePostsSidebar() {
-      if (!isInkstarOwnerLoggedIn()) return;
       var sidebarNav = document.querySelector('aside.sidebar .sidebar-nav');
-      if (!sidebarNav || sidebarNav.querySelector('[data-private-posts-section="true"]')) return;
-      try {
-        var raw = await fetchPrivateRepoText('posts.json');
-        if (!raw) return;
-        var data = JSON.parse(raw);
-        var posts = Array.isArray(data.posts) ? data.posts : [];
-        if (posts.length === 0) return;
-        var rootList = sidebarNav.querySelector(':scope > ul') || sidebarNav.querySelector('ul');
-        if (!rootList) return;
-        var section = document.createElement('li');
-        section.setAttribute('data-private-posts-section', 'true');
-        section.className = 'sidebar-group expanded';
-        var items = posts.map(function(post) {
-          var title = post && post.title ? post.title : post.slug;
-          var slug = post && post.slug ? post.slug : '';
-          if (!slug) return '';
-          return '<li><a class="private-sidebar-link" href="private.html?post=' + encodeURIComponent(slug) + '" target="_blank" rel="noopener">' + title + '</a></li>';
-        }).filter(Boolean).join('');
-        section.innerHTML = '<p tabindex="0" role="button">🔒 私密博客</p><ul>' + items + '</ul>';
-        rootList.insertBefore(section, rootList.firstChild);
-      } catch (e) {
-        console.warn('Private posts index load failed:', e);
+      if (!sidebarNav) return;
+
+      // 1. 未登录状态：彻底清理侧边栏可能存在的任何私密博客节点并返回
+      if (!isInkstarOwnerLoggedIn()) {
+        Array.prototype.forEach.call(sidebarNav.querySelectorAll('[data-private-posts-section="true"]'), function(section) {
+          if (section.parentNode) section.parentNode.removeChild(section);
+        });
+        return;
       }
+
+      // 2. 如果当前已有异步注入任务在执行中，直接复用其 Promise，杜绝并发竞态调用导致的多次重复注入
+      if (_injectPrivateSidebarPromise) {
+        return _injectPrivateSidebarPromise;
+      }
+
+      _injectPrivateSidebarPromise = (async function() {
+        try {
+          var posts = window._cachedPrivatePosts;
+          if (!posts) {
+            var raw = await fetchPrivateRepoText('posts.json');
+            if (!raw) return;
+            var data = JSON.parse(raw);
+            posts = Array.isArray(data.posts) ? data.posts : [];
+            window._cachedPrivatePosts = posts;
+          }
+          if (posts.length === 0) return;
+
+          var curSidebarNav = document.querySelector('aside.sidebar .sidebar-nav');
+          if (!curSidebarNav) return;
+          var rootList = curSidebarNav.querySelector(':scope > ul') || curSidebarNav.querySelector('ul');
+          if (!rootList) return;
+
+          // 核心防御点：无论何时插入，在执行 insertBefore 前彻底清理当前侧边栏中已存在的所有私密博客分组节点，确保全局永远仅存在唯一一个分组！
+          Array.prototype.forEach.call(curSidebarNav.querySelectorAll('[data-private-posts-section="true"]'), function(section) {
+            if (section.parentNode) section.parentNode.removeChild(section);
+          });
+
+          var section = document.createElement('li');
+          section.setAttribute('data-private-posts-section', 'true');
+          section.className = 'sidebar-group expanded';
+          var items = posts.map(function(post) {
+            var title = post && post.title ? post.title : post.slug;
+            var slug = post && post.slug ? post.slug : '';
+            if (!slug) return '';
+            return '<li><a class="private-sidebar-link" href="private.html?post=' + encodeURIComponent(slug) + '" target="_blank" rel="noopener">' + escapeHtml(title) + '</a></li>';
+          }).filter(Boolean).join('');
+          section.innerHTML = '<p tabindex="0" role="button">🔒 私密博客</p><ul>' + items + '</ul>';
+          rootList.insertBefore(section, rootList.firstChild);
+          setupCollapsibleGlobalSidebar();
+        } catch (e) {
+          console.warn('Private posts index load failed:', e);
+        } finally {
+          _injectPrivateSidebarPromise = null;
+        }
+      })();
+
+      return _injectPrivateSidebarPromise;
     }
 
     window.addEventListener('DOMContentLoaded', refreshAuthWidget);
