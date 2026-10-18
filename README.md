@@ -15,6 +15,9 @@ updated: 2026-09-22
 
 ## 🚀 可视化教学交互页面
 
+- 🧊 **[正方体截面交互实验室 ↗](projects/cube-sections/ ':target=_blank')**  
+  固定棱上点、顶点或中心，旋转截平面，联动观察三至六边形与截面正视图。
+
 - 🚗 **[物理·匀变速直线运动实验室 ↗](projects/uniform-linear-motion.html ':target=_blank')**  
   高中物理必修一核心考点可视化实验室：动力学仿真跑道、矢量箭头、打点残影、四维图像联动与知三求二演算器。
 - 🎮 **[向量数量积与 3D 光照着色交互实验室 ↗](projects/vector-lighting.html ':target=_blank')**  
