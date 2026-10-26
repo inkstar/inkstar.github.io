@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>碳化硅 (SiC) 晶胞 3D 交互 SVG 演示</title>
+  <style>
+    :root {
+      --bg-0: #090d16;
+      --bg-1: #111827;
+      --card-bg: rgba(17, 24, 39, 0.82);
+      --card-border: rgba(148, 163, 184, 0.18);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-si: #38bdf8;
+      --accent-si-deep: #0284c7;
+      --accent-c: #f59e0b;
+      --accent-c-deep: #b45309;
+      --accent-bond: #e2e8f0;
+      --tetra-fill: rgba(245, 158, 11, 0.16);
+      --tetra-stroke: rgba(251, 191, 36, 0.72);
+      --radius-lg: 18px;
+      --radius-md: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at 18% 15%, rgba(56, 189, 248, 0.14), transparent 42%),
+        radial-gradient(circle at 82% 12%, rgba(245, 158, 11, 0.12), transparent 40%),
+        linear-gradient(160deg, var(--bg-0) 0%, var(--bg-1) 100%);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      overflow-x: hidden;
+    }
+
+    .app-shell {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 14px 14px 28px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    @media (min-width: 920px) {
+      .app-shell {
+        padding: 22px 24px 36px;
+        grid-template-columns: minmax(0, 1.35fr) minmax(350px, 0.85fr);
+        align-items: start;
+        gap: 20px;
+      }
+    }
+
+    /* Header */
+    .top-bar {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 16px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .badge-formula {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 5px 11px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.92rem;
+      letter-spacing: 0.03em;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.22), rgba(245, 158, 11, 0.22));
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      color: #f8fafc;
+    }
+
+    .brand-title h1 {
+      margin: 0;
+      font-size: clamp(1.08rem, 2.5vw, 1.38rem);
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    .subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .legend-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.72);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      font-size: 0.8rem;
+      color: #e2e8f0;
+    }
+
+    .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot-si {
+      background: radial-gradient(circle at 32% 30%, #bae6fd, #38bdf8 55%, #0369a1 100%);
+      box-shadow: 0 0 8px rgba(56, 189, 248, 0.65);
+    }
+
+    .dot-c {
+      background: radial-gradient(circle at 32% 30%, #fde68a, #f59e0b 55%, #92400e 100%);
+      box-shadow: 0 0 8px rgba(245, 158, 11, 0.65);
+    }
+
+    /* Stage Card */
+    .stage-card {
+      position: relative;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 18px 40px -15px rgba(0, 0, 0, 0.6);
+    }
+
+    .stage-overlay-top {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      pointer-events: none;
+      z-index: 4;
+      gap: 8px;
+    }
+
+    .hint-chip {
+      pointer-events: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 11px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      color: #cbd5e1;
+      background: rgba(15, 23, 42, 0.76);
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      backdrop-filter: blur(8px);
+    }
+
+    .angle-readout {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.74rem;
+      color: #94a3b8;
+      background: rgba(15, 23, 42, 0.76);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      padding: 5px 9px;
+      border-radius: 8px;
+    }
+
+    .svg-container {
+      width: 100%;
+      height: clamp(350px, 62vw, 560px);
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      cursor: grab;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(30, 41, 59, 0.65) 0%, rgba(9, 13, 22, 0.9) 85%);
+    }
+
+    .svg-container:active {
+      cursor: grabbing;
+    }
+
+    #crystalSvg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Atom Info Toast inside stage */
+    .atom-inspector {
+      margin: 0 12px 12px;
+      padding: 11px 14px;
+      border-radius: var(--radius-md);
+      background: rgba(15, 23, 42, 0.88);
+      border: 1px solid rgba(56, 189, 248, 0.28);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 0.84rem;
+    }
+
+    .inspector-main {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      flex-wrap: wrap;
+    }
+
+    .atom-tag {
+      padding: 3px 9px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.78rem;
+    }
+
+    .atom-tag.si {
+      background: rgba(56, 189, 248, 0.2);
+      color: #7dd3fc;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+    }
+
+    .atom-tag.c {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fcd34d;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
+    .coord-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      color: #e2e8f0;
+      background: rgba(255, 255, 255, 0.07);
+      padding: 2px 7px;
+      border-radius: 5px;
+      font-size: 0.8rem;
+    }
+
+    /* Quick View Toolbar below SVG */
+    .quick-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      padding: 0 12px 14px;
+    }
+
+    .btn {
+      appearance: none;
+      border: 1px solid rgba(148, 163, 184, 0.26);
+      background: rgba(30, 41, 59, 0.78);
+      color: #e2e8f0;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 0.81rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.16s ease;
+      flex: 1 1 auto;
+      text-align: center;
+      min-height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    .btn:hover {
+      background: rgba(51, 65, 85, 0.9);
+      border-color: rgba(148, 163, 184, 0.45);
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn.active {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.28), rgba(2, 132, 199, 0.38));
+      border-color: #38bdf8;
+      color: #ffffff;
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.25);
+    }
+
+    .btn.warn-active {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.28), rgba(180, 83, 9, 0.38));
+      border-color: #f59e0b;
+      color: #ffffff;
+    }
+
+    /* Side Panel */
+    .side-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .panel-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 15px 16px;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    .panel-title {
+      margin: 0 0 11px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .panel-title span.tag {
+      font-size: 0.73rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .toggle-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .slider-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 10px;
+      font-size: 0.82rem;
+      color: #cbd5e1;
+    }
+
+    .slider-row input[type="range"] {
+      flex: 1;
+      accent-color: #38bdf8;
+    }
+
+    /* Stats / Exam Key Points */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 9px;
+      margin-bottom: 12px;
+    }
+
+    .stat-box {
+      background: rgba(15, 23, 42, 0.68);
+      border: 1px solid rgba(148, 163, 184, 0.16);
+      border-radius: var(--radius-md);
+      padding: 10px 11px;
+    }
+
+    .stat-label {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 0.96rem;
+      font-weight: 700;
+      color: #f8fafc;
+    }
+
+    .stat-sub {
+      font-size: 0.73rem;
+      color: #94a3b8;
+      margin-top: 3px;
+    }
+
+    .knowledge-list {
+      margin: 0;
+      padding-left: 17px;
+      font-size: 0.83rem;
+      line-height: 1.65;
+      color: #cbd5e1;
+    }
+
+    .knowledge-list li {
+      margin-bottom: 5px;
+    }
+
+    .knowledge-list strong {
+      color: #f8fafc;
+    }
+
+    .highlight-cyan {
+      color: #7dd3fc;
+      font-weight: 600;
+    }
+
+    .highlight-amber {
+      color: #fcd34d;
+      font-weight: 600;
+    }
+
+    .atom-node {
+      cursor: pointer;
+      transition: filter 0.15s ease;
+    }
+
+    .atom-node:hover {
+      filter: brightness(1.18);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Top Header -->
+    <header class="top-bar">
+      <div class="brand-title">
+        <span class="badge-formula">β-SiC · 金刚石型共价晶体</span>
+        <div>
+          <h1>碳化硅 (SiC) 晶胞 3D 交互 SVG 演示</h1>
+          <div class="subtitle">立方碳化硅（闪锌矿型结构）· 支持手机单指旋转 / 点击原子查看均摊与坐标</div>
+        </div>
+      </div>
+      <div class="legend-pills" id="legendBox">
+        <span class="pill"><i class="dot dot-si"></i><span id="legendOuter">Si 原子（顶点8 + 面心6）</span></span>
+        <span class="pill"><i class="dot dot-c"></i><span id="legendInner">C 原子（体内4个四面体空隙）</span></span>
+      </div>
+    </header>
+
+    <!-- Left / Main Interactive SVG Stage -->
+    <section class="stage-card">
+      <div class="stage-overlay-top">
+        <div class="hint-chip">👆 拖动旋转 · 点击任意球体查看位置与均摊</div>
+        <div class="angle-readout" id="angleReadout">视角: 24° / -28°</div>
+      </div>
+
+      <div class="svg-container" id="svgStage">
+        <svg id="crystalSvg" viewBox="-320 -290 640 580" xmlns="http://www.w3.org/2000/svg" aria-label="碳化硅晶胞交互SVG">
+          <defs>
+            <!-- 3D Sphere Gradients for Si (Cyan/Blue) -->
+            <radialGradient id="gradSi" cx="32%" cy="28%" r="68%">
+              <stop offset="0%" stop-color="#e0f2fe" />
+              <stop offset="28%" stop-color="#38bdf8" />
+              <stop offset="72%" stop-color="#0284c7" />
+              <stop offset="100%" stop-color="#082f49" />
+            </radialGradient>
+
+            <!-- 3D Sphere Gradients for C (Amber/Gold) -->
+            <radialGradient id="gradC" cx="32%" cy="28%" r="68%">
+              <stop offset="0%" stop-color="#fef3c7" />
+              <stop offset="30%" stop-color="#f59e0b" />
+              <stop offset="75%" stop-color="#b45309" />
+              <stop offset="100%" stop-color="#451a03" />
+            </radialGradient>
+
+            <!-- Selected Halo Glow -->
+            <filter id="glowFilter" x="-40%" y="-40%" width="180%" height="180%">
+              <feGaussianBlur stdDeviation="5" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+
+          <g id="sceneRoot"></g>
+        </svg>
+      </div>
+
+      <!-- Selected Atom Inspector -->
+      <div class="atom-inspector" id="atomInspector">
+        <div class="inspector-main">
+          <span class="atom-tag c" id="inspBadge">C 原子 #15</span>
+          <strong id="inspRole">体内正四面体中心（左前下 1/8 小立方体）</strong>
+        </div>
+        <div>
+          分数坐标: <span class="coord-code" id="inspCoord">(1/4, 1/4, 1/4)</span>
+          &nbsp;|&nbsp; 晶胞均摊: <span class="coord-code" id="inspShare">1 × 1 = 1</span>
+        </div>
+      </div>
+
+      <!-- Preset Camera Angles -->
+      <div class="quick-toolbar">
+        <button class="btn active" data-Preset="iso">📐 标准等轴视图</button>
+        <button class="btn" data-Preset="front">🟦 正视图 (XY投影)</button>
+        <button class="btn" data-Preset="top">🟨 俯视图 (XZ投影)</button>
+        <button class="btn" data-Preset="diag">💎 体对角线 [111]</button>
+        <button class="btn" id="btnAutoRotate">🔄 自动旋转: 关</button>
+      </div>
+    </section>
+
+    <!-- Right / Controls & High-School Chemistry Summary -->
+    <aside class="side-panel">
+      <!-- Structure Toggles -->
+      <div class="panel-card">
+        <h2 class="panel-title">
+          <span>🛠️ 晶胞结构拆解与辅助线</span>
+          <span class="tag">点击切换显示</span>
+        </h2>
+        <div class="toggle-grid">
+          <button class="btn active" id="toggleBonds">🔗 Si—C 共价键 (16)</button>
+          <button class="btn active" id="toggleTetra">🔺 正四面体构型</button>
+          <button class="btn" id="toggleOctants">🧊 8个小立方体分割</button>
+          <button class="btn" id="toggleBodyDiag">📏 体对角线 (√3a)</button>
+          <button class="btn" id="toggleLabels">🏷️ 原子编号/符号</button>
+          <button class="btn" id="toggleSwap">🔁 互换 Si / C 位置</button>
+        </div>
+
+        <div class="slider-row">
+          <span>图形缩放</span>
+          <input type="range" id="zoomSlider" min="0.7" max="1.45" step="0.02" value="1.0" />
+          <span id="zoomVal">100%</span>
+        </div>
+        <div class="slider-row">
+          <span>原子半径比例</span>
+          <input type="range" id="sizeSlider" min="0.65" max="1.35" step="0.05" value="1.0" />
+          <span id="sizeVal">标准</span>
+        </div>
+      </div>
+
+      <!-- Core Chemistry Data Card -->
+      <div class="panel-card">
+        <h2 class="panel-title">
+          <span>📊 高中化学核心考点速查</span>
+          <span class="tag">人教版 / 沪教版选修</span>
+        </h2>
+
+        <div class="stat-grid">
+          <div class="stat-box">
+            <div class="stat-label">晶胞含原子数（均摊法）</div>
+            <div class="stat-value"><span class="highlight-cyan">4 个 Si</span> + <span class="highlight-amber">4 个 C</span></div>
+            <div class="stat-sub">8×(1/8) + 6×(1/2) = 4；体内 4×1 = 4</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">杂化方式与键角</div>
+            <div class="stat-value">sp³ 杂化 · 109°28′</div>
+            <div class="stat-sub">Si 与 C 配位数均为 4</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Si—C 键长与晶胞参数 a</div>
+            <div class="stat-value">d = (√3 / 4) a</div>
+            <div class="stat-sub">等于体对角线 √3a 的 1/4</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">晶胞密度公式 (g·cm⁻³)</div>
+            <div class="stat-value">ρ = 160 / (Nₐ·a³)</div>
+            <div class="stat-sub">4 × M(SiC) = 4 × 40 = 160</div>
+          </div>
+        </div>
+
+        <ul class="knowledge-list">
+          <li><strong>8个小立方体规律：</strong>将晶胞等分为 8 个小立方体，4 个体内原子交错处于其中 <strong>4 个互不相邻</strong> 的小立方体中心（正四面体空隙，填充率 50%）。</li>
+          <li><strong>最小环规则：</strong>晶体中由 Si 和 C 交替构成的最小环为 <strong>6 元环</strong>（含 3 个 Si 原子、3 个 C 原子），每个原子被 12 个六元环共用，每个共价键被 6 个六元环共用。</li>
+          <li><strong>等价表述：</strong>将顶点/面心画为 Si、体内画为 C，或将顶点/面心画为 C、体内画为 Si，完全等价（可点击上方「互换 Si / C 位置」演示）。</li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    (function () {
+      const svgStage = document.getElementById('svgStage');
+      const sceneRoot = document.getElementById('sceneRoot');
+      const angleReadout = document.getElementById('angleReadout');
+
+      // State
+      const state = {
+        rotX: 22 * Math.PI / 180,
+        rotY: -32 * Math.PI / 180,
+        zoom: 1.0,
+        atomScale: 1.0,
+        showBonds: true,
+        showTetra: true,
+        showOctants: false,
+        showBodyDiag: false,
+        showLabels: false,
+        swapSiC: false,
+        autoRotate: false,
+        selectedAtomId: 14 // Default selects the first tetrahedral interior atom (1/4, 1/4, 1/4)
+      };
+
+      // Build canonical unit cell coordinates in [0, 1]^3
+      // 0..7: 8 Corners
+      // 8..13: 6 Face Centers
+      // 14..17: 4 Interior Tetrahedral Centers
+      const rawAtoms = [
+        // 8 Corners
+        { id: 0, x: 0, y: 0, z: 0, role: '顶点 (Corner)', share: '8 × (1/8) = 1（单原子贡献 1/8）', group: 'outer', frac: '(0, 0, 0)' },
+        { id: 1, x: 1, y: 0, z: 0, role: '顶点 (Corner)', share: '8 × (1/8) = 1（单原子贡献 1/8）', group: 'outer', frac: '(1, 0, 0)' },
+        { id: 2, x: 0, y: 1, z: 0, role: '顶点 (Corner)', share: '8 × (1/8) = 1（单原子贡献 1/8）', group: 'outer', frac: '(0, 1, 0)' },
+        { id: 3, x: 1, y: 1, z: 0, role: '顶点 (Corner)', share: '8 × (1/8) = 1（单原子贡献 1/8）', group: 'outer', frac: '(1, 1, 0)' },
+        { id: 4, x: 0, y: 0, z: 1, role: '顶点 (Corner)', share: '8 × (1/8) = 1（单原子贡献 1/8）', group: 'outer', frac: '(0, 0, 1)' },
+        { id: 5, x: 1, y: 0, z: 1, role: '顶点 (Corner)', share: '8 × (1/8) = 1（单原子贡献 1/8）', group: 'outer', frac: '(1, 0, 1)' },
+        { id: 6, x: 0, y: 1, z: 1, role: '顶点 (Corner)', share: '8 × (1/8) = 1（单原子贡献 1/8）', group: 'outer', frac: '(0, 1, 1)' },
+        { id: 7, x: 1, y: 1, z: 1, role: '顶点 (Corner)', share: '8 × (1/8) = 1（单原子贡献 1/8）', group: 'outer', frac: '(1, 1, 1)' },
+
+        // 6 Face Centers
+        { id: 8,  x: 0.5, y: 0.5, z: 0,   role: '下底面面心 (Face Center)', share: '6 × (1/2) = 3（单原子贡献 1/2）', group: 'outer', frac: '(1/2, 1/2, 0)' },
+        { id: 9,  x: 0.5, y: 0.5, z: 1,   role: '上顶面面心 (Face Center)', share: '6 × (1/2) = 3（单原子贡献 1/2）', group: 'outer', frac: '(1/2, 1/2, 1)' },
+        { id: 10, x: 0.5, y: 0,   z: 0.5, role: '前侧面面心 (Face Center)', share: '6 × (1/2) = 3（单原子贡献 1/2）', group: 'outer', frac: '(1/2, 0, 1/2)' },
+        { id: 11, x: 0.5, y: 1,   z: 0.5, role: '后侧面面心 (Face Center)', share: '6 × (1/2) = 3（单原子贡献 1/2）', group: 'outer', frac: '(1/2, 1, 1/2)' },
+        { id: 12, x: 0,   y: 0.5, z: 0.5, role: '左侧面面心 (Face Center)', share: '6 × (1/2) = 3（单原子贡献 1/2）', group: 'outer', frac: '(0, 1/2, 1/2)' },
+        { id: 13, x: 1,   y: 0.5, z: 0.5, role: '右侧面面心 (Face Center)', share: '6 × (1/2) = 3（单原子贡献 1/2）', group: 'outer', frac: '(1, 1/2, 1/2)' },
+
+        // 4 Interior Tetrahedral Sites
+        { id: 14, x: 0.25, y: 0.25, z: 0.25, role: '体内四面体中心（前左下 1/8 小立方体）', share: '4 × 1 = 4（单原子完全属于该晶胞）', group: 'inner', frac: '(1/4, 1/4, 1/4)' },
+        { id: 15, x: 0.75, y: 0.75, z: 0.25, role: '体内四面体中心（后右下 1/8 小立方体）', share: '4 × 1 = 4（单原子完全属于该晶胞）', group: 'inner', frac: '(3/4, 3/4, 1/4)' },
+        { id: 16, x: 0.75, y: 0.25, z: 0.75, role: '体内四面体中心（前右上 1/8 小立方体）', share: '4 × 1 = 4（单原子完全属于该晶胞）', group: 'inner', frac: '(3/4, 1/4, 3/4)' },
+        { id: 17, x: 0.25, y: 0.75, z: 0.75, role: '体内四面体中心（后左上 1/8 小立方体）', share: '4 × 1 = 4（单原子完全属于该晶胞）', group: 'inner', frac: '(1/4, 3/4, 3/4)' }
+      ];
+
+      // Compute all 16 covalent bonds (distance = sqrt(3)/4 ≈ 0.43301)
+      const bonds = [];
+      const tetraNeighbors = {};
+      for (let i = 14; i <= 17; i++) {
+        tetraNeighbors[i] = [];
+        const a = rawAtoms[i];
+        for (let j = 0; j < 14; j++) {
+          const b = rawAtoms[j];
+          const dist2 = (a.x - b.x) ** 2 + (a.y - b.y) ** 2 + (a.z - b.z) ** 2;
+          if (Math.abs(dist2 - 3 / 16) < 0.001) {
+            bonds.push([i, j]);
+            tetraNeighbors[i].push(j);
+          }
+        }
+      }
+
+      // 12 Outer cube edges
+      const cubeCorners = [
+        [0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0],
+        [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]
+      ];
+      const cubeEdgePairs = [
+        [0,1], [2,3], [4,5], [6,7],
+        [0,2], [1,3], [4,6], [5,7],
+        [0,4], [1,5], [2,6], [3,7]
+      ];
+
+      // Mid-plane subdivision lines for 8 octants
+      const octantSegments = [
+        // XY midlines (z = 0, 0.5, 1)
+        [[0.5,0,0],[0.5,1,0]], [[0,0.5,0],[1,0.5,0]],
+        [[0.5,0,1],[0.5,1,1]], [[0,0.5,1],[1,0.5,1]],
+        [[0.5,0,0.5],[0.5,1,0.5]], [[0,0.5,0.5],[1,0.5,0.5]],
+        // XZ midlines
+        [[0,0,0.5],[1,0,0.5]], [[0,1,0.5],[1,1,0.5]],
+        [[0.5,0,0],[0.5,0,1]], [[0.5,1,0],[0.5,1,1]],
+        // YZ midlines
+        [[0,0,0.5],[0,1,0.5]], [[1,0,0.5],[1,1,0.5]],
+        [[0,0.5,0],[0,0.5,1]], [[1,0.5,0],[1,0.5,1]],
+        // 3 Central axes meeting at (0.5,0.5,0.5)
+        [[0.5,0.5,0],[0.5,0.5,1]]
+      ];
+
+      // 3D -> 2D Projection
+      // Crystallographic coordinates: x (right), y (depth back), z (up)
+      function projectPoint(x, y, z) {
+        const S = 260 * state.zoom;
+        // Center [0,1]^3 at origin [-0.5, 0.5]^3
+        const cx = x - 0.5;
+        const cy = -(z - 0.5); // screen Y is down, crystal Z is up
+        const cz = y - 0.5;
+
+        // Rotate around Y axis (yaw)
+        const cosY = Math.cos(state.rotY);
+        const sinY = Math.sin(state.rotY);
+        const x1 = cx * cosY + cz * sinY;
+        const z1 = -cx * sinY + cz * cosY;
+
+        // Rotate around X axis (pitch)
+        const cosX = Math.cos(state.rotX);
+        const sinX = Math.sin(state.rotX);
+        const y2 = cy * cosX - z1 * sinX;
+        const z2 = cy * sinX + z1 * cosX;
+
+        // Subtle perspective
+        const fov = 4.2;
+        const persp = fov / (fov + z2);
+
+        return {
+          px: x1 * S * persp,
+          py: y2 * S * persp,
+          depth: z2, // smaller z2 is closer to viewer
+          scale: persp
+        };
+      }
+
+      function getElementInfo(atom) {
+        const isSi = state.swapSiC ? (atom.group === 'inner') : (atom.group === 'outer');
+        return isSi
+          ? { symbol: 'Si', name: 'Si 原子', grad: 'url(#gradSi)', radius: 17.5, badgeClass: 'si', stroke: '#bae6fd' }
+          : { symbol: 'C',  name: 'C 原子',  grad: 'url(#gradC)',  radius: 13.5, badgeClass: 'c',  stroke: '#fde68a' };
+      }
+
+      function updateInspector() {
+        const atom = rawAtoms[state.selectedAtomId];
+        const info = getElementInfo(atom);
+        const badge = document.getElementById('inspBadge');
+        badge.className = 'atom-tag ' + info.badgeClass;
+        badge.textContent = `${info.symbol} 原子 #${atom.id + 1}`;
+        document.getElementById('inspRole').textContent = atom.role;
+        document.getElementById('inspCoord').textContent = atom.frac;
+        document.getElementById('inspShare').textContent = atom.share;
+
+        // Update top legend text
+        document.getElementById('legendOuter').textContent = state.swapSiC
+          ? 'C 原子（顶点8 + 面心6 = 4）'
+          : 'Si 原子（顶点8 + 面心6 = 4）';
+        document.getElementById('legendInner').textContent = state.swapSiC
+          ? 'Si 原子（体内4个四面体空隙 = 4）'
+          : 'C 原子（体内4个四面体空隙 = 4）';
+      }
+
+      function renderScene() {
+        const renderQueue = [];
+
+        // 1. Cube wireframe edges
+        const projectedCorners = cubeCorners.map(c => projectPoint(c[0], c[1], c[2]));
+        cubeEdgePairs.forEach(([i, j]) => {
+          const p1 = projectedCorners[i];
+          const p2 = projectedCorners[j];
+          const avgDepth = (p1.depth + p2.depth) / 2;
+          renderQueue.push({
+            depth: avgDepth,
+            type: 'edge',
+            svg: `<line x1="${p1.px.toFixed(1)}" y1="${p1.py.toFixed(1)}" x2="${p2.px.toFixed(1)}" y2="${p2.py.toFixed(1)}"
+                    stroke="${avgDepth > 0 ? 'rgba(148,163,184,0.28)' : 'rgba(226,232,240,0.62)'}"
+                    stroke-width="${avgDepth > 0 ? 1.4 : 2.1}"
+                    stroke-dasharray="${avgDepth > 0 ? '5,4' : 'none'}" />`
+          });
+        });
+
+        // 2. Optional 8-octant subdivision lines
+        if (state.showOctants) {
+          octantSegments.forEach(([a, b]) => {
+            const p1 = projectPoint(a[0], a[1], a[2]);
+            const p2 = projectPoint(b[0], b[1], b[2]);
+            renderQueue.push({
+              depth: (p1.depth + p2.depth) / 2,
+              type: 'octant',
+              svg: `<line x1="${p1.px.toFixed(1)}" y1="${p1.py.toFixed(1)}" x2="${p2.px.toFixed(1)}" y2="${p2.py.toFixed(1)}"
+                      stroke="rgba(56, 189, 248, 0.34)" stroke-width="1.2" stroke-dasharray="3,3" />`
+            });
+          });
+        }
+
+        // 3. Optional Body Diagonal (0,0,0) -> (1,1,1) showing d = sqrt(3)/4 a
+        if (state.showBodyDiag) {
+          const d0 = projectPoint(0, 0, 0);
+          const d1 = projectPoint(1, 1, 1);
+          const dm = projectPoint(0.25, 0.25, 0.25);
+          renderQueue.push({
+            depth: -0.05,
+            type: 'diag',
+            svg: `
+              <line x1="${d0.px.toFixed(1)}" y1="${d0.py.toFixed(1)}" x2="${d1.px.toFixed(1)}" y2="${d1.py.toFixed(1)}"
+                stroke="#f43f5e" stroke-width="2.5" stroke-dasharray="7,4" />
+              <text x="${((d0.px + dm.px) / 2 + 12).toFixed(1)}" y="${((d0.py + dm.py) / 2 - 8).toFixed(1)}"
+                fill="#fda4af" font-size="12" font-weight="700">d = √3a / 4</text>
+              <text x="${((d0.px + d1.px) / 2 + 14).toFixed(1)}" y="${((d0.py + d1.py) / 2 + 6).toFixed(1)}"
+                fill="#fb7185" font-size="12" font-weight="700">体对角线 = √3a</text>
+            `
+          });
+        }
+
+        // Project all 18 atoms
+        const projAtoms = rawAtoms.map(a => ({
+          ...a,
+          ...projectPoint(a.x, a.y, a.z)
+        }));
+
+        // 4. Optional Tetrahedral Cage around active interior atom (or atom #14 if an outer atom is selected)
+        if (state.showTetra) {
+          const activeTetraId = (state.selectedAtomId >= 14) ? state.selectedAtomId : 14;
+          const vIds = tetraNeighbors[activeTetraId];
+          const verts = vIds.map(id => projAtoms[id]);
+          const faces = [
+            [0, 1, 2],
+            [0, 1, 3],
+            [0, 2, 3],
+            [1, 2, 3]
+          ];
+          faces.forEach(f => {
+            const pA = verts[f[0]], pB = verts[f[1]], pC = verts[f[2]];
+            const avgDepth = (pA.depth + pB.depth + pC.depth) / 3;
+            renderQueue.push({
+              depth: avgDepth + 0.02,
+              type: 'tetraFace',
+              svg: `<polygon points="${pA.px.toFixed(1)},${pA.py.toFixed(1)} ${pB.px.toFixed(1)},${pB.py.toFixed(1)} ${pC.px.toFixed(1)},${pC.py.toFixed(1)}"
+                      fill="rgba(245, 158, 11, 0.16)" stroke="rgba(251, 191, 36, 0.78)" stroke-width="1.6" stroke-linejoin="round" />`
+            });
+          });
+        }
+
+        // 5. Covalent Si-C Bonds (split into two halves for accurate 3D depth sorting with spheres)
+        if (state.showBonds) {
+          bonds.forEach(([idA, idB]) => {
+            const a = projAtoms[idA];
+            const b = projAtoms[idB];
+            const mx = (a.px + b.px) / 2;
+            const my = (a.py + b.py) / 2;
+            const mDepth = (a.depth + b.depth) / 2;
+            const isHighlighted = (state.selectedAtomId === idA || state.selectedAtomId === idB);
+            const strokeColor = isHighlighted ? '#fde047' : 'rgba(226, 232, 240, 0.85)';
+            const strokeW = (isHighlighted ? 5.2 : 3.8) * ((a.scale + b.scale) / 2);
+
+            renderQueue.push({
+              depth: (a.depth + mDepth) / 2,
+              type: 'bond',
+              svg: `<line x1="${a.px.toFixed(1)}" y1="${a.py.toFixed(1)}" x2="${mx.toFixed(1)}" y2="${my.toFixed(1)}"
+                      stroke="${strokeColor}" stroke-width="${strokeW.toFixed(1)}" stroke-linecap="round" />`
+            });
+            renderQueue.push({
+              depth: (b.depth + mDepth) / 2,
+              type: 'bond',
+              svg: `<line x1="${mx.toFixed(1)}" y1="${my.toFixed(1)}" x2="${b.px.toFixed(1)}" y2="${b.py.toFixed(1)}"
+                      stroke="${strokeColor}" stroke-width="${strokeW.toFixed(1)}" stroke-linecap="round" />`
+            });
+          });
+        }
+
+        // 6. Atoms (Spheres)
+        projAtoms.forEach(atom => {
+          const info = getElementInfo(atom);
+          const r = info.radius * state.atomScale * atom.scale * state.zoom;
+          const isSelected = atom.id === state.selectedAtomId;
+          const depthOpacity = atom.depth > 0.35 ? 0.82 : 1.0;
+
+          let labelSvg = '';
+          if (state.showLabels || isSelected) {
+            labelSvg = `<text x="${atom.px.toFixed(1)}" y="${(atom.py + 4).toFixed(1)}"
+                          text-anchor="middle" fill="#ffffff" font-size="${Math.max(10, r * 0.68).toFixed(1)}"
+                          font-weight="700" pointer-events="none" style="text-shadow: 0 1px 3px rgba(0,0,0,0.9);">
+                          ${info.symbol}
+                        </text>`;
+          }
+
+          const haloSvg = isSelected
+            ? `<circle cx="${atom.px.toFixed(1)}" cy="${atom.py.toFixed(1)}" r="${(r + 5.5).toFixed(1)}"
+                 fill="none" stroke="#fde047" stroke-width="2.6" filter="url(#glowFilter)" />`
+            : '';
+
+          renderQueue.push({
+            depth: atom.depth,
+            type: 'atom',
+            svg: `<g class="atom-node" data-atom-id="${atom.id}" opacity="${depthOpacity}">
+                    ${haloSvg}
+                    <circle cx="${atom.px.toFixed(1)}" cy="${atom.py.toFixed(1)}" r="${r.toFixed(1)}"
+                      fill="${info.grad}" stroke="${isSelected ? '#fef08a' : 'rgba(255,255,255,0.28)'}"
+                      stroke-width="${isSelected ? 2.2 : 1.0}" />
+                    ${labelSvg}
+                  </g>`
+          });
+        });
+
+        // Painter's Algorithm: sort back-to-front (largest depth first)
+        renderQueue.sort((a, b) => b.depth - a.depth);
+
+        // Update SVG DOM
+        sceneRoot.innerHTML = renderQueue.map(item => item.svg).join('');
+
+        // Update angle readout
+        const degX = Math.round((state.rotX * 180) / Math.PI);
+        const degY = Math.round(((state.rotY * 180) / Math.PI) % 360);
+        angleReadout.textContent = `视角: ${degX}° / ${degY}°`;
+      }
+
+      // Click / Tap on Atom
+      sceneRoot.addEventListener('click', (e) => {
+        const node = e.target.closest('.atom-node');
+        if (!node) return;
+        const id = parseInt(node.getAttribute('data-atom-id'), 10);
+        if (!isNaN(id)) {
+          state.selectedAtomId = id;
+          updateInspector();
+          renderScene();
+        }
+      });
+
+      // Pointer / Touch Drag Rotation & Pinch Zoom
+      let isDragging = false;
+      let startX = 0;
+      let startY = 0;
+      let movedDist = 0;
+      let initialPinchDist = null;
+      let initialZoom = 1.0;
+
+      svgStage.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        movedDist = 0;
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        movedDist += Math.hypot(dx, dy);
+        startX = e.clientX;
+        startY = e.clientY;
+        state.rotY += dx * 0.0085;
+        state.rotX = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, state.rotX + dy * 0.0085));
+        clearPresetHighlight();
+        renderScene();
+      });
+
+      window.addEventListener('mouseup', () => {
+        isDragging = false;
+      });
+
+      // Touch support (1-finger rotate, 2-finger pinch zoom)
+      svgStage.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {
+          isDragging = true;
+          startX = e.touches[0].clientX;
+          startY = e.touches[0].clientY;
+          movedDist = 0;
+        } else if (e.touches.length === 2) {
+          isDragging = false;
+          initialPinchDist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          );
+          initialZoom = state.zoom;
+        }
+      }, { passive: true });
+
+      svgStage.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 1 && isDragging) {
+          e.preventDefault();
+          const dx = e.touches[0].clientX - startX;
+          const dy = e.touches[0].clientY - startY;
+          startX = e.touches[0].clientX;
+          startY = e.touches[0].clientY;
+          state.rotY += dx * 0.0095;
+          state.rotX = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, state.rotX + dy * 0.0095));
+          clearPresetHighlight();
+          renderScene();
+        } else if (e.touches.length === 2 && initialPinchDist) {
+          e.preventDefault();
+          const dist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          );
+          const ratio = dist / initialPinchDist;
+          state.zoom = Math.max(0.7, Math.min(1.45, initialZoom * ratio));
+          document.getElementById('zoomSlider').value = state.zoom.toFixed(2);
+          document.getElementById('zoomVal').textContent = `${Math.round(state.zoom * 100)}%`;
+          renderScene();
+        }
+      }, { passive: false });
+
+      svgStage.addEventListener('touchend', () => {
+        isDragging = false;
+        initialPinchDist = null;
+      });
+
+      // Preset Camera Views
+      const presetButtons = document.querySelectorAll('[data-Preset]');
+      function clearPresetHighlight() {
+        presetButtons.forEach(b => b.classList.remove('active'));
+      }
+
+      presetButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          clearPresetHighlight();
+          btn.classList.add('active');
+          const mode = btn.getAttribute('data-Preset');
+          if (mode === 'iso') {
+            state.rotX = 22 * Math.PI / 180;
+            state.rotY = -32 * Math.PI / 180;
+          } else if (mode === 'front') {
+            state.rotX = 0;
+            state.rotY = 0;
+          } else if (mode === 'top') {
+            state.rotX = Math.PI / 2;
+            state.rotY = 0;
+          } else if (mode === 'diag') {
+            // [111] body diagonal alignment
+            state.rotY = -Math.PI / 4;
+            state.rotX = Math.atan(1 / Math.sqrt(2));
+          }
+          renderScene();
+        });
+      });
+
+      // Auto-rotate loop
+      const btnAutoRotate = document.getElementById('btnAutoRotate');
+      btnAutoRotate.addEventListener('click', () => {
+        state.autoRotate = !state.autoRotate;
+        btnAutoRotate.classList.toggle('active', state.autoRotate);
+        btnAutoRotate.textContent = state.autoRotate ? '🔄 自动旋转: 开' : '🔄 自动旋转: 关';
+      });
+
+      function animate() {
+        if (state.autoRotate && !isDragging) {
+          state.rotY += 0.006;
+          renderScene();
+        }
+        requestAnimationFrame(animate);
+      }
+
+      // Feature Toggles
+      function bindToggle(id, prop, activeClass = 'active', callback) {
+        const el = document.getElementById(id);
+        el.addEventListener('click', () => {
+          state[prop] = !state[prop];
+          el.classList.toggle(activeClass, state[prop]);
+          if (callback) callback();
+          renderScene();
+        });
+      }
+
+      bindToggle('toggleBonds', 'showBonds');
+      bindToggle('toggleTetra', 'showTetra');
+      bindToggle('toggleOctants', 'showOctants');
+      bindToggle('toggleBodyDiag', 'showBodyDiag');
+      bindToggle('toggleLabels', 'showLabels');
+      bindToggle('toggleSwap', 'swapSiC', 'warn-active', updateInspector);
+
+      // Sliders
+      const zoomSlider = document.getElementById('zoomSlider');
+      zoomSlider.addEventListener('input', (e) => {
+        state.zoom = parseFloat(e.target.value);
+        document.getElementById('zoomVal').textContent = `${Math.round(state.zoom * 100)}%`;
+        renderScene();
+      });
+
+      const sizeSlider = document.getElementById('sizeSlider');
+      sizeSlider.addEventListener('input', (e) => {
+        state.atomScale = parseFloat(e.target.value);
+        document.getElementById('sizeVal').textContent = `${Math.round(state.atomScale * 100)}%`;
+        renderScene();
+      });
+
+      // Initial render
+      updateInspector();
+      renderScene();
+      requestAnimationFrame(animate);
+    })();
+  </script>
+</body>
+</html>

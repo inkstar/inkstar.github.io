@@ -58,6 +58,7 @@
     * [概率论、数理统计与随机变量分布](blog/highschool-probability-statistics-guide.md)
 
 * **💻 可视化教学交互页面**
+  * <a href="projects/sic-crystal-cell.html" target="_blank" rel="noopener">碳化硅 (SiC) 晶胞 3D 交互演示 ↗</a>
   * <a href="projects/cube-sections/" target="_blank" rel="noopener">正方体截面交互实验室 ↗</a>
   * <a href="projects/uniform-linear-motion.html" target="_blank" rel="noopener">物理·匀变速直线运动实验室 ↗</a>
   * <a href="projects/vector-lighting.html" target="_blank" rel="noopener">向量数量积与 3D 光照实验室 ↗</a>
