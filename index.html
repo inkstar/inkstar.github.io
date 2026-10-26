@@ -29,7 +29,7 @@
   <link rel="preconnect" href="https://utteranc.es" crossorigin>
   <link rel="dns-prefetch" href="https://api.github.com">
 
-  <link rel="stylesheet" href="css/vendor/vue.css">
+  <link rel="stylesheet" href="css/vue.css">
   <style>
     :root {
       --theme-color: #42b983; /* 经典的 Vue 绿主题 */
@@ -3060,17 +3060,17 @@
   </script>
 
   <!-- Docsify 核心与常用扩展（同源本地加载，避免国内移动网络 jsDelivr/Google Fonts 阻塞白屏） -->
-  <script src="js/vendor/docsify.min.js"></script>
-  <script src="js/vendor/search.min.js"></script>
-  <script src="js/vendor/zoom-image.min.js"></script>
-  <script src="js/vendor/docsify-copy-code.min.js"></script>
+  <script src="js/docsify.min.js"></script>
+  <script src="js/search.min.js"></script>
+  <script src="js/zoom-image.min.js"></script>
+  <script src="js/docsify-copy-code.min.js"></script>
 
   <!-- MathJax 3（内置 SVG 字体，零外部字体请求）与 docsify-latex 插件 -->
-  <script src="js/vendor/tex-svg.js"></script>
-  <script src="js/vendor/docsify-latex.min.js"></script>
+  <script src="js/tex-svg.js"></script>
+  <script src="js/docsify-latex.min.js"></script>
 
   <!-- Mermaid 10 矢量排版引擎（异步加载不阻塞首屏渲染，同源优先 + 镜像兜底） -->
-  <script defer src="js/vendor/mermaid.min.js" onload="if(window.mermaid)window.mermaid.initialize({startOnLoad:false});" onerror="this.onerror=null;var s=document.createElement('script');s.src='https://s4.zstatic.net/npm/mermaid@10.9.3/dist/mermaid.min.js';s.onload=function(){if(window.mermaid)window.mermaid.initialize({startOnLoad:false});};document.head.appendChild(s);"></script>
+  <script defer src="js/mermaid.min.js" onload="if(window.mermaid)window.mermaid.initialize({startOnLoad:false});" onerror="this.onerror=null;var s=document.createElement('script');s.src='https://s4.zstatic.net/npm/mermaid@10.9.3/dist/mermaid.min.js';s.onload=function(){if(window.mermaid)window.mermaid.initialize({startOnLoad:false});};document.head.appendChild(s);"></script>
 
   <!-- 离线本地二维码生成核心引擎 -->
   <script src="js/qrcode.min.js"></script>
