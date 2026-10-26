@@ -29,7 +29,7 @@
   <link rel="preconnect" href="https://utteranc.es" crossorigin>
   <link rel="dns-prefetch" href="https://api.github.com">
 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
+  <link rel="stylesheet" href="css/vendor/vue.css">
   <style>
     :root {
       --theme-color: #42b983; /* 经典的 Vue 绿主题 */
@@ -3059,21 +3059,18 @@
     }
   </script>
 
-  <!-- Mermaid 10 矢量排版引擎（前置加载，自带多 CDN 灾备高可用兜底） -->
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.3/dist/mermaid.min.js" onerror="this.onerror=null;var s=document.createElement('script');s.src='https://unpkg.com/mermaid@10.9.3/dist/mermaid.min.js';document.head.appendChild(s);"></script>
-  <script>
-    if (window.mermaid) window.mermaid.initialize({ startOnLoad: false });
-  </script>
+  <!-- Docsify 核心与常用扩展（同源本地加载，避免国内移动网络 jsDelivr/Google Fonts 阻塞白屏） -->
+  <script src="js/vendor/docsify.min.js"></script>
+  <script src="js/vendor/search.min.js"></script>
+  <script src="js/vendor/zoom-image.min.js"></script>
+  <script src="js/vendor/docsify-copy-code.min.js"></script>
 
-  <!-- Docsify 核心与常用扩展 -->
-  <script src="https://cdn.jsdelivr.net/npm/docsify@4"></script>
-  <script src="https://cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/docsify-copy-code@2/dist/docsify-copy-code.min.js"></script>
+  <!-- MathJax 3（内置 SVG 字体，零外部字体请求）与 docsify-latex 插件 -->
+  <script src="js/vendor/tex-svg.js"></script>
+  <script src="js/vendor/docsify-latex.min.js"></script>
 
-  <!-- MathJax 3 与 docsify-latex 插件 -->
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/docsify-latex@0"></script>
+  <!-- Mermaid 10 矢量排版引擎（异步加载不阻塞首屏渲染，同源优先 + 镜像兜底） -->
+  <script defer src="js/vendor/mermaid.min.js" onload="if(window.mermaid)window.mermaid.initialize({startOnLoad:false});" onerror="this.onerror=null;var s=document.createElement('script');s.src='https://s4.zstatic.net/npm/mermaid@10.9.3/dist/mermaid.min.js';s.onload=function(){if(window.mermaid)window.mermaid.initialize({startOnLoad:false});};document.head.appendChild(s);"></script>
 
   <!-- 离线本地二维码生成核心引擎 -->
   <script src="js/qrcode.min.js"></script>
